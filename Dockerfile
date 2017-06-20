@@ -6,7 +6,7 @@ MAINTAINER KBase Developer
 # install line here, a git checkout to download code, or run any other
 # installation scripts.
 
-# RUN apt-get update
+RUN apt-get update && apt-get install -y sysstat
 
 # Here we install a python coverage tool and an
 # https library that is out of date in the base image.
@@ -23,9 +23,8 @@ RUN pip install cffi --upgrade \
 
 # download Cufflinks software and untar it
 ENV VERSION='2.2.1'
-ENV DEST=/kb/deployment/bin/cufflinks
-RUN cd /kb/dev_container/modules && \
-    mkdir cufflinks && cd cufflinks && \
+ENV DEST=/opt/cufflinks
+RUN cd /opt && \
     mkdir -p $DEST && \
     wget "http://cole-trapnell-lab.github.io/cufflinks/assets/downloads/cufflinks-${VERSION}.Linux_x86_64.tar.gz" && \
     tar -xzvf cufflinks-${VERSION}.Linux_x86_64.tar.gz && \
