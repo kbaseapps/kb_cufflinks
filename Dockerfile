@@ -21,6 +21,20 @@ RUN pip install cffi --upgrade \
     && pip install requests --upgrade \
     && pip install 'requests[security]' --upgrade
 
+# download StringTie software and untar it
+ENV VERSION='2.2.1'
+ENV DEST=/kb/deployment/bin/cufflinks
+RUN cd /kb/dev_container/modules && \
+    mkdir cufflinks && cd cufflinks && \
+    mkdir -p $DEST && \
+    wget "http://cole-trapnell-lab.github.io/cufflinks/assets/downloads/cufflinks-${VERSION}.Linux_x86_64.tar.gz" && \
+    tar -xzvf cufflinks-${VERSION}.Linux_x86_64.tar.gz && \
+    rm cufflinks-${VERSION}.Linux_x86_64.tar.gz && \
+    cd cufflinks-${VERSION}.Linux_x86_64 && \
+	#make
+	cp `find . -maxdepth 1 -perm -111 -type f` ${DEST} && \
+	cd ../ && \
+	rm -rf cufflinks-${VERSION}.Linux_x86_64
 # -----------------------------------------
 
 COPY ./ /kb/module
