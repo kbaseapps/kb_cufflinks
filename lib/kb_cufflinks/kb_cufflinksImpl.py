@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#BEGIN_HEADER
+# BEGIN_HEADER
 import os
 import logging
 import time
@@ -9,9 +9,9 @@ from core import handler_utils
 from biokbase.workspace.client import Workspace
 try:
     from biokbase.HandleService.Client import HandleService
-except:
+except BaseException:
     from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
-#END_HEADER
+# END_HEADER
 
 
 class kb_cufflinks:
@@ -23,72 +23,72 @@ class kb_cufflinks:
     A KBase module: kb_cufflinks
     '''
 
-    ######## WARNING FOR GEVENT USERS ####### noqa
+    # WARNING FOR GEVENT USERS ####### noqa
     # Since asynchronous IO can lead to methods - even the same method -
     # interrupting each other, you must be *very* careful when using global
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
-    ######################################### noqa
+    # noqa
     VERSION = "0.0.1"
     GIT_URL = "git@github.com:arfathpasha/kb_cufflinks.git"
     GIT_COMMIT_HASH = "b7c78214da9b2fc65d7f6830b9180c9204c4dc9f"
 
-    #BEGIN_CLASS_HEADER
-    #END_CLASS_HEADER
+    # BEGIN_CLASS_HEADER
+    # END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
     # be found
     def __init__(self, config):
-        #BEGIN_CONSTRUCTOR
-        print('>>>>>>>>>>>>>'+str(config))
+        # BEGIN_CONSTRUCTOR
+        print('>>>>>>>>>>>>>' + str(config))
         if 'auth-service-url' in config:
-              self.__AUTH_SERVICE_URL = config['auth-service-url']
+            self.__AUTH_SERVICE_URL = config['auth-service-url']
         if 'max_cores' in config:
-              self.__MAX_CORES= int(config['max_cores'])
+            self.__MAX_CORES = int(config['max_cores'])
         if 'workspace-url' in config:
-              self.__WS_URL = config['workspace-url']
+            self.__WS_URL = config['workspace-url']
         if 'shock-url' in config:
-              self.__SHOCK_URL = config['shock-url']
+            self.__SHOCK_URL = config['shock-url']
         if 'handle-service-url' in config:
-              self.__HS_URL = config['handle-service-url']
+            self.__HS_URL = config['handle-service-url']
         if 'temp_dir' in config:
-              self.__TEMP_DIR = config['temp_dir']
+            self.__TEMP_DIR = config['temp_dir']
         if 'scratch' in config:
-              self.__SCRATCH= config['scratch']
-              #print self.__SCRATCH
+            self.__SCRATCH = config['scratch']
+            # print self.__SCRATCH
         if 'svc_user' in config:
-              self.__SVC_USER = config['svc_user']
+            self.__SVC_USER = config['svc_user']
         if 'svc_pass' in config:
-              self.__SVC_PASS = config['svc_pass']
+            self.__SVC_PASS = config['svc_pass']
         if 'scripts_dir' in config:
-              self.__SCRIPTS_DIR = config['scripts_dir']
-        #if 'rscripts' in config:
+            self.__SCRIPTS_DIR = config['scripts_dir']
+        # if 'rscripts' in config:
         #      self.__RSCRIPTS_DIR = config['rscripts_dir']
-        if 'force_shock_node_2b_public' in config: # expect 'true' or 'false' string
-              self.__PUBLIC_SHOCK_NODE = config['force_shock_node_2b_public']
+        if 'force_shock_node_2b_public' in config:  # expect 'true' or 'false' string
+            self.__PUBLIC_SHOCK_NODE = config['force_shock_node_2b_public']
         self.__CALLBACK_URL = os.environ['SDK_CALLBACK_URL']
 
-        self.__SERVICES = { 'workspace_service_url' : self.__WS_URL,
-                            'shock_service_url'     : self.__SHOCK_URL,
-                            'handle_service_url'    : self.__HS_URL,
-                            'callback_url'          : self.__CALLBACK_URL }
+        self.__SERVICES = {'workspace_service_url': self.__WS_URL,
+                           'shock_service_url': self.__SHOCK_URL,
+                           'handle_service_url': self.__HS_URL,
+                           'callback_url': self.__CALLBACK_URL}
         # logging
         self.__LOGGER = logging.getLogger('KBaseRNASeq')
         if 'log_level' in config:
-              self.__LOGGER.setLevel(config['log_level'])
+            self.__LOGGER.setLevel(config['log_level'])
         else:
-              self.__LOGGER.setLevel(logging.INFO)
+            self.__LOGGER.setLevel(logging.INFO)
         streamHandler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter("%(asctime)s - %(filename)s - %(lineno)d - %(levelname)s - %(message)s")
+        formatter = logging.Formatter(
+            "%(asctime)s - %(filename)s - %(lineno)d - %(levelname)s - %(message)s")
         formatter.converter = time.gmtime
         streamHandler.setFormatter(formatter)
         self.__LOGGER.addHandler(streamHandler)
         self.__LOGGER.info("Logger was set")
 
         script_utils.check_sys_stat(self.__LOGGER)
-        #END_CONSTRUCTOR
+        # END_CONSTRUCTOR
         pass
-
 
     def CufflinksCall(self, ctx, params):
         """
@@ -101,7 +101,8 @@ class kb_cufflinks:
            -> structure: parameter "report_name" of String, parameter
            "report_ref" of String
         """
-        if not os.path.exists(self.__SCRATCH): os.makedirs(self.__SCRATCH)
+        if not os.path.exists(self.__SCRATCH):
+            os.makedirs(self.__SCRATCH)
         cufflinks_dir = os.path.join(self.__SCRATCH, "tmp")
         handler_utils.setupWorkingDir(self.__LOGGER, cufflinks_dir)
         # Set the common Params
@@ -124,7 +125,8 @@ class kb_cufflinks:
                                      self.__MAX_CORES)
             returnVal = sts.run(common_params, params)
         else:
-            sts = CufflinksSample(self.__LOGGER, cufflinks_dir, self.__SERVICES, self.__MAX_CORES)
+            sts = CufflinksSample(self.__LOGGER, cufflinks_dir, self.__SERVICES,
+                                  self.__MAX_CORES)
             returnVal = sts.run(common_params, params)
         handler_util.cleanup(self.__LOGGER, cufflinks_dir)
         # END CufflinksCall
@@ -136,13 +138,12 @@ class kb_cufflinks:
         # return the results
         return [returnVal]
 
-
     def status(self, ctx):
-        #BEGIN_STATUS
+        # BEGIN_STATUS
         returnVal = {'state': "OK",
                      'message': "",
                      'version': self.VERSION,
                      'git_url': self.GIT_URL,
                      'git_commit_hash': self.GIT_COMMIT_HASH}
-        #END_STATUS
+        # END_STATUS
         return [returnVal]
