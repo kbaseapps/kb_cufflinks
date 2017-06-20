@@ -4,6 +4,8 @@ import os  # noqa: F401
 import json  # noqa: F401
 import time
 import requests
+import shutil
+from string import Template
 
 from os import environ
 try:
@@ -17,6 +19,7 @@ from biokbase.workspace.client import Workspace as workspaceService
 from kb_cufflinks.kb_cufflinksImpl import kb_cufflinks
 from kb_cufflinks.kb_cufflinksServer import MethodContext
 from kb_cufflinks.authclient import KBaseAuth as _KBaseAuth
+from biokbase.workspace.client import Workspace as Workspace
 
 
 class kb_cufflinksTest(unittest.TestCase):
@@ -32,6 +35,7 @@ class kb_cufflinksTest(unittest.TestCase):
             cls.cfg[nameval[0]] = nameval[1]
         # Getting username from Auth profile for token
         authServiceUrl = cls.cfg['auth-service-url']
+        authServiceUrlAllowInsecure = cls.cfg['auth_service_url_allow_insecure']
         auth_client = _KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,

@@ -337,6 +337,10 @@ class Application(object):
                              name='kb_cufflinks.CufflinksCall',
                              types=[dict])
         self.method_authentication['kb_cufflinks.CufflinksCall'] = 'required'  # noqa
+        self.rpc_service.add(impl_kb_cufflinks.run_Cuffdiff,
+                             name='kb_cufflinks.run_Cuffdiff',
+                             types=[dict])
+        self.method_authentication['kb_cufflinks.run_Cuffdiff'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_cufflinks.status,
                              name='kb_cufflinks.status',
                              types=[dict])

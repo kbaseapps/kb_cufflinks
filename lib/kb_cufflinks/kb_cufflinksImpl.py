@@ -30,8 +30,8 @@ class kb_cufflinks:
     # the latter method is running.
     # noqa
     VERSION = "0.0.1"
-    GIT_URL = "git@github.com:arfathpasha/kb_cufflinks.git"
-    GIT_COMMIT_HASH = "b7c78214da9b2fc65d7f6830b9180c9204c4dc9f"
+    GIT_URL = "https://github.com/kbaseapps/kb_cufflinks.git"
+    GIT_COMMIT_HASH = "496b9f2c05220bb9625db21ee8914f1106205713"
 
     # BEGIN_CLASS_HEADER
     # END_CLASS_HEADER
@@ -40,7 +40,6 @@ class kb_cufflinks:
     # be found
     def __init__(self, config):
         # BEGIN_CONSTRUCTOR
-        print('>>>>>>>>>>>>>' + str(config))
         if 'auth-service-url' in config:
             self.__AUTH_SERVICE_URL = config['auth-service-url']
         if 'max_cores' in config:
@@ -134,6 +133,57 @@ class kb_cufflinks:
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
             raise ValueError('Method CufflinksCall return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def run_Cuffdiff(self, ctx, params):
+        """
+        :param params: instance of type "CuffdiffParams" -> structure:
+           parameter "ws_id" of String, parameter "rnaseq_exp_details" of
+           type "RNASeqSampleSet" -> structure: parameter "sampleset_id" of
+           String, parameter "sampleset_desc" of String, parameter "domain"
+           of String, parameter "platform" of String, parameter "num_samples"
+           of Long, parameter "num_replicates" of Long, parameter
+           "sample_ids" of list of String, parameter "condition" of list of
+           String, parameter "source" of String, parameter "Library_type" of
+           String, parameter "publication_Id" of String, parameter
+           "external_source_date" of String, parameter "output_obj_name" of
+           String, parameter "time-series" of String, parameter
+           "library-type" of String, parameter "library-norm-method" of
+           String, parameter "multi-read-correct" of String, parameter
+           "min-alignment-count" of Long, parameter "dispersion-method" of
+           String, parameter "no-js-tests" of String, parameter
+           "frag-len-mean" of Long, parameter "frag-len-std-dev" of Long,
+           parameter "max-mle-iterations" of Long, parameter
+           "compatible-hits-norm" of String, parameter "no-length-correction"
+           of String
+        :returns: instance of type "RNASeqDifferentialExpression" (Result of
+           run_CuffDiff Object RNASeqDifferentialExpression file structure
+           @optional tool_opts tool_version sample_ids comments) ->
+           structure: parameter "tool_used" of String, parameter
+           "tool_version" of String, parameter "tool_opts" of list of mapping
+           from String to String, parameter "file" of type "Handle"
+           (@optional hid file_name type url remote_md5 remote_sha1) ->
+           structure: parameter "hid" of type "HandleId" (Input parameters
+           and output for run_cuffdiff), parameter "file_name" of String,
+           parameter "id" of String, parameter "type" of String, parameter
+           "url" of String, parameter "remote_md5" of String, parameter
+           "remote_sha1" of String, parameter "sample_ids" of list of String,
+           parameter "condition" of list of String, parameter "genome_id" of
+           String, parameter "expressionSet_id" of type
+           "ws_expressionSet_id", parameter "alignmentSet_id" of type
+           "ws_alignmentSet_id", parameter "sampleset_id" of type
+           "ws_Sampleset_id", parameter "comments" of String
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN run_Cuffdiff
+        #END run_Cuffdiff
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method run_Cuffdiff return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
