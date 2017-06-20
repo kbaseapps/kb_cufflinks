@@ -3,6 +3,7 @@ A KBase module: kb_cufflinks
 */
 
 module kb_cufflinks {
+<<<<<<< HEAD
 	/* A boolean - 0 for false, 1 for true.
 	  @range (0, 1)
 	*/
@@ -32,3 +33,9 @@ module kb_cufflinks {
 };
 
 
+=======
+    /*
+        Insert your typespec information here.
+    */
+};
+>>>>>>> upstream/master
