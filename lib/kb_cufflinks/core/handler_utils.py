@@ -3,12 +3,8 @@ Provides utility functions for handler/taskrunner level code to provide consiste
 behavior across different taskrunners and reduce code repetition of similar tasks.
 """
 
-import sys
 import os
 import shutil
-import subprocess
-import base64
-import simplejson
 import logging
 
 
@@ -37,22 +33,26 @@ def cleanup(logger=None, directory=None):
     """
 
     try:
-        shutil.rmtree(directory, ignore_errors=True)  # it would not delete if fold is not empty
+        # it would not delete if fold is not empty
+        shutil.rmtree(directory, ignore_errors=True)
         # need to iterate each entry
-    except IOError, e:
-        logger.error("Unable to remove working directory {0}".format(directory))
+    except IOError as ex:
+        logger.error("Unable to remove working directory {0}. Exception message: {1}".
+                     format(directory, ex.message))
         raise
 
 
 def setupWorkingDir(logger=None, directory=None):
     """
-	Clean up an existing workingdir and create a new one
+        Clean up an existing workingdir and create a new one
     """
     try:
-        if os.path.exists(directory): cleanup(logger, directory)
+        if os.path.exists(directory):
+            cleanup(logger, directory)
         os.mkdir(directory)
-    except IOError, e:
-        logger.error("Unable to setup working dir {0}".format(directory))
+    except IOError as ex:
+        logger.error("Unable to setup working dir {0}. Exception message {1}".
+                     format(directory, ex.message))
         raise
 
 
@@ -120,4 +120,3 @@ def optimize_parallel_run(num_samples, num_threads, num_cores):
             continue
         pool_size = num_samples
         return (pool_size, num_threads)
-
