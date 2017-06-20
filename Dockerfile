@@ -36,7 +36,6 @@ RUN cd /kb/dev_container/modules && \
 	cd ../ && \
 	rm -rf cufflinks-${VERSION}.Linux_x86_64
 
-
 COPY ./ /kb/module
 RUN mkdir -p /kb/module/work
 RUN chmod -R a+rw /kb/module
