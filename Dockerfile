@@ -21,7 +21,7 @@ RUN pip install cffi --upgrade \
     && pip install requests --upgrade \
     && pip install 'requests[security]' --upgrade
 
-# download StringTie software and untar it
+# download Cufflinks software and untar it
 ENV VERSION='2.2.1'
 ENV DEST=/kb/deployment/bin/cufflinks
 RUN cd /kb/dev_container/modules && \
@@ -35,7 +35,6 @@ RUN cd /kb/dev_container/modules && \
 	cp `find . -maxdepth 1 -perm -111 -type f` ${DEST} && \
 	cd ../ && \
 	rm -rf cufflinks-${VERSION}.Linux_x86_64
-# -----------------------------------------
 
 COPY ./ /kb/module
 RUN mkdir -p /kb/module/work
