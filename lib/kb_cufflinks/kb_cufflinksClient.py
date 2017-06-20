@@ -15,6 +15,7 @@ try:
 except:
     # no they aren't
     from baseclient import BaseClient as _BaseClient  # @Reimport
+import time
 
 
 class kb_cufflinks(object):
@@ -23,15 +24,52 @@ class kb_cufflinks(object):
             self, url=None, timeout=30 * 60, user_id=None,
             password=None, token=None, ignore_authrc=False,
             trust_all_ssl_certificates=False,
-            auth_svc='https://kbase.us/services/authorization/Sessions/Login'):
+            auth_svc='https://kbase.us/services/authorization/Sessions/Login',
+            service_ver=None,
+            async_job_check_time_ms=100, async_job_check_time_scale_percent=150, 
+            async_job_check_max_time_ms=300000):
         if url is None:
             raise ValueError('A url is required')
-        self._service_ver = None
+        self._service_ver = service_ver
         self._client = _BaseClient(
             url, timeout=timeout, user_id=user_id, password=password,
             token=token, ignore_authrc=ignore_authrc,
             trust_all_ssl_certificates=trust_all_ssl_certificates,
-            auth_svc=auth_svc)
+            auth_svc=auth_svc,
+            async_job_check_time_ms=async_job_check_time_ms,
+            async_job_check_time_scale_percent=async_job_check_time_scale_percent,
+            async_job_check_max_time_ms=async_job_check_max_time_ms)
+
+    def _check_job(self, job_id):
+        return self._client._check_job('kb_cufflinks', job_id)
+
+    def _CufflinksCall_submit(self, params, context=None):
+        return self._client._submit_job(
+             'kb_cufflinks.CufflinksCall', [params],
+             self._service_ver, context)
+
+    def CufflinksCall(self, params, context=None):
+        """
+        :param params: instance of type "CufflinksParams" -> structure:
+           parameter "ws_id" of String, parameter "sample_alignment" of
+           String, parameter "num_threads" of Long, parameter
+           "min-intron-length" of Long, parameter "max-intron-length" of
+           Long, parameter "overhang-tolerance" of Long
+        :returns: instance of type "ResultsToReport" (Object for Report type)
+           -> structure: parameter "report_name" of String, parameter
+           "report_ref" of String
+        """
+        job_id = self._CufflinksCall_submit(params, context)
+        async_job_check_time = self._client.async_job_check_time
+        while True:
+            time.sleep(async_job_check_time)
+            async_job_check_time = (async_job_check_time *
+                self._client.async_job_check_time_scale_percent / 100.0)
+            if async_job_check_time > self._client.async_job_check_max_time:
+                async_job_check_time = self._client.async_job_check_max_time
+            job_state = self._check_job(job_id)
+            if job_state['finished']:
+                return job_state['result'][0]
 
     def status(self, context=None):
         return self._client.call_method('kb_cufflinks.status',
