@@ -281,6 +281,211 @@ sub _CufflinksCall_submit {
 }
 
  
+
+
+=head2 run_Cuffdiff
+
+  $return = $obj->run_Cuffdiff($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_cufflinks.CuffdiffParams
+$return is a kb_cufflinks.RNASeqDifferentialExpression
+CuffdiffParams is a reference to a hash where the following keys are defined:
+	ws_id has a value which is a string
+	rnaseq_exp_details has a value which is a kb_cufflinks.RNASeqSampleSet
+	output_obj_name has a value which is a string
+	time-series has a value which is a string
+	library-type has a value which is a string
+	library-norm-method has a value which is a string
+	multi-read-correct has a value which is a string
+	min-alignment-count has a value which is an int
+	dispersion-method has a value which is a string
+	no-js-tests has a value which is a string
+	frag-len-mean has a value which is an int
+	frag-len-std-dev has a value which is an int
+	max-mle-iterations has a value which is an int
+	compatible-hits-norm has a value which is a string
+	no-length-correction has a value which is a string
+RNASeqSampleSet is a reference to a hash where the following keys are defined:
+	sampleset_id has a value which is a string
+	sampleset_desc has a value which is a string
+	domain has a value which is a string
+	platform has a value which is a string
+	num_samples has a value which is an int
+	num_replicates has a value which is an int
+	sample_ids has a value which is a reference to a list where each element is a string
+	condition has a value which is a reference to a list where each element is a string
+	source has a value which is a string
+	Library_type has a value which is a string
+	publication_Id has a value which is a string
+	external_source_date has a value which is a string
+RNASeqDifferentialExpression is a reference to a hash where the following keys are defined:
+	tool_used has a value which is a string
+	tool_version has a value which is a string
+	tool_opts has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
+	file has a value which is a kb_cufflinks.Handle
+	sample_ids has a value which is a reference to a list where each element is a string
+	condition has a value which is a reference to a list where each element is a string
+	genome_id has a value which is a string
+	expressionSet_id has a value which is a kb_cufflinks.ws_expressionSet_id
+	alignmentSet_id has a value which is a kb_cufflinks.ws_alignmentSet_id
+	sampleset_id has a value which is a kb_cufflinks.ws_Sampleset_id
+	comments has a value which is a string
+Handle is a reference to a hash where the following keys are defined:
+	hid has a value which is a kb_cufflinks.HandleId
+	file_name has a value which is a string
+	id has a value which is a string
+	type has a value which is a string
+	url has a value which is a string
+	remote_md5 has a value which is a string
+	remote_sha1 has a value which is a string
+HandleId is a string
+ws_expressionSet_id is a string
+ws_alignmentSet_id is a string
+ws_Sampleset_id is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_cufflinks.CuffdiffParams
+$return is a kb_cufflinks.RNASeqDifferentialExpression
+CuffdiffParams is a reference to a hash where the following keys are defined:
+	ws_id has a value which is a string
+	rnaseq_exp_details has a value which is a kb_cufflinks.RNASeqSampleSet
+	output_obj_name has a value which is a string
+	time-series has a value which is a string
+	library-type has a value which is a string
+	library-norm-method has a value which is a string
+	multi-read-correct has a value which is a string
+	min-alignment-count has a value which is an int
+	dispersion-method has a value which is a string
+	no-js-tests has a value which is a string
+	frag-len-mean has a value which is an int
+	frag-len-std-dev has a value which is an int
+	max-mle-iterations has a value which is an int
+	compatible-hits-norm has a value which is a string
+	no-length-correction has a value which is a string
+RNASeqSampleSet is a reference to a hash where the following keys are defined:
+	sampleset_id has a value which is a string
+	sampleset_desc has a value which is a string
+	domain has a value which is a string
+	platform has a value which is a string
+	num_samples has a value which is an int
+	num_replicates has a value which is an int
+	sample_ids has a value which is a reference to a list where each element is a string
+	condition has a value which is a reference to a list where each element is a string
+	source has a value which is a string
+	Library_type has a value which is a string
+	publication_Id has a value which is a string
+	external_source_date has a value which is a string
+RNASeqDifferentialExpression is a reference to a hash where the following keys are defined:
+	tool_used has a value which is a string
+	tool_version has a value which is a string
+	tool_opts has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
+	file has a value which is a kb_cufflinks.Handle
+	sample_ids has a value which is a reference to a list where each element is a string
+	condition has a value which is a reference to a list where each element is a string
+	genome_id has a value which is a string
+	expressionSet_id has a value which is a kb_cufflinks.ws_expressionSet_id
+	alignmentSet_id has a value which is a kb_cufflinks.ws_alignmentSet_id
+	sampleset_id has a value which is a kb_cufflinks.ws_Sampleset_id
+	comments has a value which is a string
+Handle is a reference to a hash where the following keys are defined:
+	hid has a value which is a kb_cufflinks.HandleId
+	file_name has a value which is a string
+	id has a value which is a string
+	type has a value which is a string
+	url has a value which is a string
+	remote_md5 has a value which is a string
+	remote_sha1 has a value which is a string
+HandleId is a string
+ws_expressionSet_id is a string
+ws_alignmentSet_id is a string
+ws_Sampleset_id is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub run_Cuffdiff
+{
+    my($self, @args) = @_;
+    my $job_id = $self->_run_Cuffdiff_submit(@args);
+    my $async_job_check_time = $self->{async_job_check_time};
+    while (1) {
+        Time::HiRes::sleep($async_job_check_time);
+        $async_job_check_time *= $self->{async_job_check_time_scale_percent} / 100.0;
+        if ($async_job_check_time > $self->{async_job_check_max_time}) {
+            $async_job_check_time = $self->{async_job_check_max_time};
+        }
+        my $job_state_ref = $self->_check_job($job_id);
+        if ($job_state_ref->{"finished"} != 0) {
+            if (!exists $job_state_ref->{"result"}) {
+                $job_state_ref->{"result"} = [];
+            }
+            return wantarray ? @{$job_state_ref->{"result"}} : $job_state_ref->{"result"}->[0];
+        }
+    }
+}
+
+sub _run_Cuffdiff_submit {
+    my($self, @args) = @_;
+# Authentication: required
+    if ((my $n = @args) != 1) {
+        Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+                                   "Invalid argument count for function _run_Cuffdiff_submit (received $n, expecting 1)");
+    }
+    {
+        my($params) = @args;
+        my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+            my $msg = "Invalid arguments passed to _run_Cuffdiff_submit:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+            Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+                                   method_name => '_run_Cuffdiff_submit');
+        }
+    }
+    my $context = undef;
+    if ($self->{service_version}) {
+        $context = {'service_ver' => $self->{service_version}};
+    }
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+        method => "kb_cufflinks._run_Cuffdiff_submit",
+        params => \@args, context => $context});
+    if ($result) {
+        if ($result->is_error) {
+            Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+                           code => $result->content->{error}->{code},
+                           method_name => '_run_Cuffdiff_submit',
+                           data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+            );
+        } else {
+            return $result->result->[0];  # job_id
+        }
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method _run_Cuffdiff_submit",
+                        status_line => $self->{client}->status_line,
+                        method_name => '_run_Cuffdiff_submit');
+    }
+}
+
+ 
   
 sub status
 {
@@ -324,16 +529,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'CufflinksCall',
+                method_name => 'run_Cuffdiff',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method CufflinksCall",
+            error => "Error invoking method run_Cuffdiff",
             status_line => $self->{client}->status_line,
-            method_name => 'CufflinksCall',
+            method_name => 'run_Cuffdiff',
         );
     }
 }
@@ -471,6 +676,329 @@ num_threads has a value which is an int
 min-intron-length has a value which is an int
 max-intron-length has a value which is an int
 overhang-tolerance has a value which is an int
+
+
+=end text
+
+=back
+
+
+
+=head2 HandleId
+
+=over 4
+
+
+
+=item Description
+
+Input parameters and output for run_cuffdiff
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 ws_Sampleset_id
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 ws_alignmentSet_id
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 ws_expressionSet_id
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 Handle
+
+=over 4
+
+
+
+=item Description
+
+@optional hid file_name type url remote_md5 remote_sha1
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+hid has a value which is a kb_cufflinks.HandleId
+file_name has a value which is a string
+id has a value which is a string
+type has a value which is a string
+url has a value which is a string
+remote_md5 has a value which is a string
+remote_sha1 has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+hid has a value which is a kb_cufflinks.HandleId
+file_name has a value which is a string
+id has a value which is a string
+type has a value which is a string
+url has a value which is a string
+remote_md5 has a value which is a string
+remote_sha1 has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 RNASeqSampleSet
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+sampleset_id has a value which is a string
+sampleset_desc has a value which is a string
+domain has a value which is a string
+platform has a value which is a string
+num_samples has a value which is an int
+num_replicates has a value which is an int
+sample_ids has a value which is a reference to a list where each element is a string
+condition has a value which is a reference to a list where each element is a string
+source has a value which is a string
+Library_type has a value which is a string
+publication_Id has a value which is a string
+external_source_date has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+sampleset_id has a value which is a string
+sampleset_desc has a value which is a string
+domain has a value which is a string
+platform has a value which is a string
+num_samples has a value which is an int
+num_replicates has a value which is an int
+sample_ids has a value which is a reference to a list where each element is a string
+condition has a value which is a reference to a list where each element is a string
+source has a value which is a string
+Library_type has a value which is a string
+publication_Id has a value which is a string
+external_source_date has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 CuffdiffParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+ws_id has a value which is a string
+rnaseq_exp_details has a value which is a kb_cufflinks.RNASeqSampleSet
+output_obj_name has a value which is a string
+time-series has a value which is a string
+library-type has a value which is a string
+library-norm-method has a value which is a string
+multi-read-correct has a value which is a string
+min-alignment-count has a value which is an int
+dispersion-method has a value which is a string
+no-js-tests has a value which is a string
+frag-len-mean has a value which is an int
+frag-len-std-dev has a value which is an int
+max-mle-iterations has a value which is an int
+compatible-hits-norm has a value which is a string
+no-length-correction has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+ws_id has a value which is a string
+rnaseq_exp_details has a value which is a kb_cufflinks.RNASeqSampleSet
+output_obj_name has a value which is a string
+time-series has a value which is a string
+library-type has a value which is a string
+library-norm-method has a value which is a string
+multi-read-correct has a value which is a string
+min-alignment-count has a value which is an int
+dispersion-method has a value which is a string
+no-js-tests has a value which is a string
+frag-len-mean has a value which is an int
+frag-len-std-dev has a value which is an int
+max-mle-iterations has a value which is an int
+compatible-hits-norm has a value which is a string
+no-length-correction has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 RNASeqDifferentialExpression
+
+=over 4
+
+
+
+=item Description
+
+Result of run_CuffDiff
+Object RNASeqDifferentialExpression file structure
+@optional tool_opts tool_version sample_ids comments
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+tool_used has a value which is a string
+tool_version has a value which is a string
+tool_opts has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
+file has a value which is a kb_cufflinks.Handle
+sample_ids has a value which is a reference to a list where each element is a string
+condition has a value which is a reference to a list where each element is a string
+genome_id has a value which is a string
+expressionSet_id has a value which is a kb_cufflinks.ws_expressionSet_id
+alignmentSet_id has a value which is a kb_cufflinks.ws_alignmentSet_id
+sampleset_id has a value which is a kb_cufflinks.ws_Sampleset_id
+comments has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+tool_used has a value which is a string
+tool_version has a value which is a string
+tool_opts has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
+file has a value which is a kb_cufflinks.Handle
+sample_ids has a value which is a reference to a list where each element is a string
+condition has a value which is a reference to a list where each element is a string
+genome_id has a value which is a string
+expressionSet_id has a value which is a kb_cufflinks.ws_expressionSet_id
+alignmentSet_id has a value which is a kb_cufflinks.ws_alignmentSet_id
+sampleset_id has a value which is a kb_cufflinks.ws_Sampleset_id
+comments has a value which is a string
 
 
 =end text

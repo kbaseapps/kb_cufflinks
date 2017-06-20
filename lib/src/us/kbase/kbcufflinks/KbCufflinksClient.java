@@ -242,6 +242,51 @@ public class KbCufflinksClient {
         }
     }
 
+    /**
+     * <p>Original spec-file function name: run_Cuffdiff</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbcufflinks.CuffdiffParams CuffdiffParams}
+     * @return   instance of type {@link us.kbase.kbcufflinks.RNASeqDifferentialExpression RNASeqDifferentialExpression}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    protected String _runCuffdiffSubmit(CuffdiffParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
+        List<String> res = caller.jsonrpcCall("kb_cufflinks._run_Cuffdiff_submit", args, retType, true, true, jsonRpcContext);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: run_Cuffdiff</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbcufflinks.CuffdiffParams CuffdiffParams}
+     * @return   instance of type {@link us.kbase.kbcufflinks.RNASeqDifferentialExpression RNASeqDifferentialExpression}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public RNASeqDifferentialExpression runCuffdiff(CuffdiffParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        String jobId = _runCuffdiffSubmit(params, jsonRpcContext);
+        TypeReference<List<JobState<List<RNASeqDifferentialExpression>>>> retType = new TypeReference<List<JobState<List<RNASeqDifferentialExpression>>>>() {};
+        long asyncJobCheckTimeMs = this.asyncJobCheckTimeMs;
+        while (true) {
+            if (Thread.currentThread().isInterrupted())
+                throw new JsonClientException("Thread was interrupted");
+            try { 
+                Thread.sleep(asyncJobCheckTimeMs);
+            } catch(Exception ex) {
+                throw new JsonClientException("Thread was interrupted", ex);
+            }
+            asyncJobCheckTimeMs = Math.min(asyncJobCheckTimeMs * this.asyncJobCheckTimeScalePercent / 100, this.asyncJobCheckMaxTimeMs);
+            JobState<List<RNASeqDifferentialExpression>> res = _checkJob(jobId, retType);
+            if (res.getFinished() != 0L)
+                return res.getResult().get(0);
+        }
+    }
+
     public Map<String, Object> status(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<Map<String, Object>>> retType = new TypeReference<List<Map<String, Object>>>() {};
