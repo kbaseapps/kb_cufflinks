@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
-# BEGIN_HEADER
+#BEGIN_HEADER
 import os
 import logging
 import time
 import sys
 from core import script_utils
-from core import handler_utils
+from core.cuffdiff import CuffDiff
+
 from biokbase.workspace.client import Workspace
 try:
     from biokbase.HandleService.Client import HandleService
 except BaseException:
     from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
-# END_HEADER
+#END_HEADER
 
 
 class kb_cufflinks:
@@ -23,23 +24,23 @@ class kb_cufflinks:
     A KBase module: kb_cufflinks
     '''
 
-    # WARNING FOR GEVENT USERS ####### noqa
+    ######## WARNING FOR GEVENT USERS ####### noqa
     # Since asynchronous IO can lead to methods - even the same method -
     # interrupting each other, you must be *very* careful when using global
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
-    # noqa
+    ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_cufflinks.git"
-    GIT_COMMIT_HASH = "496b9f2c05220bb9625db21ee8914f1106205713"
+    GIT_COMMIT_HASH = "9ef6c5cbaa52712aa5e078d4eadaf7e0973ead7a"
 
-    # BEGIN_CLASS_HEADER
-    # END_CLASS_HEADER
+    #BEGIN_CLASS_HEADER
+    #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
     # be found
     def __init__(self, config):
-        # BEGIN_CONSTRUCTOR
+        #BEGIN_CONSTRUCTOR
         if 'auth-service-url' in config:
             self.__AUTH_SERVICE_URL = config['auth-service-url']
         if 'max_cores' in config:
@@ -86,8 +87,10 @@ class kb_cufflinks:
         self.__LOGGER.info("Logger was set")
 
         script_utils.check_sys_stat(self.__LOGGER)
-        # END_CONSTRUCTOR
+        self.cuffdiff_runner = CuffDiff(config, self.__SERVICES, self.__LOGGER)
+        #END_CONSTRUCTOR
         pass
+
 
     def CufflinksCall(self, ctx, params):
         """
@@ -100,35 +103,10 @@ class kb_cufflinks:
            -> structure: parameter "report_name" of String, parameter
            "report_ref" of String
         """
-        if not os.path.exists(self.__SCRATCH):
-            os.makedirs(self.__SCRATCH)
-        cufflinks_dir = os.path.join(self.__SCRATCH, "tmp")
-        handler_utils.setupWorkingDir(self.__LOGGER, cufflinks_dir)
-        # Set the common Params
-        common_params = {'ws_client': Workspace(url=self.__WS_URL, token=ctx['token']),
-                         'hs_client': HandleService(url=self.__HS_URL, token=ctx['token']),
-                         'user_token': ctx['token']
-                         }
-        # Set the Number of threads if specified
-        if 'num_threads' in params and params['num_threads'] is not None:
-            common_params['num_threads'] = params['num_threads']
-
-        # Check to Call Cufflinks in Set mode or Single mode
-        wsc = common_params['ws_client']
-        obj_info = script_util.ws_get_obj_info(self.__LOGGER, wsc, params['ws_id'],
-                                               params['alignmentset_id'])
-        obj_type = obj_info[0][2].split('-')[0]
-        if obj_type == 'KBaseRNASeq.RNASeqAlignmentSet':
-            self.__LOGGER.info("Cufflinks AlignmentSet Case")
-            sts = CufflinksSampleSet(self.__LOGGER, cufflinks_dir, self.__SERVICES,
-                                     self.__MAX_CORES)
-            returnVal = sts.run(common_params, params)
-        else:
-            sts = CufflinksSample(self.__LOGGER, cufflinks_dir, self.__SERVICES,
-                                  self.__MAX_CORES)
-            returnVal = sts.run(common_params, params)
-        handler_util.cleanup(self.__LOGGER, cufflinks_dir)
-        # END CufflinksCall
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN CufflinksCall
+        #END CufflinksCall
 
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
@@ -139,46 +117,31 @@ class kb_cufflinks:
 
     def run_Cuffdiff(self, ctx, params):
         """
-        :param params: instance of type "CuffdiffParams" -> structure:
-           parameter "ws_id" of String, parameter "rnaseq_exp_details" of
-           type "RNASeqSampleSet" -> structure: parameter "sampleset_id" of
-           String, parameter "sampleset_desc" of String, parameter "domain"
-           of String, parameter "platform" of String, parameter "num_samples"
-           of Long, parameter "num_replicates" of Long, parameter
-           "sample_ids" of list of String, parameter "condition" of list of
-           String, parameter "source" of String, parameter "Library_type" of
-           String, parameter "publication_Id" of String, parameter
-           "external_source_date" of String, parameter "output_obj_name" of
-           String, parameter "time-series" of String, parameter
-           "library-type" of String, parameter "library-norm-method" of
-           String, parameter "multi-read-correct" of String, parameter
-           "min-alignment-count" of Long, parameter "dispersion-method" of
-           String, parameter "no-js-tests" of String, parameter
-           "frag-len-mean" of Long, parameter "frag-len-std-dev" of Long,
-           parameter "max-mle-iterations" of Long, parameter
-           "compatible-hits-norm" of String, parameter "no-length-correction"
-           of String
-        :returns: instance of type "RNASeqDifferentialExpression" (Result of
-           run_CuffDiff Object RNASeqDifferentialExpression file structure
-           @optional tool_opts tool_version sample_ids comments) ->
-           structure: parameter "tool_used" of String, parameter
-           "tool_version" of String, parameter "tool_opts" of list of mapping
-           from String to String, parameter "file" of type "Handle"
-           (@optional hid file_name type url remote_md5 remote_sha1) ->
-           structure: parameter "hid" of type "HandleId" (Input parameters
-           and output for run_cuffdiff), parameter "file_name" of String,
-           parameter "id" of String, parameter "type" of String, parameter
-           "url" of String, parameter "remote_md5" of String, parameter
-           "remote_sha1" of String, parameter "sample_ids" of list of String,
-           parameter "condition" of list of String, parameter "genome_id" of
-           String, parameter "expressionSet_id" of type
-           "ws_expressionSet_id", parameter "alignmentSet_id" of type
-           "ws_alignmentSet_id", parameter "sampleset_id" of type
-           "ws_Sampleset_id", parameter "comments" of String
+        :param params: instance of type "CuffdiffInput" (Required input
+           parameters for run_Cuffdiff. expressionset_ref           -  
+           reference for an expressionset object workspace_name             
+           -   workspace name to save the differential expression output
+           object diff_expression_obj_name    -   name of the differential
+           expression output object filtered_expression_matrix_name - name of
+           the filtered expression matrix output object) -> structure:
+           parameter "expressionset_ref" of type "obj_ref" (An X/Y/Z style
+           reference), parameter "workspace_name" of String, parameter
+           "diff_expression_obj_name" of String, parameter
+           "filtered_expression_matrix_name" of String, parameter
+           "library-norm-method" of String, parameter "multi-read-correct" of
+           String, parameter "min-alignment-count" of Long
+        :returns: instance of type "CuffdiffResult" -> structure: parameter
+           "result_directory" of String, parameter "diff_expression_obj_ref"
+           of type "obj_ref" (An X/Y/Z style reference), parameter
+           "filtered_expression_matrix_ref" of type "obj_ref" (An X/Y/Z style
+           reference), parameter "report_name" of String, parameter
+           "report_ref" of String
         """
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN run_Cuffdiff
+        print("In Run Cuffdiff")
+        returnVal = self.cuffdiff_runner.run_cuffdiff(params)
         #END run_Cuffdiff
 
         # At some point might do deeper type checking...
@@ -187,13 +150,12 @@ class kb_cufflinks:
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
-
     def status(self, ctx):
-        # BEGIN_STATUS
+        #BEGIN_STATUS
         returnVal = {'state': "OK",
                      'message': "",
                      'version': self.VERSION,
                      'git_url': self.GIT_URL,
                      'git_commit_hash': self.GIT_COMMIT_HASH}
-        # END_STATUS
+        #END_STATUS
         return [returnVal]

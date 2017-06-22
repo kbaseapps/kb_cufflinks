@@ -35,7 +35,7 @@ class kb_cufflinksTest(unittest.TestCase):
             cls.cfg[nameval[0]] = nameval[1]
         # Getting username from Auth profile for token
         authServiceUrl = cls.cfg['auth-service-url']
-        authServiceUrlAllowInsecure = cls.cfg['auth_service_url_allow_insecure']
+        #authServiceUrlAllowInsecure = cls.cfg['auth_service_url_allow_insecure']
         auth_client = _KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
@@ -80,7 +80,7 @@ class kb_cufflinksTest(unittest.TestCase):
         return self.__class__.ctx
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def test_your_method(self):
+    def test_cufflinks(self):
         # Prepare test objects in workspace if needed using
         # self.getWsClient().save_objects({'workspace': self.getWsName(),
         #                                  'objects': []})

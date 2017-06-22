@@ -3,7 +3,8 @@ A KBase module: kb_cufflinks
 */
 
 module kb_cufflinks {
-	/* A boolean - 0 for false, 1 for true.
+
+    /* A boolean - 0 for false, 1 for true.
 	  @range (0, 1)
 	*/
 	typedef int boolean;
@@ -30,84 +31,40 @@ module kb_cufflinks {
     async funcdef CufflinksCall(CufflinksParams params)
 		returns (ResultsToReport) authentication required;
 
-	/*
-	    Input parameters and output for run_cuffdiff
-	*/
-
-	typedef string HandleId;
-
-    typedef string ws_Sampleset_id;
-	typedef string ws_alignmentSet_id;
-    typedef string ws_expressionSet_id;
+    /*
+    An X/Y/Z style reference
+    */
+    typedef string obj_ref;
 
     /*
-      @optional hid file_name type url remote_md5 remote_sha1
+        Required input parameters for run_Cuffdiff.
+
+        expressionset_ref           -   reference for an expressionset object
+        workspace_name              -   workspace name to save the differential expression output object
+        diff_expression_obj_name    -   name of the differential expression output object
+        filtered_expression_matrix_name - name of the filtered expression matrix output object
     */
 
-   	typedef structure {
-       		HandleId hid;
-       		string file_name;
-       		string id;
-       		string type;
-       		string url;
-       		string remote_md5;
-       		string remote_sha1;
-   	} Handle;
+	typedef structure{
+        obj_ref     expressionset_ref;
+        string      workspace_name;
+        string      diff_expression_obj_name;
+        string      filtered_expression_matrix_name;
 
-    typedef structure {
-        string sampleset_id;
-        string sampleset_desc;
-	    string domain;
-        string platform;
-        int num_samples;
-        int num_replicates;
-        list<string> sample_ids;
-        list<string> condition;
-        string source;
-        string Library_type;
-        string publication_Id;
-        string external_source_date;
-    } RNASeqSampleSet;
+        string      library-norm-method;    /* Optional */
+        string      multi-read-correct;     /* Optional */
+        int         min-alignment-count;    /* Optional */
+    } CuffdiffInput;
 
-    typedef structure {
-        string ws_id;
-        RNASeqSampleSet rnaseq_exp_details;
-        string output_obj_name;
-        string time-series;
-        string library-type;
-        string library-norm-method;
-        string multi-read-correct;
-        int  min-alignment-count;
-        string dispersion-method;
-        string no-js-tests;
-        int frag-len-mean;
-        int frag-len-std-dev;
-        int max-mle-iterations;
-        string compatible-hits-norm;
-        string no-length-correction;
-    } CuffdiffParams;
+    typedef structure{
+        string      result_directory;
+        obj_ref     diff_expression_obj_ref;
+        obj_ref     filtered_expression_matrix_ref;
+        string      report_name;
+        string      report_ref;
+    } CuffdiffResult;
 
-    /*
-    Result of run_CuffDiff
-    Object RNASeqDifferentialExpression file structure
-    @optional tool_opts tool_version sample_ids comments
-    */
-    typedef structure {
-        string tool_used;
-        string tool_version;
-        list<mapping<string opt_name, string opt_value>> tool_opts;
-        Handle file;
-        list<string> sample_ids;
-        list<string> condition;
-        string genome_id;
-        ws_expressionSet_id expressionSet_id;
-        ws_alignmentSet_id alignmentSet_id;
-        ws_Sampleset_id sampleset_id;
-        string comments;
-    } RNASeqDifferentialExpression;
-
-    async funcdef run_Cuffdiff(CuffdiffParams params)
-                      returns (RNASeqDifferentialExpression)
-                      authentication required;
+    funcdef run_Cuffdiff(CuffdiffInput params)
+        returns (CuffdiffResult returnVal) authentication required;
 };
 

@@ -71,61 +71,31 @@ class kb_cufflinks(object):
             if job_state['finished']:
                 return job_state['result'][0]
 
-    def _run_Cuffdiff_submit(self, params, context=None):
-        return self._client._submit_job(
-             'kb_cufflinks.run_Cuffdiff', [params],
-             self._service_ver, context)
-
     def run_Cuffdiff(self, params, context=None):
         """
-        :param params: instance of type "CuffdiffParams" -> structure:
-           parameter "ws_id" of String, parameter "rnaseq_exp_details" of
-           type "RNASeqSampleSet" -> structure: parameter "sampleset_id" of
-           String, parameter "sampleset_desc" of String, parameter "domain"
-           of String, parameter "platform" of String, parameter "num_samples"
-           of Long, parameter "num_replicates" of Long, parameter
-           "sample_ids" of list of String, parameter "condition" of list of
-           String, parameter "source" of String, parameter "Library_type" of
-           String, parameter "publication_Id" of String, parameter
-           "external_source_date" of String, parameter "output_obj_name" of
-           String, parameter "time-series" of String, parameter
-           "library-type" of String, parameter "library-norm-method" of
-           String, parameter "multi-read-correct" of String, parameter
-           "min-alignment-count" of Long, parameter "dispersion-method" of
-           String, parameter "no-js-tests" of String, parameter
-           "frag-len-mean" of Long, parameter "frag-len-std-dev" of Long,
-           parameter "max-mle-iterations" of Long, parameter
-           "compatible-hits-norm" of String, parameter "no-length-correction"
-           of String
-        :returns: instance of type "RNASeqDifferentialExpression" (Result of
-           run_CuffDiff Object RNASeqDifferentialExpression file structure
-           @optional tool_opts tool_version sample_ids comments) ->
-           structure: parameter "tool_used" of String, parameter
-           "tool_version" of String, parameter "tool_opts" of list of mapping
-           from String to String, parameter "file" of type "Handle"
-           (@optional hid file_name type url remote_md5 remote_sha1) ->
-           structure: parameter "hid" of type "HandleId" (Input parameters
-           and output for run_cuffdiff), parameter "file_name" of String,
-           parameter "id" of String, parameter "type" of String, parameter
-           "url" of String, parameter "remote_md5" of String, parameter
-           "remote_sha1" of String, parameter "sample_ids" of list of String,
-           parameter "condition" of list of String, parameter "genome_id" of
-           String, parameter "expressionSet_id" of type
-           "ws_expressionSet_id", parameter "alignmentSet_id" of type
-           "ws_alignmentSet_id", parameter "sampleset_id" of type
-           "ws_Sampleset_id", parameter "comments" of String
+        :param params: instance of type "CuffdiffInput" (Required input
+           parameters for run_Cuffdiff. expressionset_ref           -  
+           reference for an expressionset object workspace_name             
+           -   workspace name to save the differential expression output
+           object diff_expression_obj_name    -   name of the differential
+           expression output object filtered_expression_matrix_name - name of
+           the filtered expression matrix output object) -> structure:
+           parameter "expressionset_ref" of type "obj_ref" (An X/Y/Z style
+           reference), parameter "workspace_name" of String, parameter
+           "diff_expression_obj_name" of String, parameter
+           "filtered_expression_matrix_name" of String, parameter
+           "library-norm-method" of String, parameter "multi-read-correct" of
+           String, parameter "min-alignment-count" of Long
+        :returns: instance of type "CuffdiffResult" -> structure: parameter
+           "result_directory" of String, parameter "diff_expression_obj_ref"
+           of type "obj_ref" (An X/Y/Z style reference), parameter
+           "filtered_expression_matrix_ref" of type "obj_ref" (An X/Y/Z style
+           reference), parameter "report_name" of String, parameter
+           "report_ref" of String
         """
-        job_id = self._run_Cuffdiff_submit(params, context)
-        async_job_check_time = self._client.async_job_check_time
-        while True:
-            time.sleep(async_job_check_time)
-            async_job_check_time = (async_job_check_time *
-                self._client.async_job_check_time_scale_percent / 100.0)
-            if async_job_check_time > self._client.async_job_check_max_time:
-                async_job_check_time = self._client.async_job_check_max_time
-            job_state = self._check_job(job_id)
-            if job_state['finished']:
-                return job_state['result'][0]
+        return self._client.call_method(
+            'kb_cufflinks.run_Cuffdiff',
+            [params], self._service_ver, context)
 
     def status(self, context=None):
         return self._client.call_method('kb_cufflinks.status',
