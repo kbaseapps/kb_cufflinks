@@ -41,18 +41,18 @@ module kb_cufflinks {
         expressionset_ref           -   reference for an expressionset object
         workspace_name              -   workspace name to save the differential expression output object
         diff_expression_obj_name    -   name of the differential expression output object
-        filtered_expression_matrix_name - name of the filtered expression matrix output object
     */
 
 	typedef structure{
         obj_ref     expressionset_ref;
         string      workspace_name;
         string      diff_expression_obj_name;
-        string      filtered_expression_matrix_name;
 
+        string      filtered_expression_matrix_name; /* Optional - name of the filtered
+                                                        expression matrix output object  */
         string      library_norm_method;    /* Optional */
         boolean     multi_read_correct;     /* Optional */
-        boolean     time_series;
+        boolean     time_series;            /* Optional */
         int         min_alignment_count;    /* Optional */
 
     } CuffdiffInput;

@@ -34,11 +34,6 @@ parameters :
       Differential Expression Object Name
     short-hint : |
       Provide the name of the differential expression analysis output
-  filtered_expression_matrix_name :
-    ui-name : |
-      Expression Matrix Object Name
-    short-hint : |
-      Provide the name of filtered differential expression Matrix
   library_norm_method:
       ui-name : |
           Library Normalization Method

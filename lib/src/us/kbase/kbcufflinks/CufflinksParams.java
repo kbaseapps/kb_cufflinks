@@ -20,7 +20,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "ws_id",
-    "sample_alignment",
+    "sample_alignment_ref",
+    "genome_ref",
     "num_threads",
     "min-intron-length",
     "max-intron-length",
@@ -30,8 +31,10 @@ public class CufflinksParams {
 
     @JsonProperty("ws_id")
     private String wsId;
-    @JsonProperty("sample_alignment")
-    private String sampleAlignment;
+    @JsonProperty("sample_alignment_ref")
+    private String sampleAlignmentRef;
+    @JsonProperty("genome_ref")
+    private String genomeRef;
     @JsonProperty("num_threads")
     private Long numThreads;
     @JsonProperty("min-intron-length")
@@ -57,18 +60,33 @@ public class CufflinksParams {
         return this;
     }
 
-    @JsonProperty("sample_alignment")
-    public String getSampleAlignment() {
-        return sampleAlignment;
+    @JsonProperty("sample_alignment_ref")
+    public String getSampleAlignmentRef() {
+        return sampleAlignmentRef;
     }
 
-    @JsonProperty("sample_alignment")
-    public void setSampleAlignment(String sampleAlignment) {
-        this.sampleAlignment = sampleAlignment;
+    @JsonProperty("sample_alignment_ref")
+    public void setSampleAlignmentRef(String sampleAlignmentRef) {
+        this.sampleAlignmentRef = sampleAlignmentRef;
     }
 
-    public CufflinksParams withSampleAlignment(String sampleAlignment) {
-        this.sampleAlignment = sampleAlignment;
+    public CufflinksParams withSampleAlignmentRef(String sampleAlignmentRef) {
+        this.sampleAlignmentRef = sampleAlignmentRef;
+        return this;
+    }
+
+    @JsonProperty("genome_ref")
+    public String getGenomeRef() {
+        return genomeRef;
+    }
+
+    @JsonProperty("genome_ref")
+    public void setGenomeRef(String genomeRef) {
+        this.genomeRef = genomeRef;
+    }
+
+    public CufflinksParams withGenomeRef(String genomeRef) {
+        this.genomeRef = genomeRef;
         return this;
     }
 
@@ -144,7 +162,7 @@ public class CufflinksParams {
 
     @Override
     public String toString() {
-        return ((((((((((((((("CufflinksParams"+" [wsId=")+ wsId)+", sampleAlignment=")+ sampleAlignment)+", numThreads=")+ numThreads)+", minIntronLength=")+ minIntronLength)+", maxIntronLength=")+ maxIntronLength)+", overhangTolerance=")+ overhangTolerance)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((("CufflinksParams"+" [wsId=")+ wsId)+", sampleAlignmentRef=")+ sampleAlignmentRef)+", genomeRef=")+ genomeRef)+", numThreads=")+ numThreads)+", minIntronLength=")+ minIntronLength)+", maxIntronLength=")+ maxIntronLength)+", overhangTolerance=")+ overhangTolerance)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

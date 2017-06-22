@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * expressionset_ref           -   reference for an expressionset object
  * workspace_name              -   workspace name to save the differential expression output object
  * diff_expression_obj_name    -   name of the differential expression output object
- * filtered_expression_matrix_name - name of the filtered expression matrix output object
  * </pre>
  * 
  */
