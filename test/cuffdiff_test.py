@@ -23,7 +23,7 @@ from biokbase.workspace.client import Workspace as Workspace
 
 
 class kb_cufflinksTest(unittest.TestCase):
-    '''
+
 
     @classmethod
     def setUpClass(cls):
@@ -98,4 +98,3 @@ class kb_cufflinksTest(unittest.TestCase):
                   'filtered_expression_matrix_name': 'test_output_expmatrix'
                   }
         self.getImpl().run_Cuffdiff(self.ctx, params)
-    '''

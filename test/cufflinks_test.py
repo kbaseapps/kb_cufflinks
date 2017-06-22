@@ -3,14 +3,11 @@ import unittest
 import os  # noqa: F401
 import json  # noqa: F401
 import time
-import requests
 import shutil
 from string import Template
-from datetime import datetime
 from readsAlignmentUtils.readsAlignmentUtilsClient import ReadsAlignmentUtils
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from ReadsUtils.ReadsUtilsClient import ReadsUtils
-from subprocess import call
 
 from os import environ
 try:
@@ -40,7 +37,6 @@ class CufflinksTest(unittest.TestCase):
             cls.cfg[nameval[0]] = nameval[1]
         # Getting username from Auth profile for token
         authServiceUrl = cls.cfg['auth-service-url']
-        authServiceUrlAllowInsecure = cls.cfg['auth-service-url-allow-insecure']
         auth_client = _KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
@@ -81,7 +77,7 @@ class CufflinksTest(unittest.TestCase):
             ws_info = cls.ws.get_workspace_info({'workspace': cls.wsName})
             print("creating new workspace: " + str(ws_info))
 
-        '''
+
         # upload genbank file
         print('uploading genbank file to workspace...')
         INPUT_DATA_DIR = "/kb/module/test/data/"
@@ -126,9 +122,6 @@ class CufflinksTest(unittest.TestCase):
         # data has to be copied to tmp dir so it can be seen by
         # ReadsAlignmentUtils subjob running in a separate docker container
         shutil.copy('/kb/module/test/data/accepted_hits.bam', '/kb/module/work/tmp')
-        '''
-
-
 
 
     @classmethod
@@ -136,8 +129,6 @@ class CufflinksTest(unittest.TestCase):
         if hasattr(cls, 'wsName'):
             cls.wsClient.delete_workspace({'workspace': cls.wsName})
             print('Test workspace was deleted')
-
-
 
     def getWsClient(self):
         return self.__class__.wsClient
@@ -161,7 +152,7 @@ class CufflinksTest(unittest.TestCase):
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     def test_cufflinks(self):
 
-        '''
+        # upload alignment file
         params = {
                   'destination_ref': self.getWsName() + '/accepted_hits.bam',
                   'file_path': '/kb/module/work/tmp/accepted_hits.bam',
@@ -170,32 +161,21 @@ class CufflinksTest(unittest.TestCase):
                   'assembly_or_genome_ref': self.getWsName() + '/at_chrom1_section',
                   'condition': 'test_condition'
                  }
-    
-    
-        
-        rau = ReadsAlignmentUtils(url=self.__class__.callback_url, token=self.getContext()['token'], service_ver='dev')
-    
-        ref = rau.upload_alignment(params=params)
-    
-        print('>>>>>>>>>>>>>>>>>>>>>>readsAlignmentUtils result: '+str(ref))
-        '''
 
-        
+        rau = ReadsAlignmentUtils(url=self.__class__.callback_url, token=self.getContext()['token'], service_ver='dev')
+        ref = rau.upload_alignment(params=params)
 
         params = {
-  	"ws_id": "Cufflinks_test_arfath",
-	"sample_alignment_ref" : "accepted_hits.bam",
-    "genome_ref" : "at_chrom1_section",
-    "min-intron-length" : 50,
-	"max-intron-length" : 300000,
-    "overhang-tolerance" : 8,
-    "num_threads": 1
-	}
+            "ws_id": "Cufflinks_test_arfath",
+            "sample_alignment_ref" : "accepted_hits.bam",
+            "genome_ref" : "at_chrom1_section",
+            "min-intron-length" : 50,
+            "max-intron-length" : 300000,
+            "overhang-tolerance" : 8,
+            "num_threads": 1
+	    }
 
         out = self.getImpl().CufflinksCall(self.ctx, params)[0]
-
-
-        # print error code of Implementation
 
         expression_set = self.__class__.wsClient.get_objects([
             {'workspace': params['ws_id'],
@@ -204,16 +184,3 @@ class CufflinksTest(unittest.TestCase):
         self.assertEqual('KBaseRNASeq.RNASeqExpression-6.0',
                          expression_set[0]['info'][2],
                          "output expression set object type did not match")
-
-
-
-        # Prepare test objects in workspace if needed using
-        # self.getWsClient().save_objects({'workspace': self.getWsName(),
-        #                                  'objects': []})
-        #
-        # Run your method by
-        # ret = self.getImpl().your_method(self.getContext(), parameters...)
-        #
-        # Check returned data with
-        # self.assertEqual(ret[...], ...) or other unittest methods
-        pass

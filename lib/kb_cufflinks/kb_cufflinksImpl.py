@@ -148,7 +148,7 @@ class kb_cufflinks:
                                                                       'sample_alignment_ref'],
                                                                     'workspace': params[
                                                                         'ws_id']}]})[0]
-            print('>>>>>>>>>>>>>>>>alignment_info:')
+            print('alignment_info:')
             pprint(sample_alignment_info)
 
             genome_info = ws_client.get_object_info_new({"objects":
@@ -156,18 +156,17 @@ class kb_cufflinks:
                                                                       'genome_ref'],
                                                                     'workspace': params[
                                                                         'ws_id']}]})[0]
-            print('>>>>>>>>>>>>>>>>genome_info:')
+            print('genome_info:')
             pprint(genome_info)
             sample_alignment_id = str(sample_alignment_info[6]) + '/' + str(
                 sample_alignment_info[0]) + '/' + str(
                 sample_alignment_info[4])
             sample_name = str(sample_alignment_info[1])
-            print('>>>>>>>>>>>>>>sample_alignemnt_id: ' + str(sample_alignment_id))
+            print('sample_alignemnt_id: ' + str(sample_alignment_id))
             genome_id = str(genome_info[6]) + '/' + str(
                 genome_info[0]) + '/' + str(
                 genome_info[4])
             genome_name = str(genome_info[1])
-            print('>>>>>>>>>>>>>>genome_name: ' + str(genome_name))
             ########################################################################
             '''
             a_sampleset = ws_client.get_objects(
