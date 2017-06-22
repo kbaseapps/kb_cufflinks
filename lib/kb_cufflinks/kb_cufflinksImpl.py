@@ -142,7 +142,7 @@ class kb_cufflinks:
         hs = common_params['hs_client']
         token = common_params['user_token']
         try:
-            ######################################################################
+            ################################################################
             sample_alignment_info = ws_client.get_object_info_new({"objects":
                                                                   [{'name': params[
                                                                       'sample_alignment_ref'],
@@ -167,7 +167,7 @@ class kb_cufflinks:
                 genome_info[0]) + '/' + str(
                 genome_info[4])
             genome_name = str(genome_info[1])
-            ########################################################################
+            ###################################################################
             '''
             a_sampleset = ws_client.get_objects(
                 [{'name': params['alignmentset_id'], 'workspace': params['ws_id']}])[0]
