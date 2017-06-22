@@ -15,7 +15,8 @@ import sys
 import json
 import traceback
 from core import script_utils
-from core import handler_utils
+from core.cuffdiff import CuffDiff
+
 from biokbase.workspace.client import Workspace
 try:
     from biokbase.HandleService.Client import HandleService
@@ -42,8 +43,8 @@ class kb_cufflinks:
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.1"
-    GIT_URL = "git@github.com:arfathpasha/kb_cufflinks.git"
-    GIT_COMMIT_HASH = "9af2572537be366fe8bbb4f7fdebfe704e0a5531"
+    GIT_URL = "https://github.com/kbaseapps/kb_cufflinks.git"
+    GIT_COMMIT_HASH = "e3c7dcdc5a86f026c544f18f7138ab34a04b2638"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -99,6 +100,7 @@ class kb_cufflinks:
         self.__LOGGER.info("Logger was set")
 
         script_utils.check_sys_stat(self.__LOGGER)
+        self.cuffdiff_runner = CuffDiff(config, self.__SERVICES, self.__LOGGER)
         #END_CONSTRUCTOR
         pass
 
@@ -220,46 +222,32 @@ class kb_cufflinks:
 
     def run_Cuffdiff(self, ctx, params):
         """
-        :param params: instance of type "CuffdiffParams" -> structure:
-           parameter "ws_id" of String, parameter "rnaseq_exp_details" of
-           type "RNASeqSampleSet" -> structure: parameter "sampleset_id" of
-           String, parameter "sampleset_desc" of String, parameter "domain"
-           of String, parameter "platform" of String, parameter "num_samples"
-           of Long, parameter "num_replicates" of Long, parameter
-           "sample_ids" of list of String, parameter "condition" of list of
-           String, parameter "source" of String, parameter "Library_type" of
-           String, parameter "publication_Id" of String, parameter
-           "external_source_date" of String, parameter "output_obj_name" of
-           String, parameter "time-series" of String, parameter
-           "library-type" of String, parameter "library-norm-method" of
-           String, parameter "multi-read-correct" of String, parameter
-           "min-alignment-count" of Long, parameter "dispersion-method" of
-           String, parameter "no-js-tests" of String, parameter
-           "frag-len-mean" of Long, parameter "frag-len-std-dev" of Long,
-           parameter "max-mle-iterations" of Long, parameter
-           "compatible-hits-norm" of String, parameter "no-length-correction"
-           of String
-        :returns: instance of type "RNASeqDifferentialExpression" (Result of
-           run_CuffDiff Object RNASeqDifferentialExpression file structure
-           @optional tool_opts tool_version sample_ids comments) ->
-           structure: parameter "tool_used" of String, parameter
-           "tool_version" of String, parameter "tool_opts" of list of mapping
-           from String to String, parameter "file" of type "Handle"
-           (@optional hid file_name type url remote_md5 remote_sha1) ->
-           structure: parameter "hid" of type "HandleId" (Input parameters
-           and output for run_cuffdiff), parameter "file_name" of String,
-           parameter "id" of String, parameter "type" of String, parameter
-           "url" of String, parameter "remote_md5" of String, parameter
-           "remote_sha1" of String, parameter "sample_ids" of list of String,
-           parameter "condition" of list of String, parameter "genome_id" of
-           String, parameter "expressionSet_id" of type
-           "ws_expressionSet_id", parameter "alignmentSet_id" of type
-           "ws_alignmentSet_id", parameter "sampleset_id" of type
-           "ws_Sampleset_id", parameter "comments" of String
+        :param params: instance of type "CuffdiffInput" (Required input
+           parameters for run_Cuffdiff. expressionset_ref           -  
+           reference for an expressionset object workspace_name             
+           -   workspace name to save the differential expression output
+           object diff_expression_obj_name    -   name of the differential
+           expression output object filtered_expression_matrix_name - name of
+           the filtered expression matrix output object) -> structure:
+           parameter "expressionset_ref" of type "obj_ref", parameter
+           "workspace_name" of String, parameter "diff_expression_obj_name"
+           of String, parameter "filtered_expression_matrix_name" of String,
+           parameter "library_norm_method" of String, parameter
+           "multi_read_correct" of type "boolean" (A boolean - 0 for false, 1
+           for true. @range (0, 1)), parameter "time_series" of type
+           "boolean" (A boolean - 0 for false, 1 for true. @range (0, 1)),
+           parameter "min_alignment_count" of Long
+        :returns: instance of type "CuffdiffResult" -> structure: parameter
+           "result_directory" of String, parameter "diff_expression_obj_ref"
+           of type "obj_ref", parameter "filtered_expression_matrix_ref" of
+           type "obj_ref", parameter "report_name" of String, parameter
+           "report_ref" of String
         """
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN run_Cuffdiff
+        print("In Run Cuffdiff")
+        returnVal = self.cuffdiff_runner.run_cuffdiff(params)
         #END run_Cuffdiff
 
         # At some point might do deeper type checking...

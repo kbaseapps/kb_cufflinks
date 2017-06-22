@@ -35,6 +35,7 @@ class kb_cufflinksTest(unittest.TestCase):
             cls.cfg[nameval[0]] = nameval[1]
         # Getting username from Auth profile for token
         authServiceUrl = cls.cfg['auth-service-url']
+        #authServiceUrlAllowInsecure = cls.cfg['auth_service_url_allow_insecure']
         auth_client = _KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
@@ -79,7 +80,7 @@ class kb_cufflinksTest(unittest.TestCase):
         return self.__class__.ctx
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def test_cufflinks(self):
+    def test_cuffdiff(self):
         # Prepare test objects in workspace if needed using
         # self.getWsClient().save_objects({'workspace': self.getWsName(),
         #                                  'objects': []})
@@ -89,4 +90,10 @@ class kb_cufflinksTest(unittest.TestCase):
         #
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
-        pass
+
+        params = {'expressionset_ref': '22254/32/1',
+                  'workspace_name': self.getWsName(),
+                  'diff_expression_obj_name': 'test_output_diffexp',
+                  'filtered_expression_matrix_name': 'test_output_expmatrix'
+                  }
+        self.getImpl().run_Cuffdiff(self.ctx, params)
