@@ -22,7 +22,6 @@ from kb_cufflinks.kb_cufflinksServer import MethodContext
 from kb_cufflinks.authclient import KBaseAuth as _KBaseAuth
 
 class kb_cufflinksTest(unittest.TestCase):
-    '''
 
     @classmethod
     def setUpClass(cls):
@@ -122,4 +121,4 @@ class kb_cufflinksTest(unittest.TestCase):
         result_dir = retVal['result_directory']
         result_file = os.path.split(result_dir)[1] + '.zip'
         self.assertEqual(f['file_name'], result_file)
-    '''
+

@@ -122,7 +122,7 @@ class CufflinksTest(unittest.TestCase):
         '''
         # data has to be copied to tmp dir so it can be seen by
         # ReadsAlignmentUtils subjob running in a separate docker container
-        shutil.copy('/kb/module/test/data/accepted_hits.bam', '/kb/module/work/tmp')
+        shutil.copy('/kb/module/test/data/WT1_alignment.bam', '/kb/module/work/tmp')
 
 
 
@@ -156,8 +156,8 @@ class CufflinksTest(unittest.TestCase):
 
         # upload alignment file
         params = {
-                  'destination_ref': self.getWsName() + '/accepted_hits.bam',
-                  'file_path': '/kb/module/work/tmp/accepted_hits.bam',
+                  'destination_ref': self.getWsName() + '/WT1_alignment.bam',
+                  'file_path': '/kb/module/work/tmp/WT1_alignment.bam',
                   'validate': 'True',
                   'read_library_ref': self.getWsName() + '/extracted_hy5_rep1.fastq',
                   'assembly_or_genome_ref': self.getWsName() + '/at_chrom1_section',
@@ -169,7 +169,7 @@ class CufflinksTest(unittest.TestCase):
 
         params = {
             "ws_id": "Cufflinks_test_arfath",
-            "sample_alignment_ref" : "accepted_hits.bam",
+            "sample_alignment_ref" : "WT1_alignment.bam",
             "genome_ref" : "at_chrom1_section",
             "min-intron-length" : 50,
             "max-intron-length" : 300000,
