@@ -29,6 +29,11 @@ parameters :
         RNA-seq Alignment
     short-hint : |
         Select the RNA-seq alignment created by Bowtie2 or TopHat2 or HISAT2.
+  genome_ref :
+    ui-name : |
+        Genome
+    short-hint : |
+        Select the Genome that was used to build the specified alignment.
   min_intron_length :
     ui-name : |
       Minimum Intron Length
