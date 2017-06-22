@@ -6,7 +6,7 @@ behavior across different taskrunners and reduce code repetition of similar task
 import os
 import shutil
 import logging
-
+import errno
 
 def create_logger(log_dir, name):
     """Create a logger
@@ -65,6 +65,20 @@ def gen_recursive_filelist(d):
         for file in files:
             yield os.path.join(root, file)
 
+
+def _mkdir_p(path):
+    """
+    _mkdir_p: make directory for given path
+    """
+    if not path:
+        return
+    try:
+        os.makedirs(path)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
 
 def get_dir(d):
     """
