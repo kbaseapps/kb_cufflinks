@@ -437,10 +437,10 @@ class CuffDiff:
         returnVal = {'result_directory': cuffdiff_dir,
                      'diff_expression_obj_ref': diffexp_obj_ref
                      }
-
+        '''
         report_output = self._generate_report(diffexp_obj_ref,
                                               params,
                                               cuffdiff_dir)
         returnVal.update(report_output)
-
+        '''
         return returnVal
