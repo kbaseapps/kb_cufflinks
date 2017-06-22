@@ -23,6 +23,7 @@ from kb_cufflinks.authclient import KBaseAuth as _KBaseAuth
 
 class kb_cufflinksTest(unittest.TestCase):
 
+
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
@@ -97,6 +98,7 @@ class kb_cufflinksTest(unittest.TestCase):
                   'filtered_expression_matrix_name': 'test_output_expmatrix',
                   'library_norm_method': 'geometric'
                   }
+
         retVal = self.getImpl().run_Cuffdiff(self.ctx, params)[0]
 
         inputObj = self.dfu.get_objects(
@@ -120,4 +122,3 @@ class kb_cufflinksTest(unittest.TestCase):
         result_dir = retVal['result_directory']
         result_file = os.path.split(result_dir)[1] + '.zip'
         self.assertEqual(f['file_name'], result_file)
-

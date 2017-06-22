@@ -1,0 +1,13 @@
+{	
+	"version":"1.1",
+	"method":"kb_cufflinks.CufflinksCall",
+	"context": null,
+	"params":[ 	
+	{
+  	"ws_id": "Cufflinks_test_$user_id",
+	"alignmentset_id" : "accepted_hits.bam",
+    "min-intron-length" : 50,
+	"max-intron-length" : 300000,
+    "overhang-tolerance" : 8
+	}]	
+}

@@ -19,7 +19,8 @@ module kb_cufflinks {
 
 	typedef structure{
 		string ws_id;
-		string sample_alignment;
+		string sample_alignment_ref;
+		string genome_ref;
 		int num_threads;
 		/*string library-type; */
 		/*string library-norm-method; */
