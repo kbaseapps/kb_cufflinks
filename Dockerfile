@@ -21,19 +21,36 @@ RUN pip install cffi --upgrade \
     && pip install requests --upgrade \
     && pip install 'requests[security]' --upgrade
 
+# ---------------------------------------------------------
+
 # download Cufflinks software and untar it
 ENV VERSION='2.2.1'
 ENV DEST=/opt/cufflinks
+
 RUN cd /opt && \
     mkdir -p $DEST && \
     wget "http://cole-trapnell-lab.github.io/cufflinks/assets/downloads/cufflinks-${VERSION}.Linux_x86_64.tar.gz" && \
     tar -xzvf cufflinks-${VERSION}.Linux_x86_64.tar.gz && \
     rm cufflinks-${VERSION}.Linux_x86_64.tar.gz && \
     cd cufflinks-${VERSION}.Linux_x86_64 && \
-	#make
 	cp `find . -maxdepth 1 -perm -111 -type f` ${DEST} && \
 	cd ../ && \
 	rm -rf cufflinks-${VERSION}.Linux_x86_64
+
+ENV PATH $PATH:${DEST}
+
+# ---------------------------------------------------------
+
+# download gffread script
+RUN cd /kb/dev_container/modules && \
+    mkdir gffread && cd gffread && \
+    wget http://ccb.jhu.edu/software/stringtie/dl/gffread-0.9.9.Linux_x86_64.tar.gz &&\
+    tar xvfz gffread-0.9.9.Linux_x86_64.tar.gz && \
+    cd gffread-0.9.9.Linux_x86_64 && \
+    mkdir /kb/deployment/bin/gffread && \
+    cp -R gffread /kb/deployment/bin/gffread/gffread
+
+# ---------------------------------------------------------
 
 COPY ./ /kb/module
 RUN mkdir -p /kb/module/work
