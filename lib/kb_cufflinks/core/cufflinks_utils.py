@@ -67,7 +67,7 @@ class CufflinksUtils:
 
     def run_cufflinks_app(self, params, common_params, task_params):
         ws_client = common_params['ws_client']
-        hs = common_params['hs_client']
+        #hs = common_params['hs_client']
         logger = self.logger
         token = common_params['user_token']
 
