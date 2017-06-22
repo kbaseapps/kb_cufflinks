@@ -60,7 +60,7 @@
       }
     },
     {
-      "id": "library-norm-method",
+      "id": "library_norm_method",
       "optional": true,
       "advanced": true,
       "allow_multiple": false,
@@ -73,7 +73,7 @@
       }
     },
     {
-      "id": "multi-read-correct",
+      "id": "multi_read_correct",
       "optional": true,
       "advanced": true,
       "allow_multiple": false,
@@ -101,7 +101,7 @@
       }
     },
     {
-      "id": "min-alignment-count",
+      "id": "min_alignment_count",
       "optional": true,
       "advanced": true,
       "allow_multiple": false,
@@ -126,29 +126,25 @@
           "target_property": "workspace_name"
         },
         {
-          "constant_value": "log2",
-          "target_property": "fold_scale_type"
-        },
-        {
           "input_parameter": "expressionset_ref",
           "target_type_transform": "resolved-ref",
           "target_property": "expressionset_ref"
         },
         {
-          "input_parameter": "min-alignment-count",
-          "target_property": "min-alignment-count"
+          "input_parameter": "min_alignment_count",
+          "target_property": "min_alignment_count"
         },
         {
-          "input_parameter": "multi-read-correct",
-          "target_property": "multi-read-correct"
+          "input_parameter": "multi_read_correct",
+          "target_property": "multi_read_correct"
         },
         {
-          "input_parameter": "time-series",
-          "target_property": "time-series"
+          "input_parameter": "time_series",
+          "target_property": "time_series"
         },
         {
-          "input_parameter": "library-norm-method",
-          "target_property": "library-norm-method"
+          "input_parameter": "library_norm_method",
+          "target_property": "library_norm_method"
         },
         {
           "input_parameter": "filtered_expression_matrix_name",

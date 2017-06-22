@@ -301,10 +301,12 @@ CuffdiffInput is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a string
 	diff_expression_obj_name has a value which is a string
 	filtered_expression_matrix_name has a value which is a string
-	library-norm-method has a value which is a string
-	multi-read-correct has a value which is a string
-	min-alignment-count has a value which is an int
+	library_norm_method has a value which is a string
+	multi_read_correct has a value which is a kb_cufflinks.boolean
+	time_series has a value which is a kb_cufflinks.boolean
+	min_alignment_count has a value which is an int
 obj_ref is a string
+boolean is an int
 CuffdiffResult is a reference to a hash where the following keys are defined:
 	result_directory has a value which is a string
 	diff_expression_obj_ref has a value which is a kb_cufflinks.obj_ref
@@ -325,10 +327,12 @@ CuffdiffInput is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a string
 	diff_expression_obj_name has a value which is a string
 	filtered_expression_matrix_name has a value which is a string
-	library-norm-method has a value which is a string
-	multi-read-correct has a value which is a string
-	min-alignment-count has a value which is an int
+	library_norm_method has a value which is a string
+	multi_read_correct has a value which is a kb_cufflinks.boolean
+	time_series has a value which is a kb_cufflinks.boolean
+	min_alignment_count has a value which is an int
 obj_ref is a string
+boolean is an int
 CuffdiffResult is a reference to a hash where the following keys are defined:
 	result_directory has a value which is a string
 	diff_expression_obj_ref has a value which is a kb_cufflinks.obj_ref
@@ -597,11 +601,6 @@ overhang-tolerance has a value which is an int
 
 
 
-=item Description
-
-An X/Y/Z style reference
-
-
 =item Definition
 
 =begin html
@@ -648,9 +647,10 @@ expressionset_ref has a value which is a kb_cufflinks.obj_ref
 workspace_name has a value which is a string
 diff_expression_obj_name has a value which is a string
 filtered_expression_matrix_name has a value which is a string
-library-norm-method has a value which is a string
-multi-read-correct has a value which is a string
-min-alignment-count has a value which is an int
+library_norm_method has a value which is a string
+multi_read_correct has a value which is a kb_cufflinks.boolean
+time_series has a value which is a kb_cufflinks.boolean
+min_alignment_count has a value which is an int
 
 </pre>
 
@@ -663,9 +663,10 @@ expressionset_ref has a value which is a kb_cufflinks.obj_ref
 workspace_name has a value which is a string
 diff_expression_obj_name has a value which is a string
 filtered_expression_matrix_name has a value which is a string
-library-norm-method has a value which is a string
-multi-read-correct has a value which is a string
-min-alignment-count has a value which is an int
+library_norm_method has a value which is a string
+multi_read_correct has a value which is a kb_cufflinks.boolean
+time_series has a value which is a kb_cufflinks.boolean
+min_alignment_count has a value which is an int
 
 
 =end text

@@ -80,17 +80,18 @@ class kb_cufflinks(object):
            object diff_expression_obj_name    -   name of the differential
            expression output object filtered_expression_matrix_name - name of
            the filtered expression matrix output object) -> structure:
-           parameter "expressionset_ref" of type "obj_ref" (An X/Y/Z style
-           reference), parameter "workspace_name" of String, parameter
-           "diff_expression_obj_name" of String, parameter
-           "filtered_expression_matrix_name" of String, parameter
-           "library-norm-method" of String, parameter "multi-read-correct" of
-           String, parameter "min-alignment-count" of Long
+           parameter "expressionset_ref" of type "obj_ref", parameter
+           "workspace_name" of String, parameter "diff_expression_obj_name"
+           of String, parameter "filtered_expression_matrix_name" of String,
+           parameter "library_norm_method" of String, parameter
+           "multi_read_correct" of type "boolean" (A boolean - 0 for false, 1
+           for true. @range (0, 1)), parameter "time_series" of type
+           "boolean" (A boolean - 0 for false, 1 for true. @range (0, 1)),
+           parameter "min_alignment_count" of Long
         :returns: instance of type "CuffdiffResult" -> structure: parameter
            "result_directory" of String, parameter "diff_expression_obj_ref"
-           of type "obj_ref" (An X/Y/Z style reference), parameter
-           "filtered_expression_matrix_ref" of type "obj_ref" (An X/Y/Z style
-           reference), parameter "report_name" of String, parameter
+           of type "obj_ref", parameter "filtered_expression_matrix_ref" of
+           type "obj_ref", parameter "report_name" of String, parameter
            "report_ref" of String
         """
         return self._client.call_method(

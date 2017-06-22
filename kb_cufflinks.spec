@@ -31,9 +31,7 @@ module kb_cufflinks {
     async funcdef CufflinksCall(CufflinksParams params)
 		returns (ResultsToReport) authentication required;
 
-    /*
-    An X/Y/Z style reference
-    */
+
     typedef string obj_ref;
 
     /*
@@ -51,9 +49,11 @@ module kb_cufflinks {
         string      diff_expression_obj_name;
         string      filtered_expression_matrix_name;
 
-        string      library-norm-method;    /* Optional */
-        string      multi-read-correct;     /* Optional */
-        int         min-alignment-count;    /* Optional */
+        string      library_norm_method;    /* Optional */
+        boolean     multi_read_correct;     /* Optional */
+        boolean     time_series;
+        int         min_alignment_count;    /* Optional */
+
     } CuffdiffInput;
 
     typedef structure{

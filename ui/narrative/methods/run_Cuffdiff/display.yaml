@@ -37,22 +37,22 @@ parameters :
       Expression Matrix Object Name
     short-hint : |
       Provide the name of filtered differential expression Matrix
-  library-norm-method:
+  library_norm_method:
       ui-name : |
           Library norm method
       short-hint : |
           Method used to normalize library sizes
-  multi-read-correct :
+  multi_read_correct :
       ui-name : |
           Multi read correct
       short-hint : |
           Use 'rescue method' for multi-reads
-  time-series :
+  time_series :
       ui-name : |
           Time series
       short-hint : |
           Treat samples as a time-series
-  min-alignment-count :
+  min_alignment_count :
       ui-name : |
           Min alignment count
       short-hint : |

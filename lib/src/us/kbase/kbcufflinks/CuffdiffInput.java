@@ -29,9 +29,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "workspace_name",
     "diff_expression_obj_name",
     "filtered_expression_matrix_name",
-    "library-norm-method",
-    "multi-read-correct",
-    "min-alignment-count"
+    "library_norm_method",
+    "multi_read_correct",
+    "time_series",
+    "min_alignment_count"
 })
 public class CuffdiffInput {
 
@@ -43,11 +44,13 @@ public class CuffdiffInput {
     private String diffExpressionObjName;
     @JsonProperty("filtered_expression_matrix_name")
     private String filteredExpressionMatrixName;
-    @JsonProperty("library-norm-method")
+    @JsonProperty("library_norm_method")
     private String libraryNormMethod;
-    @JsonProperty("multi-read-correct")
-    private String multiReadCorrect;
-    @JsonProperty("min-alignment-count")
+    @JsonProperty("multi_read_correct")
+    private Long multiReadCorrect;
+    @JsonProperty("time_series")
+    private Long timeSeries;
+    @JsonProperty("min_alignment_count")
     private Long minAlignmentCount;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -111,12 +114,12 @@ public class CuffdiffInput {
         return this;
     }
 
-    @JsonProperty("library-norm-method")
+    @JsonProperty("library_norm_method")
     public String getLibraryNormMethod() {
         return libraryNormMethod;
     }
 
-    @JsonProperty("library-norm-method")
+    @JsonProperty("library_norm_method")
     public void setLibraryNormMethod(String libraryNormMethod) {
         this.libraryNormMethod = libraryNormMethod;
     }
@@ -126,27 +129,42 @@ public class CuffdiffInput {
         return this;
     }
 
-    @JsonProperty("multi-read-correct")
-    public String getMultiReadCorrect() {
+    @JsonProperty("multi_read_correct")
+    public Long getMultiReadCorrect() {
         return multiReadCorrect;
     }
 
-    @JsonProperty("multi-read-correct")
-    public void setMultiReadCorrect(String multiReadCorrect) {
+    @JsonProperty("multi_read_correct")
+    public void setMultiReadCorrect(Long multiReadCorrect) {
         this.multiReadCorrect = multiReadCorrect;
     }
 
-    public CuffdiffInput withMultiReadCorrect(String multiReadCorrect) {
+    public CuffdiffInput withMultiReadCorrect(Long multiReadCorrect) {
         this.multiReadCorrect = multiReadCorrect;
         return this;
     }
 
-    @JsonProperty("min-alignment-count")
+    @JsonProperty("time_series")
+    public Long getTimeSeries() {
+        return timeSeries;
+    }
+
+    @JsonProperty("time_series")
+    public void setTimeSeries(Long timeSeries) {
+        this.timeSeries = timeSeries;
+    }
+
+    public CuffdiffInput withTimeSeries(Long timeSeries) {
+        this.timeSeries = timeSeries;
+        return this;
+    }
+
+    @JsonProperty("min_alignment_count")
     public Long getMinAlignmentCount() {
         return minAlignmentCount;
     }
 
-    @JsonProperty("min-alignment-count")
+    @JsonProperty("min_alignment_count")
     public void setMinAlignmentCount(Long minAlignmentCount) {
         this.minAlignmentCount = minAlignmentCount;
     }
@@ -168,7 +186,7 @@ public class CuffdiffInput {
 
     @Override
     public String toString() {
-        return ((((((((((((((((("CuffdiffInput"+" [expressionsetRef=")+ expressionsetRef)+", workspaceName=")+ workspaceName)+", diffExpressionObjName=")+ diffExpressionObjName)+", filteredExpressionMatrixName=")+ filteredExpressionMatrixName)+", libraryNormMethod=")+ libraryNormMethod)+", multiReadCorrect=")+ multiReadCorrect)+", minAlignmentCount=")+ minAlignmentCount)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((("CuffdiffInput"+" [expressionsetRef=")+ expressionsetRef)+", workspaceName=")+ workspaceName)+", diffExpressionObjName=")+ diffExpressionObjName)+", filteredExpressionMatrixName=")+ filteredExpressionMatrixName)+", libraryNormMethod=")+ libraryNormMethod)+", multiReadCorrect=")+ multiReadCorrect)+", timeSeries=")+ timeSeries)+", minAlignmentCount=")+ minAlignmentCount)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
