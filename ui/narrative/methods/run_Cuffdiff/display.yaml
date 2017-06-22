@@ -1,7 +1,7 @@
 #
 # Define basic display information
 #
-name     : Identify Differential Expression using Cuffdiff
+name     : Identify Differential Expression using Cuffdiff v2.2.1
 
 tooltip  : |
     Identify significant changes in the gene and transcript expression level using Cuffdiff
