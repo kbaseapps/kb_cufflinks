@@ -131,14 +131,14 @@ class CuffDiff:
         handler_utils._mkdir_p(output_directory)
         result_file_path = os.path.join(output_directory, 'report.html')
 
-        shutil.copy2(os.path.join(result_directory, 'cuffdiff_MAplot.png'),
-                     os.path.join(output_directory, 'dispersion_plots.png'))
-        shutil.copy2(os.path.join(result_directory, 'PCA_MAplot.png'),
-                     os.path.join(output_directory, 'PCA_plots.png'))
-        shutil.copy2(os.path.join(result_directory, 'pvaluesPlot.png'),
-                     os.path.join(output_directory, 'pvalues_plots.png'))
-        shutil.copy2(os.path.join(result_directory, 'qvaluesPlot.png'),
-                     os.path.join(output_directory, 'qvalues_plots.png'))
+        shutil.copy2(os.path.join(result_directory, 'gene_exp.diff'),
+                     os.path.join(output_directory, 'gene_exp.diff'))
+        shutil.copy2(os.path.join(result_directory, 'isoform_exp.diff'),
+                     os.path.join(output_directory, 'isoform_exp.diff'))
+        shutil.copy2(os.path.join(result_directory, 'promoters.diff'),
+                     os.path.join(output_directory, 'promoters.diff'))
+        shutil.copy2(os.path.join(result_directory, 'splicing.diff'),
+                     os.path.join(output_directory, 'splicing.diff'))
 
         overview_content = ''
         overview_content += '<p>Generated Differential Expression: {}({})</p>'.format(
@@ -158,7 +158,7 @@ class CuffDiff:
         html_report.append({'shock_id': report_shock_id,
                             'name': os.path.basename(result_file_path),
                             'label': os.path.basename(result_file_path),
-                            'description': 'HTML summary report for DESeq2 App'})
+                            'description': 'HTML summary report for Cuffdiff App'})
         return html_report
 
     def _generate_report(self, diff_expression_obj_ref,
@@ -436,10 +436,10 @@ class CuffDiff:
         returnVal = {'result_directory': cuffdiff_dir,
                      'diff_expression_obj_ref': diffexp_obj_ref
                      }
-        '''
+
         report_output = self._generate_report(diffexp_obj_ref,
                                               params,
-                                              result_directory)
+                                              cuffdiff_dir)
         returnVal.update(report_output)
-        '''
+
         return returnVal
