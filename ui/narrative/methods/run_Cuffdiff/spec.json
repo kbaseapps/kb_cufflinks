@@ -69,12 +69,12 @@
     "dropdown_options":{
       "options": [
         {
-          "value": "classic-fpkm",
-          "display": "no scaling to FPKM"
-        },
-        {
           "value": "geometric",
           "display": "geometric"
+        },
+        {
+          "value": "classic-fpkm",
+          "display": "no scaling to FPKM"
         },
         {
           "value": "quartile",

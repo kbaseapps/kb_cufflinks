@@ -16,11 +16,10 @@ except:
 from pprint import pprint  # noqa: F401
 
 from biokbase.workspace.client import Workspace as workspaceService
+from DataFileUtil.DataFileUtilClient import DataFileUtil
 from kb_cufflinks.kb_cufflinksImpl import kb_cufflinks
 from kb_cufflinks.kb_cufflinksServer import MethodContext
 from kb_cufflinks.authclient import KBaseAuth as _KBaseAuth
-from biokbase.workspace.client import Workspace as Workspace
-
 
 class kb_cufflinksTest(unittest.TestCase):
 
@@ -54,6 +53,7 @@ class kb_cufflinksTest(unittest.TestCase):
         cls.serviceImpl = kb_cufflinks(cls.cfg)
         cls.scratch = cls.cfg['scratch']
         cls.callback_url = os.environ['SDK_CALLBACK_URL']
+        cls.dfu = DataFileUtil(cls.callback_url)
 
     @classmethod
     def tearDownClass(cls):
@@ -80,7 +80,7 @@ class kb_cufflinksTest(unittest.TestCase):
         return self.__class__.ctx
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def test_cuffdiff(self):
+    def test_cuffdiff_success(self):
         # Prepare test objects in workspace if needed using
         # self.getWsClient().save_objects({'workspace': self.getWsName(),
         #                                  'objects': []})
@@ -94,6 +94,30 @@ class kb_cufflinksTest(unittest.TestCase):
         params = {'expressionset_ref': '22254/32/1',
                   'workspace_name': self.getWsName(),
                   'diff_expression_obj_name': 'test_output_diffexp',
-                  'filtered_expression_matrix_name': 'test_output_expmatrix'
+                  'filtered_expression_matrix_name': 'test_output_expmatrix',
+                  'library_norm_method': 'geometric'
                   }
-        self.getImpl().run_Cuffdiff(self.ctx, params)
+        retVal = self.getImpl().run_Cuffdiff(self.ctx, params)[0]
+
+        inputObj = self.dfu.get_objects(
+            {'object_refs': [retVal.get('diff_expression_obj_ref')]})['data'][0]
+
+        obj = self.dfu.get_objects(
+            {'object_refs': [retVal.get('diff_expression_obj_ref')]})['data'][0]
+
+        print("============ DIFFERENTIAL EXPRESSION OUTPUT ==============")
+        pprint(obj)
+        print("==========================================================")
+
+        self.assertEqual(obj['info'][2].startswith('KBaseRNASeq.RNASeqDifferentialExpression'), True)
+        d = obj['data']
+        self.assertEqual(d['genome_id'], inputObj['data']['genome_id'])
+        self.assertEqual(d['expressionSet_id'], inputObj['data']['expressionSet_id'])
+        self.assertEqual(d['alignmentSet_id'], inputObj['data']['alignmentSet_id'])
+        self.assertEqual(d['sampleset_id'], inputObj['data']['sampleset_id'])
+
+        f = d['file']
+        result_dir = retVal['result_directory']
+        result_file = os.path.split(result_dir)[1] + '.zip'
+        self.assertEqual(f['file_name'], result_file)
+

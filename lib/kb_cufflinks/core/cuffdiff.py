@@ -5,7 +5,7 @@ import errno
 import zipfile
 import shutil
 import multiprocessing as mp
-
+import handler_utils
 import script_utils
 from cuffmerge import CuffMerge
 
@@ -17,20 +17,6 @@ from KBaseReport.KBaseReportClient import KBaseReport
 class CuffDiff:
 
     GFFREAD_TOOLKIT_PATH = '/kb/deployment/bin/gffread'
-
-    def _mkdir_p(self, path):
-        """
-        _mkdir_p: make directory for given path
-        """
-        if not path:
-            return
-        try:
-            os.makedirs(path)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(path):
-                pass
-            else:
-                raise
 
     def _process_params(self, params):
         """
@@ -98,7 +84,7 @@ class CuffDiff:
         output_files = list()
 
         output_directory = os.path.join(self.scratch, 'outfile_' + str(uuid.uuid4()))
-        self._mkdir_p(output_directory)
+        handler_utils._mkdir_p(output_directory)
         result_file = os.path.join(output_directory, 'cuffdiff_result.zip')
         plot_file = os.path.join(output_directory, 'cuffdiff_plot.zip')
 
@@ -142,7 +128,7 @@ class CuffDiff:
         html_report = list()
 
         output_directory = os.path.join(self.scratch, str(uuid.uuid4()))
-        self._mkdir_p(output_directory)
+        handler_utils._mkdir_p(output_directory)
         result_file_path = os.path.join(output_directory, 'report.html')
 
         shutil.copy2(os.path.join(result_directory, 'cuffdiff_MAplot.png'),
@@ -288,7 +274,7 @@ class CuffDiff:
                 handle_id = expression_data.get('file').get('hid')
                 expression_name = os.path.splitext(expression_data.get('file').get('file_name'))[0]
                 tmp_gtf_directory = os.path.join(result_directory, expression_name)
-                self._mkdir_p(tmp_gtf_directory)
+                handler_utils._mkdir_p(tmp_gtf_directory)
 
                 self.dfu.shock_to_file({'handle_id': handle_id,
                                         'file_path': tmp_gtf_directory,
@@ -311,7 +297,7 @@ class CuffDiff:
                 handle_id = alignment_data.get('file').get('hid')
                 alignment_name, ext = os.path.splitext(alignment_data.get('file').get('file_name'))
                 tmp_bam_directory = os.path.join(result_directory, alignment_name)
-                self._mkdir_p(tmp_bam_directory)
+                handler_utils._mkdir_p(tmp_bam_directory)
 
                 self.dfu.shock_to_file({'handle_id': handle_id,
                                         'file_path': tmp_bam_directory,
@@ -373,13 +359,13 @@ class CuffDiff:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.scratch = os.path.join(config['scratch'], 'cuffdiff_merge_' + str(uuid.uuid4()))
         self.ws_url = config['workspace-url']
-        self._mkdir_p(self.scratch)
         self.services = services
         self.ws_client = Workspace(self.services['workspace_service_url'])
         self.dfu = DataFileUtil(self.callback_url)
         self.gfu = GenomeFileUtil(self.callback_url)
         self.cuffmerge_runner = CuffMerge(config, logger)
         self.num_threads = mp.cpu_count()
+        handler_utils._mkdir_p(self.scratch)
 
     def run_cuffdiff(self, params):
         """
@@ -389,7 +375,7 @@ class CuffDiff:
 
         expressionset_ref = params.get('expressionset_ref')
         result_directory = os.path.join(self.scratch, 'expset_' + str(uuid.uuid4()))
-        self._mkdir_p(result_directory)
+        handler_utils._mkdir_p(result_directory)
 
         """
         Get data from expressionset in a format needed for cuffmerge and cuffdiff
@@ -410,7 +396,7 @@ class CuffDiff:
         Assemble parameters and run cuffdiff
         """
         cuffdiff_dir = os.path.join(self.scratch, "cuffdiff_" + str(uuid.uuid4()))
-        self._mkdir_p(cuffdiff_dir)
+        handler_utils._mkdir_p(cuffdiff_dir)
 
         cuffdiff_command = self._assemble_cuffdiff_command(params,
                                                            expressionset_data,
