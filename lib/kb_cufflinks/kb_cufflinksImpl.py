@@ -17,12 +17,14 @@ from core import script_utils
 from core.cuffdiff import CuffDiff
 
 from biokbase.workspace.client import Workspace
-try:
-    from biokbase.HandleService.Client import HandleService
-except BaseException:
-    from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
+#try:
+#from biokbase.HandleService.Client import HandleService
+#except BaseException:
+#    from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
+
 from kb_cufflinks.core.cufflinks_utils import CufflinksUtils
 from pprint import pprint
+from DataFileUtil.DataFileUtilClient import DataFileUtil
 #END_HEADER
 
 
@@ -133,13 +135,15 @@ class kb_cufflinks:
         handler_utils.setupWorkingDir(self.__LOGGER, cufflinks_dir)
         # Set the common Params
         common_params = {'ws_client': Workspace(url=self.__WS_URL, token=ctx['token']),
-                         'hs_client': HandleService(url=self.__HS_URL, token=ctx['token']),
+#                         'hs_client': HandleService(url=self.__HS_URL, token=ctx['token']),
+                         'dfu' : DataFileUtil(self.__CALLBACK_URL),
                          'user_token': ctx['token']
                          }
 
         # for quick testing, we recover parameters here
         ws_client = common_params['ws_client']
-        hs = common_params['hs_client']
+        #hs = common_params['hs_client']
+        dfu = common_params['dfu']
         token = common_params['user_token']
         try:
             ################################################################
@@ -193,7 +197,7 @@ class kb_cufflinks:
                                                                        "KBaseRNASeq.GFFAnnotation",
                                                                        cufflinks_dir, token)
         if gtf_file is None:
-            script_utils.create_gtf_annotation_from_genome(self.__LOGGER, ws_client, hs, self.__SERVICES,
+            script_utils.create_gtf_annotation_from_genome(self.__LOGGER, ws_client, dfu, self.__SERVICES,
                                                            params['ws_id'], genome_id, genome_name,
                                                            cufflinks_dir, token)
         gtf_info = ws_client.get_object_info_new(

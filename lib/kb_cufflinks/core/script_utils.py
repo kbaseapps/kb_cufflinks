@@ -238,7 +238,7 @@ def check_and_download_existing_handle_obj(logger, ws_client, urls, ws_id, ws_ob
         raise Exception("Unable to download shock file, {0}".format(handle_name))
     return file_path
 
-def create_gtf_annotation_from_genome(logger,ws_client,hs_client,urls,ws_id,genome_ref,genome_name,directory,token):
+def create_gtf_annotation_from_genome(logger,ws_client,dfu,urls,ws_id,genome_ref,genome_name,directory,token):
     ref = ws_client.get_object_subset(
                                      [{ 'ref' : genome_ref ,'included': ['contigset_ref', 'assembly_ref']}])
     if 'contigset_ref' in ref[0]['data']:
@@ -274,7 +274,8 @@ def create_gtf_annotation_from_genome(logger,ws_client,hs_client,urls,ws_id,geno
                         gtf_path = file_path
                 logger.info("gtf file : " + gtf_path)
                 if os.path.exists(gtf_path):
-                               annotation_handle = hs_client.upload(gtf_path)
+                               #annotation_handle = hs_client.upload(gtf_path)
+                               annotation_handle = dfu.file_to_shock({'file_path': gtf_path})['handle']
                                a_handle = { "handle" : annotation_handle ,"size" : os.path.getsize(gtf_path), 'genome_id' : genome_ref}
                 ##Saving GFF/GTF annotation to the workspace
                 res= ws_client.save_objects(
