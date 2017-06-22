@@ -44,22 +44,6 @@
       }
     },
     {
-      "id": "filtered_expression_matrix_name",
-      "optional": false,
-      "advanced": false,
-      "allow_multiple": false,
-      "default_values": [
-        ""
-      ],
-      "field_type": "text",
-      "text_options": {
-        "valid_ws_types": [
-          "KBaseFeatureValues.ExpressionMatrix"
-        ],
-        "is_output_name": true
-      }
-    },
-    {
     "id" : "library_norm_method",
     "optional" : true,
     "advanced" : true,
@@ -156,10 +140,6 @@
         {
           "input_parameter": "library_norm_method",
           "target_property": "library_norm_method"
-        },
-        {
-          "input_parameter": "filtered_expression_matrix_name",
-          "target_property": "filtered_expression_matrix_name"
         },
         {
           "input_parameter": "diff_expression_obj_name",

@@ -179,7 +179,8 @@ $params is a kb_cufflinks.CufflinksParams
 $return is a kb_cufflinks.ResultsToReport
 CufflinksParams is a reference to a hash where the following keys are defined:
 	ws_id has a value which is a string
-	sample_alignment has a value which is a string
+	sample_alignment_ref has a value which is a string
+	genome_ref has a value which is a string
 	num_threads has a value which is an int
 	min-intron-length has a value which is an int
 	max-intron-length has a value which is an int
@@ -198,7 +199,8 @@ $params is a kb_cufflinks.CufflinksParams
 $return is a kb_cufflinks.ResultsToReport
 CufflinksParams is a reference to a hash where the following keys are defined:
 	ws_id has a value which is a string
-	sample_alignment has a value which is a string
+	sample_alignment_ref has a value which is a string
+	genome_ref has a value which is a string
 	num_threads has a value which is an int
 	min-intron-length has a value which is an int
 	max-intron-length has a value which is an int
@@ -568,7 +570,8 @@ report_ref has a value which is a string
 <pre>
 a reference to a hash where the following keys are defined:
 ws_id has a value which is a string
-sample_alignment has a value which is a string
+sample_alignment_ref has a value which is a string
+genome_ref has a value which is a string
 num_threads has a value which is an int
 min-intron-length has a value which is an int
 max-intron-length has a value which is an int
@@ -582,7 +585,8 @@ overhang-tolerance has a value which is an int
 
 a reference to a hash where the following keys are defined:
 ws_id has a value which is a string
-sample_alignment has a value which is a string
+sample_alignment_ref has a value which is a string
+genome_ref has a value which is a string
 num_threads has a value which is an int
 min-intron-length has a value which is an int
 max-intron-length has a value which is an int
@@ -634,7 +638,6 @@ Required input parameters for run_Cuffdiff.
 expressionset_ref           -   reference for an expressionset object
 workspace_name              -   workspace name to save the differential expression output object
 diff_expression_obj_name    -   name of the differential expression output object
-filtered_expression_matrix_name - name of the filtered expression matrix output object
 
 
 =item Definition
