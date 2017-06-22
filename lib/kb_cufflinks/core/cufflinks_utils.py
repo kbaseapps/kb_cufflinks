@@ -23,7 +23,7 @@ def parse_FPKMtracking_calc_TPM( filename ) :
     tpm_dict = {}
     gene_col = 0
     fpkm_col = 9
-    sum_fpkm = 0.0
+    sum_fpkm = 0.01
     with open( filename ) as f:
         next( f )
         for line in f:
@@ -105,16 +105,19 @@ class CufflinksUtils:
             except Exception, e:
                 raise Exception("Unable to download shock file, {0},{1}".format(a_filename, "".join(
                     traceback.format_exc())))
+
             try:
                 input_dir = os.path.join(input_direc, alignment_name)
                 if not os.path.exists(input_dir): os.mkdir(input_dir)
-                script_utils.unzip_files(logger, os.path.join(input_direc, a_filename), input_dir)
+                #script_utils.unzip_files(logger, os.path.join(input_direc, a_filename), input_dir)
             except Exception, e:
                 raise Exception(e)
                 logger.error("".join(traceback.format_exc()))
                 raise Exception("Unzip alignment files  error")
 
-            input_file = os.path.join(input_dir, "accepted_hits.bam")
+            #input_file = os.path.join(input_dir, "accepted_hits.bam")
+            input_file = os.path.join(input_direc, a_filename)
+            print('>>>>>>>>>>>>>>>>infile: ' + str(input_file))
             ### Adding advanced options to tophat command
             tool_opts = {k: str(v) for k, v in params.iteritems() if
                          not k in ('ws_id', 'num_threads') and v is not None}

@@ -266,7 +266,7 @@ def create_gtf_annotation_from_genome(logger,ws_client,hs_client,urls,ws_id,geno
                         gtf_cmd = " -E {0} -T -o {1}".format(file_path,gtf_path)
                         try:
                                    logger.info("Executing: gffread {0}".format(gtf_cmd))
-                                   cmdline_output = runProgram(None,"/opt/cufflinks/gffread",gtf_cmd,None,directory)
+                                   cmdline_output = runProgram(logger,"/opt/cufflinks/gffread",gtf_cmd,None,directory)
                         except Exception as e:
                                    raise Exception("Error Converting the GFF file to GTF using gffread {0},{1}".format(gtf_cmd,"".join(traceback.format_exc())))
                 else:

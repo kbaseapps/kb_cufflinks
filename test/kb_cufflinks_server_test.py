@@ -23,6 +23,7 @@ from biokbase.workspace.client import Workspace as Workspace
 
 
 class kb_cufflinksTest(unittest.TestCase):
+    '''
 
     @classmethod
     def setUpClass(cls):
@@ -90,3 +91,4 @@ class kb_cufflinksTest(unittest.TestCase):
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
         pass
+    '''
