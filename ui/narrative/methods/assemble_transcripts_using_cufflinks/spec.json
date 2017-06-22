@@ -95,8 +95,12 @@
       }],
       "output_mapping" : [
 	{
-         "service_method_output_path": [0,"output"],
-         "target_property": "output"
+         "service_method_output_path": [0,"alignment_ref"],
+         "target_property": "alignment_ref"
+        },
+        {
+         "service_method_output_path": [0,"expression_ref"],
+         "target_property": "expression_ref"
         },
         {
          "service_method_output_path": [0,"workspace"],

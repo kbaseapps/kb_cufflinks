@@ -76,7 +76,7 @@ class CufflinksTest(unittest.TestCase):
         except:
             ws_info = cls.ws.get_workspace_info({'workspace': cls.wsName})
             print("creating new workspace: " + str(ws_info))
-
+        '''
 
         # upload genbank file
         print('uploading genbank file to workspace...')
@@ -119,9 +119,11 @@ class CufflinksTest(unittest.TestCase):
                                   "name": reads_file_name})
         print('reads upload save result: ' + str(result))
 
+        '''
         # data has to be copied to tmp dir so it can be seen by
         # ReadsAlignmentUtils subjob running in a separate docker container
         shutil.copy('/kb/module/test/data/accepted_hits.bam', '/kb/module/work/tmp')
+
 
 
     @classmethod
@@ -177,9 +179,11 @@ class CufflinksTest(unittest.TestCase):
 
         out = self.getImpl().CufflinksCall(self.ctx, params)[0]
 
+        print('>>>>>>>>>>>>>>>>out: '+str(out))
+
         expression_set = self.__class__.wsClient.get_objects([
             {'workspace': params['ws_id'],
-             'name': out[1]}])
+             'name': out['expression_ref']}])
 
         self.assertEqual('KBaseRNASeq.RNASeqExpression-6.0',
                          expression_set[0]['info'][2],

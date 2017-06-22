@@ -117,7 +117,7 @@ class CufflinksUtils:
 
             #input_file = os.path.join(input_dir, "accepted_hits.bam")
             input_file = os.path.join(input_direc, a_filename)
-            print('>>>>>>>>>>>>>>>>infile: ' + str(input_file))
+
             ### Adding advanced options to tophat command
             tool_opts = {k: str(v) for k, v in params.iteritems() if
                          not k in ('ws_id', 'num_threads') and v is not None}
@@ -219,6 +219,8 @@ class CufflinksUtils:
             ret = script_utils.if_obj_exists(None, ws_client, ws_id, "KBaseRNASeq.RNASeqExpression",
                                             [output_name])
             if not ret is None:
-                return (alignment_name, output_name)
+                return {'alignment_ref':alignment_name,
+                        'expression_ref' : output_name,
+                        'workspace' : ws_id}
         return None
         
