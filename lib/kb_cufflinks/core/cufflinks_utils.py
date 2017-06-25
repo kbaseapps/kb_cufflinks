@@ -5,6 +5,14 @@ import os
 import script_utils
 import shutil
 from pprint import pprint
+import uuid
+import errno
+
+from DataFileUtil.DataFileUtilClient import DataFileUtil
+from Workspace.WorkspaceClient import Workspace as Workspace
+from KBaseReport.KBaseReportClient import KBaseReport
+from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
+from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
 
 
 def log(message, prefix_newline=False):
@@ -12,39 +20,10 @@ def log(message, prefix_newline=False):
     print(('\n' if prefix_newline else '') + '{0:.2f}'.format(time.time()) + ': ' + str(message))
 
 
-#
-# added to provide TPM expression for cufflinks output
-# Cufflinks doesn't produce TPM, we infer from FPKM
-# (see discussion @ https://www.biostars.org/p/160989/)
-#
-def parse_FPKMtracking_calc_TPM( filename ) :
-
-    fpkm_dict = {}
-    tpm_dict = {}
-    gene_col = 0
-    fpkm_col = 9
-    sum_fpkm = 0.01
-    with open( filename ) as f:
-        next( f )
-        for line in f:
-            larr = line.split("\t")
-            gene_id = larr[gene_col]
-            if gene_id != "":
-                fpkm = float( larr[fpkm_col] )
-                sum_fpkm = sum_fpkm + fpkm
-                fpkm_dict[gene_id] = math.log( fpkm + 1, 2 )
-                tpm_dict[gene_id] = fpkm
-
-    for g in tpm_dict:
-        tpm_dict[g] = math.log( ( tpm_dict[g] / sum_fpkm ) * 1e6 + 1, 2 )
-
-    return  fpkm_dict, tpm_dict
-
-
 class CufflinksUtils:
     CUFFLINKS_TOOLKIT_PATH = '/opt/cufflinks/cufflinks'
     
-    def __init__(self, config, logger, directory, urls):
+    def __init__(self, config):
         """
         
         :param config: 
@@ -53,19 +32,41 @@ class CufflinksUtils:
         :param urls: Service urls
         """
         #BEGIN_CONSTRUCTOR
-        self.config = config
-        self.config['SDK_CALLBACK_URL'] = os.environ['SDK_CALLBACK_URL']
-        self.config['KB_AUTH_TOKEN'] = os.environ['KB_AUTH_TOKEN']
-        self.logger = logger
-        self.directory = directory
-        self.urls = urls
+        self.ws_url = config["workspace-url"]
+        self.callback_url = config['SDK_CALLBACK_URL']
+        self.token = config['KB_AUTH_TOKEN']
+        self.shock_url = config['shock-url']
+        self.dfu = DataFileUtil(self.callback_url)
+        self.gfu = GenomeFileUtil(self.callback_url)
+        self.rau = ReadsAlignmentUtils(self.callback_url)
+        self.ws = Workspace(self.ws_url, token=self.token)
+
+        self.scratch = os.path.join(config['scratch'], str(uuid.uuid4()))
+        self._mkdir_p(self.scratch)
+
         self.tool_used = "Cufflinks"
         self.tool_version = os.environ['VERSION']
-
         #END_CONSTRUCTOR
         pass
 
-    def run_cufflinks_app(self, params, common_params, task_params):
+    def _mkdir_p(self, path):
+        """
+        _mkdir_p: make directory for given path
+        """
+        if not path:
+            return
+        try:
+            os.makedirs(path)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
+
+    def run_cufflinks_app(self, params):
+        print('>>>>>>>>>>>>>>>>>came here ')
+        return None
+        '''
         ws_client = common_params['ws_client']
         #hs = common_params['hs_client']
         logger = self.logger
@@ -115,7 +116,7 @@ class CufflinksUtils:
                 logger.error("".join(traceback.format_exc()))
                 raise Exception("Unzip alignment files  error")
 
-            #input_file = os.path.join(input_dir, "accepted_hits.bam")
+            #input_file = os.path.join(input_dir, "accepted_hits.bam.bk")
             input_file = os.path.join(input_direc, a_filename)
 
             ### Adding advanced options to tophat command
@@ -219,8 +220,7 @@ class CufflinksUtils:
             ret = script_utils.if_obj_exists(None, ws_client, ws_id, "KBaseRNASeq.RNASeqExpression",
                                             [output_name])
             if not ret is None:
-                return {'alignment_ref':alignment_name,
-                        'expression_ref' : output_name,
-                        'workspace' : ws_id}
+                return (output_name, ws_id)
         return None
+        '''
         

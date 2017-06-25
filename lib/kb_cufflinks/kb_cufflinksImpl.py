@@ -6,15 +6,8 @@ import time
 import sys
 import json
 from core import script_utils
-from core import handler_utils
-import os
-import logging
-import time
-import sys
-import json
-import traceback
-from core import script_utils
 from core.cuffdiff import CuffDiff
+from core.cufflinks_utils import CufflinksUtils
 
 from biokbase.workspace.client import Workspace
 #try:
@@ -55,53 +48,8 @@ class kb_cufflinks:
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
         self.config = config
-        if 'auth-service-url' in config:
-            self.__AUTH_SERVICE_URL = config['auth-service-url']
-        if 'max_cores' in config:
-            self.__MAX_CORES = int(config['max_cores'])
-        if 'workspace-url' in config:
-            self.__WS_URL = config['workspace-url']
-        if 'shock-url' in config:
-            self.__SHOCK_URL = config['shock-url']
-        if 'handle-service-url' in config:
-            self.__HS_URL = config['handle-service-url']
-        if 'temp_dir' in config:
-            self.__TEMP_DIR = config['temp_dir']
-        if 'scratch' in config:
-            self.__SCRATCH = config['scratch']
-            # print self.__SCRATCH
-        if 'svc_user' in config:
-            self.__SVC_USER = config['svc_user']
-        if 'svc_pass' in config:
-            self.__SVC_PASS = config['svc_pass']
-        if 'scripts_dir' in config:
-            self.__SCRIPTS_DIR = config['scripts_dir']
-        # if 'rscripts' in config:
-        #      self.__RSCRIPTS_DIR = config['rscripts_dir']
-        if 'force_shock_node_2b_public' in config:  # expect 'true' or 'false' string
-            self.__PUBLIC_SHOCK_NODE = config['force_shock_node_2b_public']
-        self.__CALLBACK_URL = os.environ['SDK_CALLBACK_URL']
-
-        self.__SERVICES = {'workspace_service_url': self.__WS_URL,
-                           'shock_service_url': self.__SHOCK_URL,
-                           'handle_service_url': self.__HS_URL,
-                           'callback_url': self.__CALLBACK_URL}
-        # logging
-        self.__LOGGER = logging.getLogger('KBaseRNASeq')
-        if 'log_level' in config:
-            self.__LOGGER.setLevel(config['log_level'])
-        else:
-            self.__LOGGER.setLevel(logging.INFO)
-        streamHandler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(filename)s - %(lineno)d - %(levelname)s - %(message)s")
-        formatter.converter = time.gmtime
-        streamHandler.setFormatter(formatter)
-        self.__LOGGER.addHandler(streamHandler)
-        self.__LOGGER.info("Logger was set")
-
-        script_utils.check_sys_stat(self.__LOGGER)
-        self.cuffdiff_runner = CuffDiff(config, self.__SERVICES, self.__LOGGER)
+        self.config['SDK_CALLBACK_URL'] = os.environ['SDK_CALLBACK_URL']
+        self.config['KB_AUTH_TOKEN'] = os.environ['KB_AUTH_TOKEN']
         #END_CONSTRUCTOR
         pass
 
@@ -121,7 +69,15 @@ class kb_cufflinks:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN run_cufflinks
-        #END run_cufflinks
+        print '--->\nRunning kb_cufflinks.run_cufflinks\nparams:'
+        print json.dumps(params, indent=1)
+
+        for key, value in params.iteritems():
+            if isinstance(value, basestring):
+                params[key] = value.strip()
+
+        cufflinks_runner = CufflinksUtils(self.config)
+        returnVal = cufflinks_runner.run_cufflinks_app(params)
 
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
@@ -129,6 +85,17 @@ class kb_cufflinks:
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
+
+    def status(self, ctx):
+        # BEGIN_STATUS
+        returnVal = {'state': "OK",
+                     'message': "",
+                     'version': self.VERSION,
+                     'git_url': self.GIT_URL,
+                     'git_commit_hash': self.GIT_COMMIT_HASH}
+        # END_STATUS
+        return [returnVal]
+        #END run_cufflinks
 
     def run_Cuffdiff(self, ctx, params):
         """
@@ -167,12 +134,5 @@ class kb_cufflinks:
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
-    def status(self, ctx):
-        #BEGIN_STATUS
-        returnVal = {'state': "OK",
-                     'message': "",
-                     'version': self.VERSION,
-                     'git_url': self.GIT_URL,
-                     'git_commit_hash': self.GIT_COMMIT_HASH}
-        #END_STATUS
-        return [returnVal]
+
+

@@ -5,7 +5,7 @@ import json  # noqa: F401
 import time
 import shutil
 from string import Template
-from readsAlignmentUtils.readsAlignmentUtilsClient import ReadsAlignmentUtils
+from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from ReadsUtils.ReadsUtilsClient import ReadsUtils
 
@@ -76,13 +76,13 @@ class CufflinksTest(unittest.TestCase):
         except:
             ws_info = cls.ws.get_workspace_info({'workspace': cls.wsName})
             print("creating new workspace: " + str(ws_info))
-        '''
 
+        '''
         # upload genbank file
         print('uploading genbank file to workspace...')
         INPUT_DATA_DIR = "/kb/module/test/data/"
         TMP_INPUT_DATA_DIR = "/kb/module/work/tmp/"
-        genbank_file_name = 'at_chrom1_section.gbk'
+        genbank_file_name = 'Atmt.gbk'
         genbank_data_path = os.path.join(INPUT_DATA_DIR, genbank_file_name)
 
         print('input data path: ' + genbank_data_path)
@@ -93,7 +93,7 @@ class CufflinksTest(unittest.TestCase):
         shutil.copy(genbank_data_path, tmp_genbank_data_path)
 
         genbankToGenomeParams = {"file": {"path": tmp_genbank_data_path},
-                                 "genome_name": "at_chrom1_section",
+                                 "genome_name": "KBase_derived_Athaliana_PhytozomeV11_TAIR10",
                                  "workspace_name": cls.wsName,
                                  "source": "thale-cress",
                                  "release": "1TAIR10",
@@ -107,7 +107,7 @@ class CufflinksTest(unittest.TestCase):
 
         # upload downsized single reads
         ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'], token=token)
-        reads_file_name = 'extracted_hy5_rep1.fastq'
+        reads_file_name = 'Ath_hy5_rep1.fastq'
 
         reads_data_path = os.path.join(INPUT_DATA_DIR, reads_file_name)
         tmp_reads_data_path = os.path.join(TMP_INPUT_DATA_DIR, reads_file_name)
@@ -119,10 +119,11 @@ class CufflinksTest(unittest.TestCase):
                                   "name": reads_file_name})
         print('reads upload save result: ' + str(result))
 
-        '''
+
         # data has to be copied to tmp dir so it can be seen by
         # ReadsAlignmentUtils subjob running in a separate docker container
-        shutil.copy('/kb/module/test/data/WT1_alignment.bam', '/kb/module/work/tmp')
+        shutil.copy('/kb/module/test/data/accepted_hits.bam', '/kb/module/work/tmp')
+        '''
 
 
 
@@ -155,35 +156,37 @@ class CufflinksTest(unittest.TestCase):
     def test_cufflinks(self):
 
         # upload alignment file
+        '''
         params = {
-                  'destination_ref': self.getWsName() + '/WT1_alignment.bam',
-                  'file_path': '/kb/module/work/tmp/WT1_alignment.bam',
+                  'destination_ref': self.getWsName() + '/accepted_hits.bam',
+                  'file_path': '/kb/module/work/tmp/accepted_hits.bam',
                   'validate': 'True',
-                  'read_library_ref': self.getWsName() + '/extracted_hy5_rep1.fastq',
-                  'assembly_or_genome_ref': self.getWsName() + '/at_chrom1_section',
+                  'read_library_ref': self.getWsName() + '/Ath_hy5_rep1.fastq',
+                  'assembly_or_genome_ref': self.getWsName() + '/KBase_derived_Athaliana_PhytozomeV11_TAIR10',
                   'condition': 'test_condition'
                  }
 
         rau = ReadsAlignmentUtils(url=self.__class__.callback_url, token=self.getContext()['token'], service_ver='dev')
         ref = rau.upload_alignment(params=params)
+        '''
 
         params = {
             "ws_id": "Cufflinks_test_arfath",
-            "sample_alignment_ref" : "WT1_alignment.bam",
-            "genome_ref" : "at_chrom1_section",
+            "sample_alignment_ref" : "accepted_hits.bam",
+            "genome_ref" : "KBase_derived_Athaliana_PhytozomeV11_TAIR10",
             "min-intron-length" : 50,
             "max-intron-length" : 300000,
             "overhang-tolerance" : 8,
             "num_threads": 1
 	    }
 
-        out = self.getImpl().CufflinksCall(self.ctx, params)[0]
+        out = self.getImpl().run_cufflinks(self.ctx, params)[0]
 
         print('>>>>>>>>>>>>>>>>out: '+str(out))
 
         expression_set = self.__class__.wsClient.get_objects([
             {'workspace': params['ws_id'],
-             'name': out['expression_ref']}])
+             'name': out[0]}])
 
         self.assertEqual('KBaseRNASeq.RNASeqExpression-6.0',
                          expression_set[0]['info'][2],
