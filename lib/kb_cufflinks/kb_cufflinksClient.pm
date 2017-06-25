@@ -164,9 +164,9 @@ sub _check_job {
 
 
 
-=head2 CufflinksCall
+=head2 run_cufflinks
 
-  $return = $obj->CufflinksCall($params)
+  $return = $obj->run_cufflinks($params)
 
 =over 4
 
@@ -176,7 +176,7 @@ sub _check_job {
 
 <pre>
 $params is a kb_cufflinks.CufflinksParams
-$return is a kb_cufflinks.ResultsToReport
+$return is a kb_cufflinks.CufflinksResult
 CufflinksParams is a reference to a hash where the following keys are defined:
 	ws_id has a value which is a string
 	sample_alignment_ref has a value which is a string
@@ -185,9 +185,12 @@ CufflinksParams is a reference to a hash where the following keys are defined:
 	min-intron-length has a value which is an int
 	max-intron-length has a value which is an int
 	overhang-tolerance has a value which is an int
-ResultsToReport is a reference to a hash where the following keys are defined:
+CufflinksResult is a reference to a hash where the following keys are defined:
+	result_directory has a value which is a string
+	expression_obj_ref has a value which is a kb_cufflinks.obj_ref
 	report_name has a value which is a string
 	report_ref has a value which is a string
+obj_ref is a string
 
 </pre>
 
@@ -196,7 +199,7 @@ ResultsToReport is a reference to a hash where the following keys are defined:
 =begin text
 
 $params is a kb_cufflinks.CufflinksParams
-$return is a kb_cufflinks.ResultsToReport
+$return is a kb_cufflinks.CufflinksResult
 CufflinksParams is a reference to a hash where the following keys are defined:
 	ws_id has a value which is a string
 	sample_alignment_ref has a value which is a string
@@ -205,9 +208,12 @@ CufflinksParams is a reference to a hash where the following keys are defined:
 	min-intron-length has a value which is an int
 	max-intron-length has a value which is an int
 	overhang-tolerance has a value which is an int
-ResultsToReport is a reference to a hash where the following keys are defined:
+CufflinksResult is a reference to a hash where the following keys are defined:
+	result_directory has a value which is a string
+	expression_obj_ref has a value which is a kb_cufflinks.obj_ref
 	report_name has a value which is a string
 	report_ref has a value which is a string
+obj_ref is a string
 
 
 =end text
@@ -220,10 +226,10 @@ ResultsToReport is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub CufflinksCall
+sub run_cufflinks
 {
     my($self, @args) = @_;
-    my $job_id = $self->_CufflinksCall_submit(@args);
+    my $job_id = $self->_run_cufflinks_submit(@args);
     my $async_job_check_time = $self->{async_job_check_time};
     while (1) {
         Time::HiRes::sleep($async_job_check_time);
@@ -241,21 +247,21 @@ sub CufflinksCall
     }
 }
 
-sub _CufflinksCall_submit {
+sub _run_cufflinks_submit {
     my($self, @args) = @_;
 # Authentication: required
     if ((my $n = @args) != 1) {
         Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
-                                   "Invalid argument count for function _CufflinksCall_submit (received $n, expecting 1)");
+                                   "Invalid argument count for function _run_cufflinks_submit (received $n, expecting 1)");
     }
     {
         my($params) = @args;
         my @_bad_arguments;
         (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
         if (@_bad_arguments) {
-            my $msg = "Invalid arguments passed to _CufflinksCall_submit:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+            my $msg = "Invalid arguments passed to _run_cufflinks_submit:\n" . join("", map { "\t$_\n" } @_bad_arguments);
             Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
-                                   method_name => '_CufflinksCall_submit');
+                                   method_name => '_run_cufflinks_submit');
         }
     }
     my $context = undef;
@@ -263,22 +269,22 @@ sub _CufflinksCall_submit {
         $context = {'service_ver' => $self->{service_version}};
     }
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-        method => "kb_cufflinks._CufflinksCall_submit",
+        method => "kb_cufflinks._run_cufflinks_submit",
         params => \@args, context => $context});
     if ($result) {
         if ($result->is_error) {
             Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
                            code => $result->content->{error}->{code},
-                           method_name => '_CufflinksCall_submit',
+                           method_name => '_run_cufflinks_submit',
                            data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
             );
         } else {
             return $result->result->[0];  # job_id
         }
     } else {
-        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method _CufflinksCall_submit",
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method _run_cufflinks_submit",
                         status_line => $self->{client}->status_line,
-                        method_name => '_CufflinksCall_submit');
+                        method_name => '_run_cufflinks_submit');
     }
 }
 
@@ -520,7 +526,7 @@ an int
 
 
 
-=head2 ResultsToReport
+=head2 obj_ref
 
 =over 4
 
@@ -528,7 +534,33 @@ an int
 
 =item Description
 
-Object for Report type
+An X/Y/Z style reference
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 CufflinksResult
+
+=over 4
+
 
 
 =item Definition
@@ -537,6 +569,8 @@ Object for Report type
 
 <pre>
 a reference to a hash where the following keys are defined:
+result_directory has a value which is a string
+expression_obj_ref has a value which is a kb_cufflinks.obj_ref
 report_name has a value which is a string
 report_ref has a value which is a string
 
@@ -547,6 +581,8 @@ report_ref has a value which is a string
 =begin text
 
 a reference to a hash where the following keys are defined:
+result_directory has a value which is a string
+expression_obj_ref has a value which is a kb_cufflinks.obj_ref
 report_name has a value which is a string
 report_ref has a value which is a string
 
@@ -592,32 +628,6 @@ min-intron-length has a value which is an int
 max-intron-length has a value which is an int
 overhang-tolerance has a value which is an int
 
-
-=end text
-
-=back
-
-
-
-=head2 obj_ref
-
-=over 4
-
-
-
-=item Definition
-
-=begin html
-
-<pre>
-a string
-</pre>
-
-=end html
-
-=begin text
-
-a string
 
 =end text
 

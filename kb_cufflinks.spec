@@ -9,13 +9,16 @@ module kb_cufflinks {
 	*/
 	typedef int boolean;
 
-	/*
-		 Object for Report type
-	*/
-	typedef structure {
-		string report_name;
-		string report_ref;
-	} ResultsToReport;
+	/* An X/Y/Z style reference
+    */
+    typedef string obj_ref;
+
+	typedef structure{
+        string      result_directory;
+        obj_ref     expression_obj_ref;
+        string      report_name;
+        string      report_ref;
+    } CufflinksResult;
 
 	typedef structure{
 		string ws_id;
@@ -29,11 +32,8 @@ module kb_cufflinks {
 		int overhang-tolerance;
 	} CufflinksParams;
 
-    async funcdef CufflinksCall(CufflinksParams params)
-		returns (ResultsToReport) authentication required;
-
-
-    typedef string obj_ref;
+    async funcdef run_cufflinks(CufflinksParams params)
+		returns (CufflinksResult) authentication required;
 
     /*
         Required input parameters for run_Cuffdiff.

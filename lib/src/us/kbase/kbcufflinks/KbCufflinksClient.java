@@ -198,34 +198,34 @@ public class KbCufflinksClient {
     }
 
     /**
-     * <p>Original spec-file function name: CufflinksCall</p>
+     * <p>Original spec-file function name: run_cufflinks</p>
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.kbcufflinks.CufflinksParams CufflinksParams}
-     * @return   instance of type {@link us.kbase.kbcufflinks.ResultsToReport ResultsToReport}
+     * @return   instance of type {@link us.kbase.kbcufflinks.CufflinksResult CufflinksResult}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    protected String _cufflinksCallSubmit(CufflinksParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    protected String _runCufflinksSubmit(CufflinksParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
-        List<String> res = caller.jsonrpcCall("kb_cufflinks._CufflinksCall_submit", args, retType, true, true, jsonRpcContext);
+        List<String> res = caller.jsonrpcCall("kb_cufflinks._run_cufflinks_submit", args, retType, true, true, jsonRpcContext);
         return res.get(0);
     }
 
     /**
-     * <p>Original spec-file function name: CufflinksCall</p>
+     * <p>Original spec-file function name: run_cufflinks</p>
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.kbcufflinks.CufflinksParams CufflinksParams}
-     * @return   instance of type {@link us.kbase.kbcufflinks.ResultsToReport ResultsToReport}
+     * @return   instance of type {@link us.kbase.kbcufflinks.CufflinksResult CufflinksResult}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public ResultsToReport cufflinksCall(CufflinksParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
-        String jobId = _cufflinksCallSubmit(params, jsonRpcContext);
-        TypeReference<List<JobState<List<ResultsToReport>>>> retType = new TypeReference<List<JobState<List<ResultsToReport>>>>() {};
+    public CufflinksResult runCufflinks(CufflinksParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        String jobId = _runCufflinksSubmit(params, jsonRpcContext);
+        TypeReference<List<JobState<List<CufflinksResult>>>> retType = new TypeReference<List<JobState<List<CufflinksResult>>>>() {};
         long asyncJobCheckTimeMs = this.asyncJobCheckTimeMs;
         while (true) {
             if (Thread.currentThread().isInterrupted())
@@ -236,7 +236,7 @@ public class KbCufflinksClient {
                 throw new JsonClientException("Thread was interrupted", ex);
             }
             asyncJobCheckTimeMs = Math.min(asyncJobCheckTimeMs * this.asyncJobCheckTimeScalePercent / 100, this.asyncJobCheckMaxTimeMs);
-            JobState<List<ResultsToReport>> res = _checkJob(jobId, retType);
+            JobState<List<CufflinksResult>> res = _checkJob(jobId, retType);
             if (res.getFinished() != 0L)
                 return res.getResult().get(0);
         }

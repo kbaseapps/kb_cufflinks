@@ -63,7 +63,7 @@
     "service-mapping" : {
       "url" : "",
       "name" : "kb_cufflinks",
-      "method" : "CufflinksCall",
+      "method" : "run_cufflinks",
       "input_mapping" : [
         {
           "narrative_system_variable": "workspace",
@@ -94,13 +94,9 @@
           "target_property" : "overhang_tolerance"
       }],
       "output_mapping" : [
-	{
-         "service_method_output_path": [0,"alignment_ref"],
-         "target_property": "alignment_ref"
-        },
         {
-         "service_method_output_path": [0,"expression_ref"],
-         "target_property": "expression_ref"
+         "service_method_output_path": [0,"output"],
+         "target_property": "output"
         },
         {
          "service_method_output_path": [0,"workspace"],

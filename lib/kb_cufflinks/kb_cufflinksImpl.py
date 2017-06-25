@@ -44,8 +44,8 @@ class kb_cufflinks:
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.1"
-    GIT_URL = "https://github.com/kbaseapps/kb_cufflinks.git"
-    GIT_COMMIT_HASH = "e756992b9f3b7fe29eb051358d7872253d2c2646"
+    GIT_URL = "git@github.com:arfathpasha/kb_cufflinks.git"
+    GIT_COMMIT_HASH = "5e6b610482771ffc58a3e258c753f62aaa2355a0"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -106,151 +106,26 @@ class kb_cufflinks:
         pass
 
 
-    def CufflinksCall(self, ctx, params):
+    def run_cufflinks(self, ctx, params):
         """
         :param params: instance of type "CufflinksParams" -> structure:
            parameter "ws_id" of String, parameter "sample_alignment_ref" of
            String, parameter "genome_ref" of String, parameter "num_threads"
            of Long, parameter "min-intron-length" of Long, parameter
            "max-intron-length" of Long, parameter "overhang-tolerance" of Long
-        :returns: instance of type "ResultsToReport" (Object for Report type)
-           -> structure: parameter "report_name" of String, parameter
-           "report_ref" of String
+        :returns: instance of type "CufflinksResult" -> structure: parameter
+           "result_directory" of String, parameter "expression_obj_ref" of
+           type "obj_ref" (An X/Y/Z style reference), parameter "report_name"
+           of String, parameter "report_ref" of String
         """
         # ctx is the context object
         # return variables are: returnVal
-        #BEGIN CufflinksCall
-        print '--->\nRunning kb_cufflinks.CufflinksCall\nparams:'
-        print json.dumps(params, indent=1)
-
-        if 'num_threads' not in params:
-            params['num_threads'] = 1
-
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
-                params[key] = value.strip()
-
-        if not os.path.exists(self.__SCRATCH): os.makedirs(self.__SCRATCH)
-        cufflinks_dir = os.path.join(self.__SCRATCH, "tmp")
-        handler_utils.setupWorkingDir(self.__LOGGER, cufflinks_dir)
-        # Set the common Params
-        common_params = {'ws_client': Workspace(url=self.__WS_URL, token=ctx['token']),
-#                         'hs_client': HandleService(url=self.__HS_URL, token=ctx['token']),
-                         'dfu' : DataFileUtil(self.__CALLBACK_URL),
-                         'user_token': ctx['token']
-                         }
-
-        # for quick testing, we recover parameters here
-        ws_client = common_params['ws_client']
-        #hs = common_params['hs_client']
-        dfu = common_params['dfu']
-        token = common_params['user_token']
-        try:
-            ################################################################
-            sample_alignment_info = ws_client.get_object_info_new({"objects":
-                                                                  [{'name': params[
-                                                                      'sample_alignment_ref'],
-                                                                    'workspace': params[
-                                                                        'ws_id']}]})[0]
-            print('alignment_info:')
-            pprint(sample_alignment_info)
-
-            genome_info = ws_client.get_object_info_new({"objects":
-                                                                  [{'name': params[
-                                                                      'genome_ref'],
-                                                                    'workspace': params[
-                                                                        'ws_id']}]})[0]
-            print('genome_info:')
-            pprint(genome_info)
-            sample_alignment_id = str(sample_alignment_info[6]) + '/' + str(
-                sample_alignment_info[0]) + '/' + str(
-                sample_alignment_info[4])
-            sample_name = str(sample_alignment_info[1])
-            print('sample_alignemnt_id: ' + str(sample_alignment_id))
-            genome_id = str(genome_info[6]) + '/' + str(
-                genome_info[0]) + '/' + str(
-                genome_info[4])
-            genome_name = str(genome_info[1])
-            ###################################################################
-            '''
-            a_sampleset = ws_client.get_objects(
-                [{'name': params['alignmentset_id'], 'workspace': params['ws_id']}])[0]
-
-            a_sampleset_info = ws_client.get_object_info_new({"objects":
-                                                                  [{'name': params[
-                                                                      'alignmentset_id'],
-                                                                    'workspace': params[
-                                                                        'ws_id']}]})[0]
-            '''
-        except Exception, e:
-            self.__LOGGER.exception("".join(traceback.format_exc()))
-            raise Exception("Error Downloading objects from the workspace ")
-        # read_sample_id']
-        ### Check if the gtf file exists in the workspace. if exists download the file from that
-        #genome_id = a_sampleset['data']['genome_id']
-        #genome_name = ws_client.get_object_info([{"ref": genome_id}], includeMetadata=None)[0][1]
-
-
-        ws_gtf = genome_name + "_GTF_Annotation"
-        gtf_file = script_utils.check_and_download_existing_handle_obj(self.__LOGGER, ws_client, self.__SERVICES,
-                                                                       params['ws_id'], ws_gtf,
-                                                                       "KBaseRNASeq.GFFAnnotation",
-                                                                       cufflinks_dir, token)
-        if gtf_file is None:
-            script_utils.create_gtf_annotation_from_genome(self.__LOGGER, ws_client, dfu, self.__SERVICES,
-                                                           params['ws_id'], genome_id, genome_name,
-                                                           cufflinks_dir, token)
-        gtf_info = ws_client.get_object_info_new(
-            {"objects": [{'name': ws_gtf, 'workspace': params['ws_id']}]})[0]
-        gtf_id = str(gtf_info[6]) + '/' + str(gtf_info[0]) + '/' + str(gtf_info[4])
-
-        #self.tool_opts = {k: str(v) for k, v in params.iteritems() if
-        #                  not k in ('ws_id', 'alignmentset_id', 'num_threads') and v is not None}
-        #alignment_ids = a_sampleset['data']['sample_alignments']
-        #m_alignment_names = a_sampleset['data']['mapped_rnaseq_alignments']
-        #self.sampleset_id = a_sampleset['data']['sampleset_id']
-        ### Get List of Alignments Names
-        #self.align_names = []
-        #for d_align in m_alignment_names:
-        #    for i, j in d_align.items():
-        #        self.align_names.append(j)
-
-        #m_alignment_ids = a_sampleset['data']['mapped_alignments_ids']
-        #self.num_jobs = len(alignment_ids)
-        #if self.num_jobs < 2:
-        #    raise ValueError(
-        #        "Please ensure you have atleast 2 alignments to run cufflinks in Set mode")
-
-        #self.__LOGGER.info(" Number of threads used by each process {0}".format(params['num_threads']))
-        #count = 0
-
-        #self.task_list = []
-
-        #for i in m_alignment_ids:
-        #    for sample_name, alignment_id in i.items():
-        task_params = {'job_id': sample_alignment_id,
-                              'gtf_file': gtf_file,
-                              'ws_id': params['ws_id'],
-                              'genome_id': genome_id,
-                              'cufflinks_dir': cufflinks_dir,
-                              'annotation_id': gtf_id,
-                              'sample_id': sample_name
-                              }
-        #        self.task_list.append(task_param)
-        #        count = count + 1
-
-        #task_params = self.task_list[0]
-
-        cufflinks_runner = CufflinksUtils(self.config, self.__LOGGER, cufflinks_dir,
-                                          self.__SERVICES)
-        returnVal = cufflinks_runner.run_cufflinks_app(params, common_params, task_params)
-
-        return [returnVal]
-        #END CufflinksCall
+        #BEGIN run_cufflinks
+        #END run_cufflinks
 
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
-            raise ValueError('Method CufflinksCall return value ' +
+            raise ValueError('Method run_cufflinks return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
@@ -263,9 +138,10 @@ class kb_cufflinks:
            -   workspace name to save the differential expression output
            object diff_expression_obj_name    -   name of the differential
            expression output object) -> structure: parameter
-           "expressionset_ref" of type "obj_ref", parameter "workspace_name"
-           of String, parameter "diff_expression_obj_name" of String,
-           parameter "filtered_expression_matrix_name" of String, parameter
+           "expressionset_ref" of type "obj_ref" (An X/Y/Z style reference),
+           parameter "workspace_name" of String, parameter
+           "diff_expression_obj_name" of String, parameter
+           "filtered_expression_matrix_name" of String, parameter
            "library_norm_method" of String, parameter "multi_read_correct" of
            type "boolean" (A boolean - 0 for false, 1 for true. @range (0,
            1)), parameter "time_series" of type "boolean" (A boolean - 0 for
@@ -273,8 +149,9 @@ class kb_cufflinks:
            of Long
         :returns: instance of type "CuffdiffResult" -> structure: parameter
            "result_directory" of String, parameter "diff_expression_obj_ref"
-           of type "obj_ref", parameter "filtered_expression_matrix_ref" of
-           type "obj_ref", parameter "report_name" of String, parameter
+           of type "obj_ref" (An X/Y/Z style reference), parameter
+           "filtered_expression_matrix_ref" of type "obj_ref" (An X/Y/Z style
+           reference), parameter "report_name" of String, parameter
            "report_ref" of String
         """
         # ctx is the context object
