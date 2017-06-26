@@ -6,17 +6,17 @@
   "categories" : ["active","expression","assembly"],
   "widgets" : {
     "input" : null,
-    "output" : "kbaseExpressionSampleTableNew"
+    "output" : "no-display"
   },
    "parameters" : [ {
-    "id" : "sample_alignment_ref",
+    "id" : "alignment_object_ref",
     "optional" : false,
     "advanced" : false,
     "allow_multiple" : false,
     "default_values" : [ "" ],
     "field_type" : "text",
     "text_options" : {
-      "valid_ws_types" : ["KBaseRNASeq.RNASeqAlignment" ]
+      "valid_ws_types" : ["KBaseRNASeq.RNASeqAlignmentSet" , "KBaseRNASeq.RNASeqAlignment"]
     }
   }, {
     "id" : "genome_ref",
@@ -67,15 +67,16 @@
       "input_mapping" : [
         {
           "narrative_system_variable": "workspace",
-          "target_property" : "ws_id"
+          "target_property" : "workspace_name"
         },
 	{
           "constant_value"  : 2,
           "target_property" : "num_threads"
         },      
         {
-          "input_parameter" : "sample_alignment_ref",
-          "target_property" : "sample_alignment_ref"
+          "input_parameter" : "alignment_object_ref",
+          "target_type_transform": "resolved-ref",
+          "target_property" : "alignment_object_ref"
         },
         {
           "input_parameter" : "genome_ref",
@@ -95,12 +96,28 @@
       }],
       "output_mapping" : [
         {
-         "service_method_output_path": [0,"output"],
-         "target_property": "output"
+          "narrative_system_variable": "workspace",
+          "target_property": "wsName"
         },
         {
-         "service_method_output_path": [0,"workspace"],
-         "target_property": "workspace"
+          "service_method_output_path": [0, "result_directory"],
+          "target_property": "result_directory"
+        },
+        {
+         "service_method_output_path": [0,"expression_obj_ref"],
+         "target_property": "expression_obj_ref"
+        },
+        {
+          "service_method_output_path": [0, "report_name"],
+          "target_property": "report_name"
+        },
+        {
+          "service_method_output_path": [0, "report_ref"],
+          "target_property": "report_ref"
+        },
+        {
+          "constant_value": "16",
+          "target_property": "report_window_line_height"
         }
       ]
     }

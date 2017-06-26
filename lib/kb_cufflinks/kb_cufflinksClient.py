@@ -51,10 +51,11 @@ class kb_cufflinks(object):
     def run_cufflinks(self, params, context=None):
         """
         :param params: instance of type "CufflinksParams" -> structure:
-           parameter "ws_id" of String, parameter "sample_alignment_ref" of
-           String, parameter "genome_ref" of String, parameter "num_threads"
-           of Long, parameter "min-intron-length" of Long, parameter
-           "max-intron-length" of Long, parameter "overhang-tolerance" of Long
+           parameter "workspace_name" of String, parameter
+           "alignment_object_ref" of String, parameter "genome_ref" of
+           String, parameter "num_threads" of Long, parameter
+           "min-intron-length" of Long, parameter "max-intron-length" of
+           Long, parameter "overhang-tolerance" of Long
         :returns: instance of type "CufflinksResult" -> structure: parameter
            "result_directory" of String, parameter "expression_obj_ref" of
            type "obj_ref" (An X/Y/Z style reference), parameter "report_name"

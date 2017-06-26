@@ -21,8 +21,8 @@ module kb_cufflinks {
     } CufflinksResult;
 
 	typedef structure{
-		string ws_id;
-		string sample_alignment_ref;
+		string workspace_name;
+		string alignment_object_ref;
 		string genome_ref;
 		int num_threads;
 		/*string library-type; */

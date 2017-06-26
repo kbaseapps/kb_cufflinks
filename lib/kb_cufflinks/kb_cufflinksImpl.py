@@ -38,7 +38,7 @@ class kb_cufflinks:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "git@github.com:arfathpasha/kb_cufflinks.git"
-    GIT_COMMIT_HASH = "5e6b610482771ffc58a3e258c753f62aaa2355a0"
+    GIT_COMMIT_HASH = "f7497b4d27a60a806f3ea60c55c783fb0e21c934"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -57,10 +57,11 @@ class kb_cufflinks:
     def run_cufflinks(self, ctx, params):
         """
         :param params: instance of type "CufflinksParams" -> structure:
-           parameter "ws_id" of String, parameter "sample_alignment_ref" of
-           String, parameter "genome_ref" of String, parameter "num_threads"
-           of Long, parameter "min-intron-length" of Long, parameter
-           "max-intron-length" of Long, parameter "overhang-tolerance" of Long
+           parameter "workspace_name" of String, parameter
+           "alignment_object_ref" of String, parameter "genome_ref" of
+           String, parameter "num_threads" of Long, parameter
+           "min-intron-length" of Long, parameter "max-intron-length" of
+           Long, parameter "overhang-tolerance" of Long
         :returns: instance of type "CufflinksResult" -> structure: parameter
            "result_directory" of String, parameter "expression_obj_ref" of
            type "obj_ref" (An X/Y/Z style reference), parameter "report_name"
@@ -96,6 +97,13 @@ class kb_cufflinks:
         # END_STATUS
         return [returnVal]
         #END run_cufflinks
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method run_cufflinks return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
 
     def run_Cuffdiff(self, ctx, params):
         """
@@ -134,5 +142,12 @@ class kb_cufflinks:
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
-
-
+    def status(self, ctx):
+        #BEGIN_STATUS
+        returnVal = {'state': "OK",
+                     'message': "",
+                     'version': self.VERSION,
+                     'git_url': self.GIT_URL,
+                     'git_commit_hash': self.GIT_COMMIT_HASH}
+        #END_STATUS
+        return [returnVal]

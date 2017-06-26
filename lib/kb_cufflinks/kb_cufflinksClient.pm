@@ -178,8 +178,8 @@ sub _check_job {
 $params is a kb_cufflinks.CufflinksParams
 $return is a kb_cufflinks.CufflinksResult
 CufflinksParams is a reference to a hash where the following keys are defined:
-	ws_id has a value which is a string
-	sample_alignment_ref has a value which is a string
+	workspace_name has a value which is a string
+	alignment_object_ref has a value which is a string
 	genome_ref has a value which is a string
 	num_threads has a value which is an int
 	min-intron-length has a value which is an int
@@ -201,8 +201,8 @@ obj_ref is a string
 $params is a kb_cufflinks.CufflinksParams
 $return is a kb_cufflinks.CufflinksResult
 CufflinksParams is a reference to a hash where the following keys are defined:
-	ws_id has a value which is a string
-	sample_alignment_ref has a value which is a string
+	workspace_name has a value which is a string
+	alignment_object_ref has a value which is a string
 	genome_ref has a value which is a string
 	num_threads has a value which is an int
 	min-intron-length has a value which is an int
@@ -605,8 +605,8 @@ report_ref has a value which is a string
 
 <pre>
 a reference to a hash where the following keys are defined:
-ws_id has a value which is a string
-sample_alignment_ref has a value which is a string
+workspace_name has a value which is a string
+alignment_object_ref has a value which is a string
 genome_ref has a value which is a string
 num_threads has a value which is an int
 min-intron-length has a value which is an int
@@ -620,8 +620,8 @@ overhang-tolerance has a value which is an int
 =begin text
 
 a reference to a hash where the following keys are defined:
-ws_id has a value which is a string
-sample_alignment_ref has a value which is a string
+workspace_name has a value which is a string
+alignment_object_ref has a value which is a string
 genome_ref has a value which is a string
 num_threads has a value which is an int
 min-intron-length has a value which is an int
