@@ -162,11 +162,10 @@ class CufflinksUtils:
 
     def _get_input_file(self, alignment_ref):
         """
-        _get_input_file: get input  SAM/BAM file from Alignment object
+        _get_input_file: get input BAM file from Alignment object
         """
 
         bam_file_archive = self.rau.download_alignment({'source_ref': alignment_ref})['bam_file']
-        self.dfu.unpack_file({'file_path': bam_file_archive})
 
         files = os.listdir(os.path.dirname(bam_file_archive))
         bam_file_list = [file for file in files if re.match(r'.*\_sorted\.bam', file)]
