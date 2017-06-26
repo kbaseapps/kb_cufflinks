@@ -333,10 +333,10 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
-        self.rpc_service.add(impl_kb_cufflinks.CufflinksCall,
-                             name='kb_cufflinks.CufflinksCall',
+        self.rpc_service.add(impl_kb_cufflinks.run_cufflinks,
+                             name='kb_cufflinks.run_cufflinks',
                              types=[dict])
-        self.method_authentication['kb_cufflinks.CufflinksCall'] = 'required'  # noqa
+        self.method_authentication['kb_cufflinks.run_cufflinks'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_cufflinks.run_Cuffdiff,
                              name='kb_cufflinks.run_Cuffdiff',
                              types=[dict])

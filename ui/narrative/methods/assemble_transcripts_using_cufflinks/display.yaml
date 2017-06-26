@@ -24,7 +24,7 @@ method-suggestions :
 # Configure the display and description of the parameters
 #
 parameters :
-  sample_alignment_ref :
+  alignment_object_ref :
     ui-name : |
         RNA-seq Alignment
     short-hint : |

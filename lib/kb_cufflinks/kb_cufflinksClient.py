@@ -43,23 +43,25 @@ class kb_cufflinks(object):
     def _check_job(self, job_id):
         return self._client._check_job('kb_cufflinks', job_id)
 
-    def _CufflinksCall_submit(self, params, context=None):
+    def _run_cufflinks_submit(self, params, context=None):
         return self._client._submit_job(
-             'kb_cufflinks.CufflinksCall', [params],
+             'kb_cufflinks.run_cufflinks', [params],
              self._service_ver, context)
 
-    def CufflinksCall(self, params, context=None):
+    def run_cufflinks(self, params, context=None):
         """
         :param params: instance of type "CufflinksParams" -> structure:
-           parameter "ws_id" of String, parameter "sample_alignment_ref" of
-           String, parameter "genome_ref" of String, parameter "num_threads"
-           of Long, parameter "min-intron-length" of Long, parameter
-           "max-intron-length" of Long, parameter "overhang-tolerance" of Long
-        :returns: instance of type "ResultsToReport" (Object for Report type)
-           -> structure: parameter "report_name" of String, parameter
-           "report_ref" of String
+           parameter "workspace_name" of String, parameter
+           "alignment_object_ref" of String, parameter "genome_ref" of
+           String, parameter "num_threads" of Long, parameter
+           "min-intron-length" of Long, parameter "max-intron-length" of
+           Long, parameter "overhang-tolerance" of Long
+        :returns: instance of type "CufflinksResult" -> structure: parameter
+           "result_directory" of String, parameter "expression_obj_ref" of
+           type "obj_ref" (An X/Y/Z style reference), parameter "report_name"
+           of String, parameter "report_ref" of String
         """
-        job_id = self._CufflinksCall_submit(params, context)
+        job_id = self._run_cufflinks_submit(params, context)
         async_job_check_time = self._client.async_job_check_time
         while True:
             time.sleep(async_job_check_time)
@@ -79,9 +81,10 @@ class kb_cufflinks(object):
            -   workspace name to save the differential expression output
            object diff_expression_obj_name    -   name of the differential
            expression output object) -> structure: parameter
-           "expressionset_ref" of type "obj_ref", parameter "workspace_name"
-           of String, parameter "diff_expression_obj_name" of String,
-           parameter "filtered_expression_matrix_name" of String, parameter
+           "expressionset_ref" of type "obj_ref" (An X/Y/Z style reference),
+           parameter "workspace_name" of String, parameter
+           "diff_expression_obj_name" of String, parameter
+           "filtered_expression_matrix_name" of String, parameter
            "library_norm_method" of String, parameter "multi_read_correct" of
            type "boolean" (A boolean - 0 for false, 1 for true. @range (0,
            1)), parameter "time_series" of type "boolean" (A boolean - 0 for
@@ -89,8 +92,9 @@ class kb_cufflinks(object):
            of Long
         :returns: instance of type "CuffdiffResult" -> structure: parameter
            "result_directory" of String, parameter "diff_expression_obj_ref"
-           of type "obj_ref", parameter "filtered_expression_matrix_ref" of
-           type "obj_ref", parameter "report_name" of String, parameter
+           of type "obj_ref" (An X/Y/Z style reference), parameter
+           "filtered_expression_matrix_ref" of type "obj_ref" (An X/Y/Z style
+           reference), parameter "report_name" of String, parameter
            "report_ref" of String
         """
         return self._client.call_method(
