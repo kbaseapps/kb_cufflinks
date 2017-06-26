@@ -11,6 +11,7 @@ import json
 import re
 import subprocess
 from pathos.multiprocessing import ProcessingPool as Pool
+import multiprocessing
 import zipfile
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
@@ -93,7 +94,7 @@ class CufflinksUtils:
         exitCode = pipe.returncode
 
         if (exitCode == 0):
-            log('Executed commend:\n{}\n'.format(command) +
+            log('Executed command:\n{}\n'.format(command) +
                 'Exit Code: {}\nOutput:\n{}'.format(exitCode, output))
         else:
             error_msg = 'Error running command:\n{}\n'.format(command)
