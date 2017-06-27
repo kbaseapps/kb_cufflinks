@@ -40,6 +40,7 @@ class CufflinksUtils:
         """
         #BEGIN_CONSTRUCTOR
         self.ws_url = config["workspace-url"]
+        self.ws_url = config["workspace-url"]
         self.callback_url = config['SDK_CALLBACK_URL']
         self.token = config['KB_AUTH_TOKEN']
         self.shock_url = config['shock-url']
@@ -161,14 +162,15 @@ class CufflinksUtils:
 
         return annotation_file
 
+
     def _get_input_file(self, alignment_ref):
         """
         _get_input_file: get input BAM file from Alignment object
         """
 
-        bam_file_archive = self.rau.download_alignment({'source_ref': alignment_ref})['bam_file']
+        bam_file_dir = self.rau.download_alignment({'source_ref': alignment_ref})['destination_dir']
 
-        files = os.listdir(os.path.dirname(bam_file_archive))
+        files = os.listdir(bam_file_dir)
         bam_file_list = [file for file in files if re.match(r'.*\_sorted\.bam', file)]
         if not bam_file_list:
             bam_file_list = [file for file in files if re.match(r'.*(?<!sorted)\.bam', file)]
@@ -178,7 +180,7 @@ class CufflinksUtils:
 
         bam_file_name = bam_file_list[0]
 
-        bam_file = os.path.join(os.path.dirname(bam_file_archive), bam_file_name)
+        bam_file = os.path.join(bam_file_dir, bam_file_name)
 
         return bam_file
 
