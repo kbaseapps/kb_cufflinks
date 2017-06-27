@@ -45,7 +45,7 @@ class CufflinksUtils:
         self.shock_url = config['shock-url']
         self.dfu = DataFileUtil(self.callback_url)
         self.gfu = GenomeFileUtil(self.callback_url)
-        self.rau = ReadsAlignmentUtils(self.callback_url)
+        self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
         self.ws = Workspace(self.ws_url, token=self.token)
 
         self.scratch = os.path.join(config['scratch'], str(uuid.uuid4()))
