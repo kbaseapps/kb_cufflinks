@@ -167,7 +167,6 @@ class CufflinksTest(unittest.TestCase):
     def prepare_data(cls):
         # upload genome object
         genbank_file_name = 'minimal.gbff'
-        #genbank_file_name = 'Atmt.gbk'
         genbank_file_path = os.path.join(cls.scratch, genbank_file_name)
         shutil.copy(os.path.join('data', genbank_file_name), genbank_file_path)
 
@@ -200,7 +199,6 @@ class CufflinksTest(unittest.TestCase):
 
         # upload alignment object
         alignment_file_name = 'accepted_hits.bam'
-        #alignment_file_name = 'at_accepted_hits.bam'
         alignment_file_path = os.path.join(cls.scratch, alignment_file_name)
         shutil.copy(os.path.join('data', alignment_file_name), alignment_file_path)
 
@@ -293,7 +291,8 @@ class CufflinksTest(unittest.TestCase):
 
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def test_cufflinks(self):
+    '''
+    def test_cufflinks_app_alignment(self):
         params = {
             "workspace_name": self.getWsName(),
             "alignment_object_ref" : self.alignment_ref_1,
@@ -308,15 +307,44 @@ class CufflinksTest(unittest.TestCase):
 
         self.assertTrue('result_directory' in result)
         result_files = os.listdir(result['result_directory'])
-        print result_files
+        print 'result files: ' + str(result_files)
         expect_result_files = ['genes.fpkm_tracking', 'transcripts.gtf',
                                'isoforms.fpkm_tracking', 'skipped.gtf']
         self.assertTrue(all(x in result_files for x in expect_result_files))
         self.assertTrue('expression_obj_ref' in result)
         self.assertTrue('report_name' in result)
         self.assertTrue('report_ref' in result)
-        print('>>>>expr_obj_ref: '+str(result.get('expression_obj_ref')))
-        #expression_data = self.getWsClient().get_objects([{'objid': int(result.get('expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])['data'][0]['data']
-        #self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
-        #self.assertEqual(expression_data.get('condition'), self.condition_1)
-        #self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_1')
+        expression_data = self.getWsClient().get_objects([{'objid': int(result.get('expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
+        self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
+        self.assertEqual(expression_data.get('condition'), self.condition_1)
+        self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_1')
+    '''
+
+
+    def test_cufflinks_app_alignment_set(self):
+        params = {
+            "workspace_name": self.getWsName(),
+            "alignment_object_ref" : self.alignment_set_ref,
+            "genome_ref" : self.__class__.genome_ref,
+            "min-intron-length" : 50,
+            "max-intron-length" : 300000,
+            "overhang-tolerance" : 8,
+            "num_threads": 2
+	    }
+
+        result = self.getImpl().run_cufflinks(self.ctx, params)[0]
+
+        self.assertTrue('result_directory' in result)
+        result_files = os.listdir(result['result_directory'])
+        print 'result files: ' + str(result_files)
+        expect_result_files = ['test_cufflinks_expression_1', 'test_cufflinks_expression_2']
+        self.assertTrue(all(x in result_files for x in expect_result_files))
+        self.assertTrue('expression_obj_ref' in result)
+        self.assertTrue('report_name' in result)
+        self.assertTrue('report_ref' in result)
+        expression_data = self.getWsClient().get_objects([{'objid': int(result.get('expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
+        self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
+        self.assertEqual(expression_data.get('sampleset_id'), self.sample_set_ref)
+        self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_set')
+
+
