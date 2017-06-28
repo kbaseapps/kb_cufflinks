@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import unittest
 import os  # noqa: F401
-import json  # noqa: F401
 import time
 import shutil
 
@@ -14,10 +13,8 @@ from DataFileUtil.DataFileUtilClient import DataFileUtil
 from os import environ
 try:
     from ConfigParser import ConfigParser  # py2
-except:
+except BaseException:
     from configparser import ConfigParser  # py3
-
-from pprint import pprint  # noqa: F401
 
 from kb_cufflinks.core.cufflinks_utils import CufflinksUtils
 from kb_cufflinks.kb_cufflinksImpl import kb_cufflinks
@@ -66,20 +63,20 @@ class CufflinksTest(unittest.TestCase):
 
         cls.cufflinks_runner = CufflinksUtils(cls.cfg)
 
-        #suffix = int(time.time() * 1000)
-        suffix = 1001
+        suffix = int(time.time() * 1000)
         cls.wsName = "test_kb_cufflinks_" + str(suffix)
 
         try:
             # reuse existing (previously torn down) workspace
             cls.wsClient.undelete_workspace({'workspace': cls.wsName})
             print('reusing old workspace...')
-        except:
+        except BaseException:
             try:
                 # create if workspace does not exist
                 cls.wsClient.create_workspace({'workspace': cls.wsName})
-            except:
-                # get workspace if it exists and was not previously deleted (previously not torn down)
+            except BaseException:
+                # get workspace if it exists and was not previously deleted (previously
+                # not torn down)
                 ws_info = cls.wsClient.get_workspace_info({'workspace': cls.wsName})
                 print("creating new workspace: " + str(ws_info))
 
@@ -107,7 +104,7 @@ class CufflinksTest(unittest.TestCase):
             ws_info = cls.ws.get_workspace_info({'workspace': cls.wsName})
             print("creating new workspace: " + str(ws_info))
 
-        
+
         # upload genbank file
         print('uploading genbank file to workspace...')
         INPUT_DATA_DIR = "/kb/module/test/data/"
@@ -116,7 +113,7 @@ class CufflinksTest(unittest.TestCase):
         genbank_data_path = os.path.join(INPUT_DATA_DIR, genbank_file_name)
 
         print('input data path: ' + genbank_data_path)
-        
+
         # data has to be copied to tmp dir so it can be seen by
         # GenomeFileUtil subjob running in a separate docker container
         tmp_genbank_data_path = os.path.join(TMP_INPUT_DATA_DIR, genbank_file_name)
@@ -133,7 +130,7 @@ class CufflinksTest(unittest.TestCase):
         gfu = GenomeFileUtil(os.environ['SDK_CALLBACK_URL'], token=token)
         save_result = gfu.genbank_to_genome(genbankToGenomeParams)
         print('genbank_to_genome save result: ' + str(save_result))
-        
+
 
         # upload downsized single reads
         ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'], token=token)
@@ -154,8 +151,6 @@ class CufflinksTest(unittest.TestCase):
         # ReadsAlignmentUtils subjob running in a separate docker container
         shutil.copy('/kb/module/test/data/accepted_hits.bam', '/kb/module/work/tmp')
         '''
-
-
 
     @classmethod
     def tearDownClass(cls):
@@ -289,19 +284,18 @@ class CufflinksTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    '''
+
     def test_cufflinks_app_alignment(self):
         params = {
             "workspace_name": self.getWsName(),
-            "alignment_object_ref" : self.alignment_ref_1,
-            "genome_ref" : self.__class__.genome_ref,
-            "min-intron-length" : 50,
-            "max-intron-length" : 300000,
-            "overhang-tolerance" : 8,
+            "alignment_object_ref": self.alignment_ref_1,
+            "genome_ref": self.__class__.genome_ref,
+            "min-intron-length": 50,
+            "max-intron-length": 300000,
+            "overhang-tolerance": 8,
             "num_threads": 1
-	    }
+        }
 
         result = self.getImpl().run_cufflinks(self.ctx, params)[0]
 
@@ -314,23 +308,22 @@ class CufflinksTest(unittest.TestCase):
         self.assertTrue('expression_obj_ref' in result)
         self.assertTrue('report_name' in result)
         self.assertTrue('report_ref' in result)
-        expression_data = self.getWsClient().get_objects([{'objid': int(result.get('expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
+        expression_data = self.getWsClient().get_objects([{'objid': int(result.get(
+            'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('condition'), self.condition_1)
         self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_1')
-    '''
-
 
     def test_cufflinks_app_alignment_set(self):
         params = {
             "workspace_name": self.getWsName(),
-            "alignment_object_ref" : self.alignment_set_ref,
-            "genome_ref" : self.__class__.genome_ref,
-            "min-intron-length" : 50,
-            "max-intron-length" : 300000,
-            "overhang-tolerance" : 8,
+            "alignment_object_ref": self.alignment_set_ref,
+            "genome_ref": self.__class__.genome_ref,
+            "min-intron-length": 50,
+            "max-intron-length": 300000,
+            "overhang-tolerance": 8,
             "num_threads": 2
-	    }
+        }
 
         result = self.getImpl().run_cufflinks(self.ctx, params)[0]
 
@@ -342,9 +335,8 @@ class CufflinksTest(unittest.TestCase):
         self.assertTrue('expression_obj_ref' in result)
         self.assertTrue('report_name' in result)
         self.assertTrue('report_ref' in result)
-        expression_data = self.getWsClient().get_objects([{'objid': int(result.get('expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
+        expression_data = self.getWsClient().get_objects([{'objid': int(result.get(
+            'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('sampleset_id'), self.sample_set_ref)
         self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_set')
-
-
