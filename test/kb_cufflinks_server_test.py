@@ -19,11 +19,9 @@ from biokbase.workspace.client import Workspace as workspaceService
 from kb_cufflinks.kb_cufflinksImpl import kb_cufflinks
 from kb_cufflinks.kb_cufflinksServer import MethodContext
 from kb_cufflinks.authclient import KBaseAuth as _KBaseAuth
-from biokbase.workspace.client import Workspace as Workspace
 
 
 class kb_cufflinksTest(unittest.TestCase):
-
 
     @classmethod
     def setUpClass(cls):

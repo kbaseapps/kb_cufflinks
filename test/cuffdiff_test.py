@@ -121,4 +121,3 @@ class kb_cufflinksTest(unittest.TestCase):
         result_dir = retVal['result_directory']
         result_file = os.path.split(result_dir)[1] + '.zip'
         self.assertEqual(f['file_name'], result_file)
-

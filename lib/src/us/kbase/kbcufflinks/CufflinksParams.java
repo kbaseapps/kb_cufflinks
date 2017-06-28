@@ -19,8 +19,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "ws_id",
-    "sample_alignment_ref",
+    "workspace_name",
+    "alignment_object_ref",
     "genome_ref",
     "num_threads",
     "min-intron-length",
@@ -29,10 +29,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 public class CufflinksParams {
 
-    @JsonProperty("ws_id")
-    private String wsId;
-    @JsonProperty("sample_alignment_ref")
-    private String sampleAlignmentRef;
+    @JsonProperty("workspace_name")
+    private String workspaceName;
+    @JsonProperty("alignment_object_ref")
+    private String alignmentObjectRef;
     @JsonProperty("genome_ref")
     private String genomeRef;
     @JsonProperty("num_threads")
@@ -45,33 +45,33 @@ public class CufflinksParams {
     private Long overhangTolerance;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("ws_id")
-    public String getWsId() {
-        return wsId;
+    @JsonProperty("workspace_name")
+    public String getWorkspaceName() {
+        return workspaceName;
     }
 
-    @JsonProperty("ws_id")
-    public void setWsId(String wsId) {
-        this.wsId = wsId;
+    @JsonProperty("workspace_name")
+    public void setWorkspaceName(String workspaceName) {
+        this.workspaceName = workspaceName;
     }
 
-    public CufflinksParams withWsId(String wsId) {
-        this.wsId = wsId;
+    public CufflinksParams withWorkspaceName(String workspaceName) {
+        this.workspaceName = workspaceName;
         return this;
     }
 
-    @JsonProperty("sample_alignment_ref")
-    public String getSampleAlignmentRef() {
-        return sampleAlignmentRef;
+    @JsonProperty("alignment_object_ref")
+    public String getAlignmentObjectRef() {
+        return alignmentObjectRef;
     }
 
-    @JsonProperty("sample_alignment_ref")
-    public void setSampleAlignmentRef(String sampleAlignmentRef) {
-        this.sampleAlignmentRef = sampleAlignmentRef;
+    @JsonProperty("alignment_object_ref")
+    public void setAlignmentObjectRef(String alignmentObjectRef) {
+        this.alignmentObjectRef = alignmentObjectRef;
     }
 
-    public CufflinksParams withSampleAlignmentRef(String sampleAlignmentRef) {
-        this.sampleAlignmentRef = sampleAlignmentRef;
+    public CufflinksParams withAlignmentObjectRef(String alignmentObjectRef) {
+        this.alignmentObjectRef = alignmentObjectRef;
         return this;
     }
 
@@ -162,7 +162,7 @@ public class CufflinksParams {
 
     @Override
     public String toString() {
-        return ((((((((((((((((("CufflinksParams"+" [wsId=")+ wsId)+", sampleAlignmentRef=")+ sampleAlignmentRef)+", genomeRef=")+ genomeRef)+", numThreads=")+ numThreads)+", minIntronLength=")+ minIntronLength)+", maxIntronLength=")+ maxIntronLength)+", overhangTolerance=")+ overhangTolerance)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((("CufflinksParams"+" [workspaceName=")+ workspaceName)+", alignmentObjectRef=")+ alignmentObjectRef)+", genomeRef=")+ genomeRef)+", numThreads=")+ numThreads)+", minIntronLength=")+ minIntronLength)+", maxIntronLength=")+ maxIntronLength)+", overhangTolerance=")+ overhangTolerance)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

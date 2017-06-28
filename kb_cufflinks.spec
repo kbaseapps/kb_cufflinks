@@ -9,17 +9,20 @@ module kb_cufflinks {
 	*/
 	typedef int boolean;
 
-	/*
-		 Object for Report type
-	*/
-	typedef structure {
-		string report_name;
-		string report_ref;
-	} ResultsToReport;
+	/* An X/Y/Z style reference
+    */
+    typedef string obj_ref;
 
 	typedef structure{
-		string ws_id;
-		string sample_alignment_ref;
+        string      result_directory;
+        obj_ref     expression_obj_ref;
+        string      report_name;
+        string      report_ref;
+    } CufflinksResult;
+
+	typedef structure{
+		string workspace_name;
+		string alignment_object_ref;
 		string genome_ref;
 		int num_threads;
 		/*string library-type; */
@@ -29,11 +32,8 @@ module kb_cufflinks {
 		int overhang-tolerance;
 	} CufflinksParams;
 
-    async funcdef CufflinksCall(CufflinksParams params)
-		returns (ResultsToReport) authentication required;
-
-
-    typedef string obj_ref;
+    async funcdef run_cufflinks(CufflinksParams params)
+		returns (CufflinksResult) authentication required;
 
     /*
         Required input parameters for run_Cuffdiff.

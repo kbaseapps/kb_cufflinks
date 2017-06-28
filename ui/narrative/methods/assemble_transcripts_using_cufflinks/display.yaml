@@ -24,11 +24,11 @@ method-suggestions :
 # Configure the display and description of the parameters
 #
 parameters :
-  sample_alignment_ref :
+  alignment_object_ref :
     ui-name : |
-        RNA-seq Alignment
+        RNA-seq Alignment or Alignment Set
     short-hint : |
-        Select the RNA-seq alignment created by Bowtie2 or TopHat2 or HISAT2.
+        Select the RNA-seq alignment or alignment set created by Bowtie2 or TopHat2 or HISAT2.
   genome_ref :
     ui-name : |
         Genome
