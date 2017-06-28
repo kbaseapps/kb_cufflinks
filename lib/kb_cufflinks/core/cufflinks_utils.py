@@ -227,11 +227,24 @@ class CufflinksUtils:
                      'expression_obj_ref': expression_obj_ref,
                      'alignment_ref': alignment_ref}
 
-        expression_set_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
+        expression_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
                                                   includeMetadata=None)[0][1]
 
-        widget_params = {"output": expression_set_name, "workspace": params.get('workspace_name')}
+        widget_params = {"output": expression_name, "workspace": params.get('workspace_name')}
         returnVal.update(widget_params)
+
+        ##########################################################
+        return {
+            "version": "1.1",
+            "result": [
+                {
+                    "output": expression_name,
+                    "workspace": params.get('workspace_name')
+                }
+            ],
+            "id": "47787998906"
+        }
+        ##########################################################
 
         return returnVal
 
