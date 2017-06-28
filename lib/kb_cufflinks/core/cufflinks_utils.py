@@ -235,15 +235,9 @@ class CufflinksUtils:
 
         ##########################################################
         return {
-            "version": "1.1",
-            "result": [
-                {
                     "output": expression_name,
                     "workspace": params.get('workspace_name')
                 }
-            ],
-            "id": "47787998906"
-        }
         ##########################################################
 
         return returnVal
