@@ -227,6 +227,12 @@ class CufflinksUtils:
                      'expression_obj_ref': expression_obj_ref,
                      'alignment_ref': alignment_ref}
 
+        expression_set_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
+                                                  includeMetadata=None)[0][1]
+
+        widget_params = {"output": expression_set_name, "workspace": params.get('workspace_name')}
+        returnVal.update(widget_params)
+
         return returnVal
 
     def _generate_html_report(self, result_directory, obj_ref):
@@ -585,6 +591,13 @@ class CufflinksUtils:
         report_output = self._generate_report(expression_obj_ref,
                                               params.get('workspace_name'),
                                               result_directory)
+
+        expression_set_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
+                                                  includeMetadata=None)[0][1]
+
+        widget_params = {"output": expression_set_name, "workspace": params.get('workspace_name')}
+        returnVal.update(widget_params)
+
         returnVal.update(report_output)
 
         return returnVal
