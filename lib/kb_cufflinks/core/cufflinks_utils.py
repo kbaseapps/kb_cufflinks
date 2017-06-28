@@ -1,10 +1,6 @@
 import time
-import traceback
 import math
 import os
-import script_utils
-import shutil
-from pprint import pprint
 import uuid
 import errno
 import json
@@ -29,16 +25,16 @@ def log(message, prefix_newline=False):
 class CufflinksUtils:
     CUFFLINKS_TOOLKIT_PATH = '/opt/cufflinks/'
     GFFREAD_TOOLKIT_PATH = '/opt/cufflinks/'
-    
+
     def __init__(self, config):
         """
-        
-        :param config: 
-        :param logger: 
-        :param directory: Working directory 
+
+        :param config:
+        :param logger:
+        :param directory: Working directory
         :param urls: Service urls
         """
-        #BEGIN_CONSTRUCTOR
+        # BEGIN_CONSTRUCTOR
         self.ws_url = config["workspace-url"]
         self.ws_url = config["workspace-url"]
         self.callback_url = config['SDK_CALLBACK_URL']
@@ -54,7 +50,7 @@ class CufflinksUtils:
 
         self.tool_used = "Cufflinks"
         self.tool_version = os.environ['VERSION']
-        #END_CONSTRUCTOR
+        # END_CONSTRUCTOR
         pass
 
     def _mkdir_p(self, path):
@@ -80,7 +76,7 @@ class CufflinksUtils:
         log('Start validating run_cufflinks params')
 
         # check for required parameters
-        for p in ['alignment_object_ref', 'workspace_name']:
+        for p in ['alignment_object_ref', 'workspace_name', 'genome_ref']:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
 
@@ -134,7 +130,6 @@ class CufflinksUtils:
 
         return gtf_path
 
-
     def _get_gtf_file(self, alignment_ref):
         """
         _get_gtf_file: get the reference annotation file (in GTF or GFF3 format)
@@ -162,7 +157,6 @@ class CufflinksUtils:
 
         return annotation_file
 
-
     def _get_input_file(self, alignment_ref):
         """
         _get_input_file: get input BAM file from Alignment object
@@ -184,7 +178,6 @@ class CufflinksUtils:
 
         return bam_file
 
-
     def _generate_command(self, params):
         """
         _generate_command: generate cufflinks command
@@ -198,19 +191,19 @@ class CufflinksUtils:
         if 'overhang_tolerance' in params and params['overhang_tolerance'] is not None:
             cufflinks_command += (' --overhang-tolerance ' + str(params['overhang_tolerance']))
 
-        cufflinks_command += " -o {0} -G {1} {2}".format(params['result_directory'], params['gtf_file'], params['input_file'])
+        cufflinks_command += " -o {0} -G {1} {2}".format(
+            params['result_directory'], params['gtf_file'], params['input_file'])
 
         log('Generated cufflinks command: {}'.format(cufflinks_command))
 
         return cufflinks_command
-
 
     def _process_alignment_object(self, params):
         """
         _process_alignment_object: process KBaseRNASeq.RNASeqAlignment type input object
         """
         log('start processing RNASeqAlignment object\nparams:\n{}'.format(
-                                                                json.dumps(params, indent=1)))
+            json.dumps(params, indent=1)))
         alignment_ref = params.get('alignment_ref')
 
         result_directory = os.path.join(self.scratch, str(uuid.uuid4()))
@@ -240,7 +233,6 @@ class CufflinksUtils:
         """
         _generate_html_report: generate html summary report
         """
-
         log('Start generating html report')
         html_report = list()
 
@@ -249,17 +241,17 @@ class CufflinksUtils:
         result_file_path = os.path.join(output_directory, 'report.html')
 
         expression_object = self.ws.get_objects2({'objects':
-                                                 [{'ref': obj_ref}]})['data'][0]
+                                                  [{'ref': obj_ref}]})['data'][0]
 
         expression_object_type = expression_object.get('info')[2]
 
         Overview_Content = ''
         if re.match('KBaseRNASeq.RNASeqExpression-\d.\d', expression_object_type):
             Overview_Content += '<p>Generated Expression Object:</p><p>{}</p>'.format(
-                                                                expression_object.get('info')[1])
+                expression_object.get('info')[1])
         elif re.match('KBaseRNASeq.RNASeqExpressionSet-\d.\d', expression_object_type):
             Overview_Content += '<p>Generated Expression Set Object:</p><p>{}</p>'.format(
-                                                                expression_object.get('info')[1])
+                expression_object.get('info')[1])
             Overview_Content += '<br><p>Generated Expression Object:</p>'
             for expression_ref in expression_object['data']['sample_expression_ids']:
                 expression_name = self.ws.get_object_info([{"ref": expression_ref}],
@@ -299,10 +291,10 @@ class CufflinksUtils:
         save_object_params = {
             'id': workspace_id,
             'objects': [{
-                            'type': object_type,
-                            'data': expression_data,
-                            'name': expression_data.get('id')
-                        }]
+                'type': object_type,
+                'data': expression_data,
+                'name': expression_data.get('id')
+            }]
         }
 
         dfu_oi = self.dfu.save_objects(save_object_params)[0]
@@ -328,10 +320,10 @@ class CufflinksUtils:
         save_object_params = {
             'id': workspace_id,
             'objects': [{
-                            'type': object_type,
-                            'data': expression_set_data,
-                            'name': expression_set_data.get('id')
-                        }]
+                'type': object_type,
+                'data': expression_set_data,
+                'name': expression_set_data.get('id')
+            }]
         }
 
         dfu_oi = self.dfu.save_objects(save_object_params)[0]
@@ -350,13 +342,13 @@ class CufflinksUtils:
                                                        obj_ref)
 
         report_params = {
-              'message': '',
-              'workspace_name': workspace_name,
-              'file_links': output_files,
-              'html_links': output_html_files,
-              'direct_html_link_index': 0,
-              'html_window_height': 366,
-              'report_object_name': 'kb_cufflinks_report_' + str(uuid.uuid4())}
+            'message': '',
+            'workspace_name': workspace_name,
+            'file_links': output_files,
+            'html_links': output_html_files,
+            'direct_html_link_index': 0,
+            'html_window_height': 366,
+            'report_object_name': 'kb_cufflinks_report_' + str(uuid.uuid4())}
 
         kbase_report_client = KBaseReport(self.callback_url, token=self.token)
         output = kbase_report_client.create_extended_report(report_params)
@@ -378,7 +370,7 @@ class CufflinksUtils:
             for line in f:
                 larr = line.split("\t")
                 if larr[pos1] != "":
-                    try :
+                    try:
                         result[larr[pos1]] = math.log(float(larr[pos2]) + 1, 2)
                     except ValueError:
                         result[larr[pos1]] = math.log(1, 2)
@@ -427,7 +419,7 @@ class CufflinksUtils:
                                             [{'ref': genome_id}]})['data'][0]['data']
         genome_name = genome_data.get('id')
         genome_scientific_name = genome_data.get('scientific_name')
-        gff_annotation_name = genome_name+"_GTF_Annotation"
+        gff_annotation_name = genome_name + "_GTF_Annotation"
         file_to_shock_result = self.dfu.file_to_shock({'file_path': gtf_file,
                                                        'make_handle': True})
         gff_annotation_data = {'handle': file_to_shock_result['handle'],
@@ -440,10 +432,10 @@ class CufflinksUtils:
         save_object_params = {
             'id': workspace_id,
             'objects': [{
-                            'type': object_type,
-                            'data': gff_annotation_data,
-                            'name': gff_annotation_name
-                        }]
+                'type': object_type,
+                'data': gff_annotation_data,
+                'name': gff_annotation_name
+            }]
         }
 
         dfu_oi = self.dfu.save_objects(save_object_params)[0]
@@ -457,7 +449,7 @@ class CufflinksUtils:
         _generate_expression_data: generate Expression object with cufflinks output files
         """
         alignment_data_object = self.ws.get_objects2({'objects':
-                                                     [{'ref': alignment_ref}]})['data'][0]
+                                                      [{'ref': alignment_ref}]})['data'][0]
 
         alignment_name = alignment_data_object['info'][1]
         expression_name = re.sub('_[Aa]lignment',
@@ -507,7 +499,7 @@ class CufflinksUtils:
         _generate_expression_set_data: generate ExpressionSet object with cufflinks output files
         """
         alignment_set_data_object = self.ws.get_objects2({'objects':
-                                                         [{'ref': alignment_set_ref}]})['data'][0]
+                                                          [{'ref': alignment_set_ref}]})['data'][0]
 
         alignment_set_name = alignment_set_data_object['info'][1]
         expression_set_name = re.sub('_[Aa]lignment_*[Ss]et',
@@ -551,7 +543,7 @@ class CufflinksUtils:
         _process_alignment_set_object: process KBaseRNASeq.RNASeqAlignmentSet type input object
         """
         log('start processing RNASeqAlignmentSet object\nparams:\n{}'.format(
-                                                                json.dumps(params, indent=1)))
+            json.dumps(params, indent=1)))
 
         alignment_set_ref = params.get('alignment_set_ref')
 
@@ -623,161 +615,3 @@ class CufflinksUtils:
                 alignment_object_info))
 
         return returnVal
-        '''
-        ws_client = common_params['ws_client']
-        #hs = common_params['hs_client']
-        logger = self.logger
-        token = common_params['user_token']
-
-        s_alignment = task_params['job_id']
-        gtf_file = task_params['gtf_file']
-        directory = task_params['cufflinks_dir']
-        genome_id = task_params['genome_id']
-        annotation_id = task_params['annotation_id']
-        sample_id = task_params['sample_id']
-
-        ws_id = task_params['ws_id']
-
-        print "Downloading Sample Alignment from workspace {0}".format(s_alignment)
-        logger.info("Downloading Sample Alignment from workspace {0}".format(s_alignment))
-        alignment_name = ws_client.get_object_info([{"ref": s_alignment}], includeMetadata=None)[0][
-            1]
-        if not logger:
-            logger = script_utils.create_logger(directory, "run_cufflinks_" + alignment_name)
-        try:
-            alignment = ws_client.get_objects(
-                [{'ref': s_alignment}])[0]
-            input_direc = os.path.join(directory,
-                                       alignment_name.split('_alignment')[0] + "_cufflinks_input")
-            if not os.path.exists(input_direc): os.mkdir(input_direc)
-            output_name = alignment_name.split('_alignment')[0] + "_cufflinks_expression"
-            output_dir = os.path.join(directory, output_name)
-            # Download Alignment from shock
-            a_file_id = alignment['data']['file']['id']
-            a_filename = alignment['data']['file']['file_name']
-            condition = alignment['data']['condition']
-            try:
-                script_utils.download_file_from_shock(logger, shock_service_url=self.urls[
-                    'shock_service_url'], shock_id=a_file_id, filename=a_filename,
-                                                     directory=input_direc, token=token)
-            except Exception, e:
-                raise Exception("Unable to download shock file, {0},{1}".format(a_filename, "".join(
-                    traceback.format_exc())))
-
-            try:
-                input_dir = os.path.join(input_direc, alignment_name)
-                if not os.path.exists(input_dir): os.mkdir(input_dir)
-                #script_utils.unzip_files(logger, os.path.join(input_direc, a_filename), input_dir)
-            except Exception, e:
-                raise Exception(e)
-                logger.error("".join(traceback.format_exc()))
-                raise Exception("Unzip alignment files  error")
-
-            #input_file = os.path.join(input_dir, "accepted_hits.bam.bk")
-            input_file = os.path.join(input_direc, a_filename)
-
-            ### Adding advanced options to tophat command
-            tool_opts = {k: str(v) for k, v in params.iteritems() if
-                         not k in ('ws_id', 'num_threads') and v is not None}
-            cufflinks_command = (' -p ' + str(params['num_threads']))
-            if 'max_intron_length' in params and params['max_intron_length'] is not None:
-                cufflinks_command += (' --max-intron-length ' + str(params['max_intron_length']))
-            if 'min_intron_length' in params and params['min_intron_length'] is not None:
-                cufflinks_command += (' --min-intron-length ' + str(params['min_intron_length']))
-            if 'overhang_tolerance' in params and params['overhang_tolerance'] is not None:
-                cufflinks_command += (' --overhang-tolerance ' + str(params['overhang_tolerance']))
-
-            cufflinks_command += " -o {0} -G {1} {2}".format(output_dir, gtf_file, input_file)
-            # cufflinks_command += " -o {0} -A {1} -G {2} {3}".format(t_file_name,g_output_file,gtf_file,input_file)
-            logger.info("Executing: cufflinks {0}".format(cufflinks_command))
-            print "Executing: cufflinks {0}".format(cufflinks_command)
-            ret = script_utils.runProgram(logger, "/opt/cufflinks/cufflinks", cufflinks_command, None, directory)
-            result = ret["result"]
-            for line in result.splitlines(False):
-                self.logger.info(line)
-                stderr = ret["stderr"]
-                prev_value = ''
-                for line in stderr.splitlines(False):
-                    if line.startswith('> Processing Locus'):
-                        words = line.split()
-                        cur_value = words[len(words) - 1]
-                        if prev_value != cur_value:
-                            prev_value = cur_value
-                            self.logger.info(line)
-                        else:
-                            prev_value = ''
-                            self.logger.info(line)
-
-            ##Parse output files
-            try:
-                g_output_file = os.path.join(output_dir, "genes.fpkm_tracking")
-                # exp_dict = rnaseq_util.parse_FPKMtracking( g_output_file, 'Cufflinks', 'FPKM' )
-                # tpm_exp_dict = script_util.parse_FPKMtracking(g_output_file,'Cufflinks','TPM')
-                # Cufflinks doesn't produce TPM, we infer from FPKM
-                # (see discussion @ https://www.biostars.org/p/160989/)
-                exp_dict, tpm_exp_dict = parse_FPKMtracking_calc_TPM(g_output_file)
-            except Exception, e:
-                raise Exception(e)
-                logger.exception("".join(traceback.format_exc()))
-                raise Exception("Error parsing FPKMtracking")
-                ##  compress and upload to shock
-            try:
-                logger.info("Zipping cufflinks output")
-                print "Zipping cufflinks output"
-                out_file_path = os.path.join(directory, "%s.zip" % output_name)
-                script_utils.zip_files(logger, output_dir, out_file_path)
-            except Exception, e:
-                raise Exception(e)
-                logger.exception("".join(traceback.format_exc()))
-                raise Exception("Error executing cufflinks")
-            try:
-                handle = script_utils.upload_file_to_shock(logger, out_file_path)['handle']
-            except Exception, e:
-                raise Exception(e)
-                logger.exception("".join(traceback.format_exc()))
-                raise Exception("Error while zipping the output objects: {0}".format(out_file_path))
-                ## Save object to workspace
-            try:
-                logger.info("Saving cufflinks object to workspace")
-                es_obj = {'id': output_name,
-                          'type': 'RNA-Seq',
-                          'numerical_interpretation': 'FPKM',
-                          'expression_levels': exp_dict,
-                          'tpm_expression_levels': tpm_exp_dict,
-                          'processing_comments': "log2 Normalized",
-                          'genome_id': genome_id,
-                          'annotation_id': annotation_id,
-                          'condition': condition,
-                          'mapped_rnaseq_alignment': {sample_id: s_alignment},
-                          'tool_used': self.tool_used,
-                          'tool_version': self.tool_version,
-                          'tool_opts': tool_opts,
-                          'file': handle
-                          }
-
-                res = ws_client.save_objects(
-                    {"workspace": ws_id,
-                     "objects": [{
-                         "type": "KBaseRNASeq.RNASeqExpression",
-                         "data": es_obj,
-                         "name": output_name}
-                     ]})[0]
-                expr_id = str(res[6]) + '/' + str(res[0]) + '/' + str(res[4])
-            except Exception, e:
-                logger.exception("".join(traceback.format_exc()))
-                raise Exception("Failed to upload the ExpressionSample: {0}".format(output_name))
-        except Exception, e:
-            logger.exception("".join(traceback.format_exc()))
-            raise Exception(
-                "Error executing cufflinks {0},{1}".format(cufflinks_command, directory))
-        finally:
-            if os.path.exists(out_file_path): os.remove(out_file_path)
-            if os.path.exists(output_dir): shutil.rmtree(output_dir)
-            if os.path.exists(input_direc): shutil.rmtree(input_direc)
-            ret = script_utils.if_obj_exists(None, ws_client, ws_id, "KBaseRNASeq.RNASeqExpression",
-                                            [output_name])
-            if not ret is None:
-                return (output_name, ws_id)
-        return None
-        '''
-        

@@ -85,23 +85,26 @@ class ReadsAlignmentUtils(object):
            destination_ref -  object reference of alignment destination. The
            object ref is 'ws_name_or_id/obj_name_or_id' where ws_name_or_id
            is the workspace name or id and obj_name_or_id is the object name
-           or id file_path              -  Source: file with the path of the
-           sam or bam file to be uploaded read_library_ref       -  workspace
-           object ref of the read sample used to make the alignment file
-           condition              - assembly_or_genome_ref -  workspace
-           object ref of genome assembly or genome object that was used to
-           build the alignment *) -> structure: parameter "destination_ref"
-           of String, parameter "file_path" of String, parameter "condition"
-           of String, parameter "assembly_or_genome_ref" of String, parameter
-           "read_library_ref" of String, parameter "aligned_using" of String,
-           parameter "aligner_version" of String, parameter "aligner_opts" of
-           mapping from String to String, parameter "replicate_id" of String,
-           parameter "platform" of String, parameter "bowtie2_index" of type
-           "ws_bowtieIndex_id", parameter "sampleset_ref" of type
-           "ws_Sampleset_ref", parameter "mapped_sample_id" of mapping from
-           String to mapping from String to String, parameter "validate" of
-           type "boolean" (A boolean - 0 for false, 1 for true. @range (0,
-           1)), parameter "ignore" of list of String
+           or id file_path              -  File with the path of the sam or
+           bam file to be uploaded. If a sam file is provided, it will be
+           converted to the sorted bam format before being saved
+           read_library_ref       -  workspace object ref of the read sample
+           used to make the alignment file condition              -
+           assembly_or_genome_ref -  workspace object ref of genome assembly
+           or genome object that was used to build the alignment *) ->
+           structure: parameter "destination_ref" of String, parameter
+           "file_path" of String, parameter "read_library_ref" of String,
+           parameter "condition" of String, parameter
+           "assembly_or_genome_ref" of String, parameter "aligned_using" of
+           String, parameter "aligner_version" of String, parameter
+           "aligner_opts" of mapping from String to String, parameter
+           "replicate_id" of String, parameter "platform" of String,
+           parameter "bowtie2_index" of type "ws_bowtieIndex_id", parameter
+           "sampleset_ref" of type "ws_Sampleset_ref", parameter
+           "mapped_sample_id" of mapping from String to mapping from String
+           to String, parameter "validate" of type "boolean" (A boolean - 0
+           for false, 1 for true. @range (0, 1)), parameter "ignore" of list
+           of String
         :returns: instance of type "UploadAlignmentOutput" (*  Output from
            uploading a reads alignment  *) -> structure: parameter "obj_ref"
            of String
@@ -132,19 +135,16 @@ class ReadsAlignmentUtils(object):
            is 'ws_name_or_id/obj_name_or_id' where ws_name_or_id is the
            workspace name or id and obj_name_or_id is the object name or id
            *) -> structure: parameter "source_ref" of String, parameter
-           "downloadBAM" of type "boolean" (A boolean - 0 for false, 1 for
-           true. @range (0, 1)), parameter "downloadSAM" of type "boolean" (A
+           "downloadSAM" of type "boolean" (A boolean - 0 for false, 1 for
+           true. @range (0, 1)), parameter "downloadBAI" of type "boolean" (A
            boolean - 0 for false, 1 for true. @range (0, 1)), parameter
-           "downloadBAI" of type "boolean" (A boolean - 0 for false, 1 for
-           true. @range (0, 1)), parameter "validate" of type "boolean" (A
-           boolean - 0 for false, 1 for true. @range (0, 1)), parameter
-           "ignore" of list of String
+           "validate" of type "boolean" (A boolean - 0 for false, 1 for true.
+           @range (0, 1)), parameter "ignore" of list of String
         :returns: instance of type "DownloadAlignmentOutput" (*  The output
            of the download method.  *) -> structure: parameter "ws_id" of
-           String, parameter "bam_file" of String, parameter "sam_file" of
-           String, parameter "bai_file" of String, parameter "stats" of type
-           "AlignmentStats" -> structure: parameter "properly_paired" of
-           Long, parameter "multiple_alignments" of Long, parameter
+           String, parameter "destination_dir" of String, parameter "stats"
+           of type "AlignmentStats" -> structure: parameter "properly_paired"
+           of Long, parameter "multiple_alignments" of Long, parameter
            "singletons" of Long, parameter "alignment_rate" of Double,
            parameter "unmapped_reads" of Long, parameter "mapped_reads" of
            Long, parameter "total_reads" of Long
@@ -175,13 +175,11 @@ class ReadsAlignmentUtils(object):
            'ws_name_or_id/obj_name_or_id' where ws_name_or_id is the
            workspace name or id and obj_name_or_id is the object name or id
            *) -> structure: parameter "source_ref" of String, parameter
-           "exportBAM" of type "boolean" (A boolean - 0 for false, 1 for
-           true. @range (0, 1)), parameter "exportSAM" of type "boolean" (A
+           "exportSAM" of type "boolean" (A boolean - 0 for false, 1 for
+           true. @range (0, 1)), parameter "exportBAI" of type "boolean" (A
            boolean - 0 for false, 1 for true. @range (0, 1)), parameter
-           "exportBAI" of type "boolean" (A boolean - 0 for false, 1 for
-           true. @range (0, 1)), parameter "validate" of type "boolean" (A
-           boolean - 0 for false, 1 for true. @range (0, 1)), parameter
-           "ignore" of list of String
+           "validate" of type "boolean" (A boolean - 0 for false, 1 for true.
+           @range (0, 1)), parameter "ignore" of list of String
         :returns: instance of type "ExportOutput" -> structure: parameter
            "shock_id" of String
         """

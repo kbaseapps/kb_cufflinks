@@ -1,23 +1,16 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
 import os
+import json
 import logging
 import time
 import sys
-import json
 from core import script_utils
 from core.cuffdiff import CuffDiff
-from core.cufflinks_utils import CufflinksUtils
 
-from biokbase.workspace.client import Workspace
-#try:
-#from biokbase.HandleService.Client import HandleService
-#except BaseException:
-#    from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
+
 
 from kb_cufflinks.core.cufflinks_utils import CufflinksUtils
-from pprint import pprint
-from DataFileUtil.DataFileUtilClient import DataFileUtil
 #END_HEADER
 
 
@@ -50,9 +43,37 @@ class kb_cufflinks:
         self.config = config
         self.config['SDK_CALLBACK_URL'] = os.environ['SDK_CALLBACK_URL']
         self.config['KB_AUTH_TOKEN'] = os.environ['KB_AUTH_TOKEN']
+        if 'workspace-url' in config:
+            self.__WS_URL = config['workspace-url']
+        if 'shock-url' in config:
+            self.__SHOCK_URL = config['shock-url']
+        if 'handle-service-url' in config:
+            self.__HS_URL = config['handle-service-url']
+        self.__CALLBACK_URL = os.environ['SDK_CALLBACK_URL']
+
+        self.__SERVICES = {'workspace_service_url': self.__WS_URL,
+                           'shock_service_url': self.__SHOCK_URL,
+                           'handle_service_url': self.__HS_URL,
+                           'callback_url': self.__CALLBACK_URL}
+
+        # logging
+        self.__LOGGER = logging.getLogger('KBaseRNASeq')
+        if 'log_level' in config:
+            self.__LOGGER.setLevel(config['log_level'])
+        else:
+            self.__LOGGER.setLevel(logging.INFO)
+        streamHandler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(filename)s - %(lineno)d - %(levelname)s - %(message)s")
+        formatter.converter = time.gmtime
+        streamHandler.setFormatter(formatter)
+        self.__LOGGER.addHandler(streamHandler)
+        self.__LOGGER.info("Logger was set")
+
+        script_utils.check_sys_stat(self.__LOGGER)
+        self.cuffdiff_runner = CuffDiff(config, self.__SERVICES, self.__LOGGER)
         #END_CONSTRUCTOR
         pass
-
 
     def run_cufflinks(self, ctx, params):
         """
@@ -88,13 +109,13 @@ class kb_cufflinks:
         return [returnVal]
 
     def status(self, ctx):
-        # BEGIN_STATUS
+        #BEGIN_STATUS
         returnVal = {'state': "OK",
                      'message': "",
                      'version': self.VERSION,
                      'git_url': self.GIT_URL,
                      'git_commit_hash': self.GIT_COMMIT_HASH}
-        # END_STATUS
+        #END_STATUS
         return [returnVal]
         #END run_cufflinks
 
@@ -108,8 +129,8 @@ class kb_cufflinks:
     def run_Cuffdiff(self, ctx, params):
         """
         :param params: instance of type "CuffdiffInput" (Required input
-           parameters for run_Cuffdiff. expressionset_ref           -  
-           reference for an expressionset object workspace_name             
+           parameters for run_Cuffdiff. expressionset_ref           -
+           reference for an expressionset object workspace_name
            -   workspace name to save the differential expression output
            object diff_expression_obj_name    -   name of the differential
            expression output object) -> structure: parameter
@@ -141,13 +162,4 @@ class kb_cufflinks:
             raise ValueError('Method run_Cuffdiff return value ' +
                              'returnVal is not type dict as required.')
         # return the results
-        return [returnVal]
-    def status(self, ctx):
-        #BEGIN_STATUS
-        returnVal = {'state': "OK",
-                     'message': "",
-                     'version': self.VERSION,
-                     'git_url': self.GIT_URL,
-                     'git_commit_hash': self.GIT_COMMIT_HASH}
-        #END_STATUS
         return [returnVal]
