@@ -233,13 +233,6 @@ class CufflinksUtils:
         widget_params = {"output": expression_name, "workspace": params.get('workspace_name')}
         returnVal.update(widget_params)
 
-        ##########################################################
-        return {
-                    "output": expression_name,
-                    "workspace": params.get('workspace_name')
-                }
-        ##########################################################
-
         return returnVal
 
     def _generate_html_report(self, result_directory, obj_ref):
@@ -626,10 +619,10 @@ class CufflinksUtils:
             print('>>>>>>>>>>>>>>>>>>returnVal')
             from pprint import pprint
             pprint(returnVal)
-            #report_output = self._generate_report(returnVal.get('expression_obj_ref'),
-            #                                      params.get('workspace_name'),
-            #                                      returnVal.get('result_directory'))
-            #returnVal.update(report_output)
+            report_output = self._generate_report(returnVal.get('expression_obj_ref'),
+                                                  params.get('workspace_name'),
+                                                  returnVal.get('result_directory'))
+            returnVal.update(report_output)
         elif re.match('KBaseRNASeq.RNASeqAlignmentSet-\d.\d', alignment_object_type):
             params.update({'alignment_set_ref': alignment_object_ref})
             returnVal = self._process_alignment_set_object(params)
