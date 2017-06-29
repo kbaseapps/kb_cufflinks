@@ -53,6 +53,35 @@ class CufflinksUtils:
         # END_CONSTRUCTOR
         pass
 
+    def parse_FPKMtracking_calc_TPM(filename):
+        """
+        Generates TPM from FPKM
+        :return: 
+        """
+        fpkm_dict = {}
+        tpm_dict = {}
+        gene_col = 0
+        fpkm_col = 9
+        sum_fpkm = 0.0
+        with open(filename) as f:
+            next(f)
+            for line in f:
+                larr = line.split("\t")
+                gene_id = larr[gene_col]
+                if gene_id != "":
+                    fpkm = float(larr[fpkm_col])
+                    sum_fpkm = sum_fpkm + fpkm
+                    fpkm_dict[gene_id] = math.log(fpkm + 1, 2)
+                    tpm_dict[gene_id] = fpkm
+
+        if sum_fpkm == 0.0:
+            log("Warning: Unable to calculate TPM values as sum of FPKM values is 0")
+        else:
+            for g in tpm_dict:
+                tpm_dict[g] = math.log((tpm_dict[g] / sum_fpkm) * 1e6 + 1, 2)
+
+        return fpkm_dict, tpm_dict
+
     def _mkdir_p(self, path):
         """
         _mkdir_p: make directory for given path
@@ -484,12 +513,14 @@ class CufflinksUtils:
         read_sample_id = alignment_data.get('read_sample_id')
         expression_data.update({'mapped_rnaseq_alignment': {read_sample_id: alignment_ref}})
 
-        exp_dict = self._parse_FPKMtracking(os.path.join(result_directory,
-                                                         'genes.fpkm_tracking'), 'FPKM')
+        exp_dict, tpm_exp_dict = self._parse_FPKMtracking_calc_TPM(os.path.join(result_directory,
+                                                         'genes.fpkm_tracking'))
+        #exp_dict = self._parse_FPKMtracking(os.path.join(result_directory,
+        #                                                 'genes.fpkm_tracking'), 'FPKM')
         expression_data.update({'expression_levels': exp_dict})
 
-        tpm_exp_dict = self._parse_FPKMtracking(os.path.join(result_directory,
-                                                             'genes.fpkm_tracking'), 'TPM')
+        #tpm_exp_dict = self._parse_FPKMtracking(os.path.join(result_directory,
+        #                                                     'genes.fpkm_tracking'), 'TPM')
         expression_data.update({'tpm_expression_levels': tpm_exp_dict})
 
         handle = self.dfu.file_to_shock({'file_path': result_directory,
@@ -616,10 +647,10 @@ class CufflinksUtils:
         if re.match('KBaseRNASeq.RNASeqAlignment-\d.\d', alignment_object_type):
             params.update({'alignment_ref': alignment_object_ref})
             returnVal = self._process_alignment_object(params)
-            report_output = self._generate_report(returnVal.get('expression_obj_ref'),
-                                                  params.get('workspace_name'),
-                                                  returnVal.get('result_directory'))
-            returnVal.update(report_output)
+            #report_output = self._generate_report(returnVal.get('expression_obj_ref'),
+            #                                      params.get('workspace_name'),
+            #                                      returnVal.get('result_directory'))
+            #returnVal.update(report_output)
         elif re.match('KBaseRNASeq.RNASeqAlignmentSet-\d.\d', alignment_object_type):
             params.update({'alignment_set_ref': alignment_object_ref})
             returnVal = self._process_alignment_set_object(params)
