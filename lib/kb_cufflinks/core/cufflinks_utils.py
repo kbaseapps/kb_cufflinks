@@ -53,7 +53,7 @@ class CufflinksUtils:
         # END_CONSTRUCTOR
         pass
 
-    def parse_FPKMtracking_calc_TPM(filename):
+    def parse_FPKMtracking_calc_TPM(self, filename):
         """
         Generates TPM from FPKM
         :return: 
@@ -513,7 +513,7 @@ class CufflinksUtils:
         read_sample_id = alignment_data.get('read_sample_id')
         expression_data.update({'mapped_rnaseq_alignment': {read_sample_id: alignment_ref}})
 
-        exp_dict, tpm_exp_dict = self._parse_FPKMtracking_calc_TPM(os.path.join(result_directory,
+        exp_dict, tpm_exp_dict = self.parse_FPKMtracking_calc_TPM(os.path.join(result_directory,
                                                          'genes.fpkm_tracking'))
         #exp_dict = self._parse_FPKMtracking(os.path.join(result_directory,
         #                                                 'genes.fpkm_tracking'), 'FPKM')
