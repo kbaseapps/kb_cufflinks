@@ -616,9 +616,6 @@ class CufflinksUtils:
         if re.match('KBaseRNASeq.RNASeqAlignment-\d.\d', alignment_object_type):
             params.update({'alignment_ref': alignment_object_ref})
             returnVal = self._process_alignment_object(params)
-            print('>>>>>>>>>>>>>>>>>>returnVal')
-            from pprint import pprint
-            pprint(returnVal)
             report_output = self._generate_report(returnVal.get('expression_obj_ref'),
                                                   params.get('workspace_name'),
                                                   returnVal.get('result_directory'))
@@ -630,4 +627,7 @@ class CufflinksUtils:
             raise ValueError('None RNASeqAlignment type\nObject info:\n{}'.format(
                 alignment_object_info))
 
+        print('>>>>>>>>>>>>>>>>>>returnVal')
+        from pprint import pprint
+        pprint(returnVal)
         return returnVal
