@@ -6,7 +6,7 @@
   "categories" : ["active","expression","assembly"],
   "widgets" : {
     "input" : null,
-    "output" : ["kbaseExpressionSampleTableNew","KBaseReport"]
+    "output" : ["kbaseExpressionSampleTableNew","kbaseReportView"]
   },
    "parameters" : [ {
     "id" : "alignment_object_ref",
