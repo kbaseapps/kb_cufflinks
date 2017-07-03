@@ -42,14 +42,15 @@ ENV PATH $PATH:${DEST}
 
 # ---------------------------------------------------------
 
-# download gffread script
-RUN cd /kb/dev_container/modules && \
-    mkdir gffread && cd gffread && \
-    wget http://ccb.jhu.edu/software/stringtie/dl/gffread-0.9.9.Linux_x86_64.tar.gz &&\
-    tar xvfz gffread-0.9.9.Linux_x86_64.tar.gz && \
-    cd gffread-0.9.9.Linux_x86_64 && \
-    mkdir /kb/deployment/bin/gffread && \
-    cp -R gffread /kb/deployment/bin/gffread/gffread
+# Install gffread
+RUN  echo Installing gffread \
+  && cd /opt \
+  && git clone https://github.com/gpertea/gclib \
+  && git clone https://github.com/gpertea/gffread \
+  && cd gffread \
+  && make
+
+ENV PATH $PATH:/opt/gffread
 
 # ---------------------------------------------------------
 

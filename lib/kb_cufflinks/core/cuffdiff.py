@@ -8,6 +8,7 @@ import multiprocessing as mp
 import handler_utils
 import script_utils
 from cuffmerge import CuffMerge
+from gff_utils import GFFUtils
 
 from Workspace.WorkspaceClient import Workspace as Workspace
 from DataFileUtil.DataFileUtilClient import DataFileUtil
@@ -30,53 +31,6 @@ class CuffDiff:
                   ]:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
-
-
-    def _run_gffread(self, gff_path, gtf_path, result_dir):
-        """
-        _run_gffread: run gffread script
-        ref: http://ccb.jhu.edu/software/stringtie/gff.shtml
-        """
-        print('converting gff to gtf')
-        command = self.GFFREAD_TOOLKIT_PATH + '/gffread '
-        command += "-E {0} -T -o {1}".format(gff_path, gtf_path)
-
-        ret = script_utils.runProgram(self.logger, "gffread", command)
-
-    def _create_gtf_file(self, genome_ref):
-        """
-        _create_gtf_file: create reference annotation file from genome
-        """
-        result_dir = self.scratch
-
-        genome_gff_file = self.gfu.genome_to_gff({'genome_ref': genome_ref,
-                                                  'target_dir': result_dir})['file_path']
-
-        gtf_ext = '.gtf'
-        if not genome_gff_file.endswith(gtf_ext):
-            gtf_path = os.path.splitext(genome_gff_file)[0] + '.gtf'
-            self._run_gffread(genome_gff_file, gtf_path, result_dir)
-        else:
-            gtf_path = genome_gff_file
-
-        return gtf_path
-
-    def _get_gtf_file(self, genome_ref, result_dir):
-        """
-        _get_gtf_file: get the reference annotation file (in GTF or GFF3 format)
-        """
-        genome_data = self.ws_client.get_objects2({'objects':
-                                            [{'ref': genome_ref}]})['data'][0]['data']
-
-        gff_handle_ref = genome_data.get('gff_handle_ref')
-
-        if gff_handle_ref:
-            annotation_file = self.dfu.shock_to_file({'handle_id': gff_handle_ref,
-                                                      'file_path': result_dir,
-                                                      'unpack': 'unpack'})['file_path']
-        else:
-            annotation_file = self._create_gtf_file(genome_ref)
-        return annotation_file
 
     def _generate_output_file_list(self, result_directory):
         """
@@ -112,7 +66,6 @@ class CuffDiff:
         """
         _generate_html_report: generate html summary report
         """
-
         self.logger.info('Start generating html report')
         html_report = list()
 
@@ -242,7 +195,7 @@ class CuffDiff:
         """
         Get gtf file from genome_ref. Used as input to cuffmerge.
         """
-        output_data['gtf_file_path'] = self._get_gtf_file(output_data['genome_id'], result_directory)
+        output_data['gtf_file_path'] = self.gff_utils.get_gtf_file(output_data['genome_id'])
 
         condition = []
         bam_files = []
@@ -257,38 +210,51 @@ class CuffDiff:
                 assembly_gtf.txt will contain the file paths of all .gtf files 
                 in the expressionset. Used as input to cuffmerge.
                 """
-                expression_data = self.ws_client.get_objects2(
-                        {'objects':
-                         [{'ref': expression_id}]})['data'][0]['data']
                 expression_retVal = self.eu.download_expression({'source_ref': expression_id})
                 expression_dir = expression_retVal.get('destination_dir')
                 e_file_path = os.path.join(expression_dir, "transcripts.gtf")
 
                 if os.path.exists(e_file_path):
-                    print e_file_path
-                    print('Adding: ' + e_file_path)
+                    self.logger.info('Adding:  ' + expression_id + ':, ' + e_file_path)
                     list_file.write("{0}\n".format(e_file_path))
                 else:
                     raise ValueError(e_file_path + " not found")
+                """
+                Create a list of all conditions in expressionset. Used as input to cuffdiff.
+                """
+                alignment_data = self.ws_client.get_objects2(
+                    {'objects':
+                         [{'ref': alignment_id}]})['data'][0]['data']
+                alignment_condition = alignment_data.get('condition')
+                if alignment_condition not in condition:
+                    condition.append(alignment_condition)
                 """
                 Create a list of bam files in alignment set. Used as input to cuffdiff.
                 """
                 alignment_retVal = self.rau.download_alignment({'source_ref': alignment_id})
                 alignment_dir = alignment_retVal.get('destination_dir')
-                a_file_path = os.path.join(alignment_dir, "accepted_hits.bam")
-
-                if os.path.exists(a_file_path):
-                    print a_file_path
-                    bam_files.append(a_file_path)
-                else:
-                    raise ValueError(a_file_path + " not found")
-
-                """
-                Create a list of all conditions in expressionset. Used as input to cuffdiff.
-                """
-                condition.append(expression_data.get('condition'))
+                align_path, align_dir = os.path.split(alignment_dir)
+                new_alignment_dir = os.path.join(align_path, alignment_condition + '_' + align_dir)
+                os.rename(alignment_dir, os.path.join(align_path, new_alignment_dir))
 
         list_file.close()
+        """
+        Get list of bamfiles in the format required by cuffdiff
+        """
+        align_dirs = os.listdir(align_path)
+        for c in condition:
+            rep_files = []
+            for d in align_dirs:
+                path, dir = os.path.split(d)
+                if c in dir:
+                    bfile = os.path.join(align_path, d + '/accepted_hits.bam')
+                    if os.path.exists(bfile):
+                        rep_files.append(bfile)
+                    else:
+                        raise ValueError('{} does not exist'.format(bfile))
+            if len(rep_files) > 0:
+                bam_files.append(' ' + ','.join(bf for bf in rep_files))
+
         output_data['assembly_file'] = assembly_file
         output_data['condition'] = condition
         output_data['bam_files'] = bam_files
@@ -305,6 +271,7 @@ class CuffDiff:
         """
         Set Advanced parameters for Cuffdiff
         """
+
         if ('time_series' in params and params['time_series'] != 0):
             cuffdiff_command += (' -T ')
         if ('min_alignment_count' in params and
@@ -339,6 +306,7 @@ class CuffDiff:
         self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
         self.eu = ExpressionUtils(self.callback_url, service_ver='dev')
         self.cuffmerge_runner = CuffMerge(config, logger)
+        self.gff_utils = GFFUtils(config, logger)
         self.num_threads = mp.cpu_count()
         handler_utils._mkdir_p(self.scratch)
 
@@ -362,9 +330,9 @@ class CuffDiff:
         """
         cuffmerge_dir = os.path.join(self.scratch, "cuffmerge_" + str(uuid.uuid4()))
         merged_gtf = self.cuffmerge_runner.run_cuffmerge(cuffmerge_dir,
-                                                        self.num_threads,
-                                                        expressionset_data.get('gtf_file_path'),
-                                                        expressionset_data.get('assembly_file'))
+                                                         self.num_threads,
+                                                         expressionset_data.get('gtf_file_path'),
+                                                         expressionset_data.get('assembly_file'))
         self.logger.info('MERGED GTF FILE: ' + merged_gtf)
 
         """

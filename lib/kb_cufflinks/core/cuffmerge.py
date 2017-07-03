@@ -11,9 +11,6 @@ class CuffMerge:
         self.config = config
         self.logger = logger
 
-    #merged_gtf = self.call_cuffmerge(self.scratch, cuffmerge_dir, self.num_threads,
-                                     #self.details['gtf_file'], self.details['gtf_list_file'])
-
     def run_cuffmerge(self, directory, num_threads, gtf_file, list_file):
         self.logger.info("Running cuffmerge")
         print "Args passed {0},{1},{2},{3}".format(directory,
