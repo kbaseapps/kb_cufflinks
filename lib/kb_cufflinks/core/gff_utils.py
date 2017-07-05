@@ -137,12 +137,11 @@ class GFFUtils:
             'file_path': output_dir
         })
         gtf_files = glob.glob(output_dir + '/*.gtf')
+
         if len(gtf_files) > 0:
             return gtf_files[0]
         else:
-            converted_gtf_file_path = os.path.join(output_dir, genome_name + '_converted.gtf')
-            self.convert_genome_to_gtf(genome_ref, converted_gtf_file_path)
-            return converted_gtf_file_path
+            raise ValueError('GTF file not found in object {}'.format(ws_gtf))
 
 
 
