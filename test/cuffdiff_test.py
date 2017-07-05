@@ -21,6 +21,7 @@ from pprint import pprint  # noqa: F401
 
 from biokbase.workspace.client import Workspace as workspaceService
 from DataFileUtil.DataFileUtilClient import DataFileUtil
+from DifferentialExpressionUtils.DifferentialExpressionUtilsClient import DifferentialExpressionUtils
 from kb_cufflinks.kb_cufflinksImpl import kb_cufflinks
 from kb_cufflinks.kb_cufflinksServer import MethodContext
 from kb_cufflinks.authclient import KBaseAuth as _KBaseAuth
@@ -58,6 +59,7 @@ class kb_cufflinksTest(unittest.TestCase):
         cls.scratch = cls.cfg['scratch']
         cls.callback_url = os.environ['SDK_CALLBACK_URL']
         cls.dfu = DataFileUtil(cls.callback_url)
+        cls.deu = DifferentialExpressionUtils(cls.callback_url, service_ver='dev')
 
     @classmethod
     def tearDownClass(cls):
@@ -116,12 +118,6 @@ class kb_cufflinksTest(unittest.TestCase):
                     print('************** sizes differ ************')
                 if self.md5(new_file_path) != self.md5(orig_file_path):
                     print('************** md5s differ **************')
-                '''
-                self.assertEqual(self.getSize(new_file_path), self.getSize(orig_file_path))
-                self.assertEqual(self.md5(new_file_path), self.md5(orig_file_path))
-                
-                print("Files checked: " + new_file_path + ', ' + orig_file_path)
-                '''
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     def test_cuffdiff_success(self):
@@ -135,13 +131,13 @@ class kb_cufflinksTest(unittest.TestCase):
 
         params = {'expressionset_ref': input_obj_ref,
                   'workspace_name': self.getWsName(),
-                  'diff_expression_obj_name': 'test_output_diffexp',
+                  'diffexpr_obj_name': 'test_output_diffexp',
                   'filtered_expression_matrix_name': 'test_output_expmatrix',
                   'library_norm_method': 'classic-fpkm',
                   'library_type': 'fr-unstranded'
                   }
 
-        retVal = self.getImpl().run_Cuffdiff(self.ctx, params)[0]
+        cuffdiff_retVal = self.getImpl().run_Cuffdiff(self.ctx, params)[0]
 
         inputObj = self.dfu.get_objects(
             {'object_refs': [input_obj_ref]})['data'][0]
@@ -151,7 +147,7 @@ class kb_cufflinksTest(unittest.TestCase):
         print("==========================================================")
 
         outputObj = self.dfu.get_objects(
-            {'object_refs': [retVal.get('diff_expression_obj_ref')]})['data'][0]
+            {'object_refs': [cuffdiff_retVal.get('diffexpr_obj_ref')]})['data'][0]
 
         print("============ DIFFERENTIAL EXPRESSION OUTPUT ==============")
         pprint(outputObj)
@@ -165,10 +161,8 @@ class kb_cufflinksTest(unittest.TestCase):
         self.assertEqual(outputData['alignmentSet_id'], inputData['alignmentSet_id'])
         self.assertEqual(outputData['sampleset_id'], inputData['sampleset_id'])
 
-        outputFile = outputData['file']
-        output_dir = retVal['result_directory']
-        output_zipfile = os.path.split(output_dir)[1] + '.zip'
-        self.assertEqual(outputFile['file_name'], output_zipfile)
+        output_dir = self.deu.download_differentialExpression(
+                            {'source_ref': cuffdiff_retVal.get('diffexpr_obj_ref')}).get('destination_dir')
         """
         Get files from expected object ref
         """
@@ -184,6 +178,7 @@ class kb_cufflinksTest(unittest.TestCase):
                                                    'file_path': expected_dir,
                                                    'unpack': 'unpack'
                                                    })
+        for f in glob.glob(expected_dir + '/*.zip'):
+            os.remove(f)
         self.check_files(output_dir, expected_dir)
-
 

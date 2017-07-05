@@ -15,9 +15,14 @@ from DataFileUtil.DataFileUtilClient import DataFileUtil
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
 from ExpressionUtils.ExpressionUtilsClient import ExpressionUtils
+from DifferentialExpressionUtils.DifferentialExpressionUtilsClient import DifferentialExpressionUtils
 from KBaseReport.KBaseReportClient import KBaseReport
 
 class CuffDiff:
+
+    PARAM_IN_WS_NAME = 'workspace_name'
+    PARAM_IN_OBJ_NAME = 'diffexpr_obj_name'
+    PARAM_IN_EXPSET_REF = 'expressionset_ref'
 
     GFFREAD_TOOLKIT_PATH = '/kb/deployment/bin/gffread'
 
@@ -25,10 +30,10 @@ class CuffDiff:
         """
         validates params passed to run_CuffDiff method
         """
-        for p in ['expressionset_ref',
-                  'workspace_name',
-                  'diff_expression_obj_name'
-                  ]:
+        for p in [self.PARAM_IN_EXPSET_REF,
+                  self.PARAM_IN_OBJ_NAME,
+                  self.PARAM_IN_WS_NAME
+                 ]:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
 
@@ -132,50 +137,6 @@ class CuffDiff:
 
         return report_output
 
-    def _gen_diff_expression_data(self, expressionset_data, result_directory):
-        """
-        _generate_diff_expression_data: generate RNASeqDifferentialExpression object data
-        """
-        diff_expression_data = {
-                                'tool_used': 'cuffdiff',
-                                'tool_version': '2.2.1',
-                                'expressionSet_id': expressionset_data.get('expressionSet_id'),
-                                'genome_id': expressionset_data.get('genome_id'),
-                                'alignmentSet_id': expressionset_data.get('alignmentSet_id'),
-                                'sampleset_id': expressionset_data.get('sampleset_id')
-                                }
-
-        #self._generate_diff_expression_csv(result_directory, alpha_cutoff,
-                                           #fold_change_cutoff, condition_string)
-
-        handle = self.dfu.file_to_shock({'file_path': result_directory,
-                                         'pack': 'zip',
-                                         'make_handle': True})['handle']
-        diff_expression_data.update({'file': handle})
-        diff_expression_data.update({'condition': expressionset_data.get('condition')})
-
-        return diff_expression_data
-
-    def _save_diff_expression(self, params, diff_exp_data):
-
-        workspace_name = params.get('workspace_name')
-        output_name = params['diff_expression_obj_name']
-
-        if isinstance(workspace_name, int) or workspace_name.isdigit():
-            workspace_id = workspace_name
-        else:
-            workspace_id = self.dfu.ws_name_to_id(workspace_name)
-
-        dfu_oi = self.ws_client.save_objects({'id': workspace_id,
-                                            "objects": [{
-                                            "type": "KBaseRNASeq.RNASeqDifferentialExpression",
-                                            "data": diff_exp_data,
-                                            "name": output_name
-                                            }]
-                                            })[0]
-        diff_expression_obj_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
-        return diff_expression_obj_ref
-
     def _get_expressionset_data(self, expressionset_ref, result_directory):
         """
         Get data from expressionset object in the form required 
@@ -191,7 +152,6 @@ class CuffDiff:
         output_data['alignmentSet_id'] = expression_set_data.get('alignmentSet_id')
         output_data['sampleset_id'] = expression_set_data.get('sampleset_id')
         output_data['genome_id'] = expression_set_data.get('genome_id')
-
         """
         Get gtf file from genome_ref. Used as input to cuffmerge.
         """
@@ -305,6 +265,7 @@ class CuffDiff:
         self.gfu = GenomeFileUtil(self.callback_url)
         self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
         self.eu = ExpressionUtils(self.callback_url, service_ver='dev')
+        self.deu = DifferentialExpressionUtils(self.callback_url, service_ver='dev')
         self.cuffmerge_runner = CuffMerge(config, logger)
         self.gff_utils = GFFUtils(config, logger)
         self.num_threads = mp.cpu_count()
@@ -368,21 +329,16 @@ class CuffDiff:
                             self.logger.info(line)
         except Exception, e:
             raise Exception("Error executing cuffdiff {0},{1}".format(cuffdiff_command, e))
-
         """
-        Save differential expression object
+        Upload differential expression data
         """
-        diff_exp_data = self._gen_diff_expression_data(expressionset_data, cuffdiff_dir)
+        diffexpr_params = { 'destination_ref': params.get(self.PARAM_IN_WS_NAME) + '/' +
+                                               params.get(self.PARAM_IN_OBJ_NAME),
+                            'source_dir': cuffdiff_dir,
+                            'expressionset_ref': params.get(self.PARAM_IN_EXPSET_REF),
+                            'tool_used': 'cuffdiff',
+                            'tool_version': os.environ['VERSION'],
+                            'diffexpr_filename': 'gene_exp.diff'
+                          }
+        return self.deu.upload_differentialExpression(diffexpr_params)
 
-        diffexp_obj_ref = self._save_diff_expression(params, diff_exp_data)
-
-        returnVal = {'result_directory': cuffdiff_dir,
-                     'diff_expression_obj_ref': diffexp_obj_ref
-                     }
-
-        report_output = self._generate_report(diffexp_obj_ref,
-                                              params,
-                                              cuffdiff_dir)
-        returnVal.update(report_output)
-
-        return returnVal
