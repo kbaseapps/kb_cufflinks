@@ -22,6 +22,7 @@ from kb_cufflinks.authclient import KBaseAuth as _KBaseAuth
 
 
 class kb_cufflinksTest(unittest.TestCase):
+    '''
 
     @classmethod
     def setUpClass(cls):
@@ -90,3 +91,4 @@ class kb_cufflinksTest(unittest.TestCase):
         # self.assertEqual(ret[...], ...) or other unittest methods
         pass
 
+    '''

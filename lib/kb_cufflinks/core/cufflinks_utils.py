@@ -6,14 +6,17 @@ import errno
 import json
 import re
 import subprocess
+import traceback
 from pathos.multiprocessing import ProcessingPool as Pool
 import multiprocessing
 import zipfile
+import contig_id_mapping as c_mapping
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from Workspace.WorkspaceClient import Workspace as Workspace
 from KBaseReport.KBaseReportClient import KBaseReport
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
+from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
 
 
@@ -42,6 +45,7 @@ class CufflinksUtils:
         self.shock_url = config['shock-url']
         self.dfu = DataFileUtil(self.callback_url)
         self.gfu = GenomeFileUtil(self.callback_url)
+        self.au = AssemblyUtil(self.callback_url)
         self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
         self.ws = Workspace(self.ws_url, token=self.token)
 
@@ -150,6 +154,7 @@ class CufflinksUtils:
         genome_gff_file = self.gfu.genome_to_gff({'genome_ref': genome_ref,
                                                   'target_dir': result_directory})['file_path']
 
+        print('>>>>>>>>>>genome_gff_file: ' + str(genome_gff_file))
         gtf_ext = '.gtf'
         if not genome_gff_file.endswith(gtf_ext):
             gtf_path = os.path.splitext(genome_gff_file)[0] + '.gtf'
@@ -157,6 +162,45 @@ class CufflinksUtils:
         else:
             gtf_path = genome_gff_file
 
+        print('>>>>>>>>>>gtf_path: ' + str(gtf_path))
+
+        return gtf_path
+
+    def _create_gtf_annotation_from_genome(self, genome_ref):
+        ref = self.ws.get_object_subset(
+            [{'ref': genome_ref, 'included': ['contigset_ref', 'assembly_ref']}])
+        if 'contigset_ref' in ref[0]['data']:
+            contig_id = ref[0]['data']['contigset_ref']
+        elif 'assembly_ref' in ref[0]['data']:
+            contig_id = ref[0]['data']['assembly_ref']
+        if contig_id is None:
+            raise ValueError(
+                "Genome at {0} does not have reference to the assembly object".format(
+                    genome_ref))
+        print contig_id
+        log("Generating GFF file from Genome")
+        try:
+            ret = self.au.get_assembly_as_fasta({'ref': contig_id})
+            output_file = ret['path']
+            mapping_filename = c_mapping.create_sanitized_contig_ids(output_file)
+            os.remove(output_file)
+            ## get the GFF
+            ret = self.gfu.genome_to_gff({'genome_ref': genome_ref})
+            genome_gff_file = ret['file_path']
+            c_mapping.replace_gff_contig_ids(genome_gff_file, mapping_filename, to_modified=True)
+            gtf_ext = ".gtf"
+
+            if not genome_gff_file.endswith(gtf_ext):
+                gtf_path = os.path.splitext(genome_gff_file)[0] + '.gtf'
+                self._run_gffread(genome_gff_file, gtf_path)
+            else:
+                gtf_path = genome_gff_file
+
+            log("gtf file : " + gtf_path)
+        except Exception as e:
+            raise ValueError(
+                "Generating GTF file from Genome Annotation object Failed :  {}".format(
+                    "".join(traceback.format_exc())))
         return gtf_path
 
     def _get_gtf_file(self, alignment_ref):
@@ -168,22 +212,29 @@ class CufflinksUtils:
                                                [{'ref': alignment_ref}]})['data'][0]['data']
 
         genome_ref = alignment_data.get('genome_id')
+        print('>>>>>>>>>>obtained genome_ref: ' + str(genome_ref))
         # genome_name = self.ws.get_object_info([{"ref": genome_ref}], includeMetadata=None)[0][1]
         # ws_gtf = genome_name+"_GTF_Annotation"
 
         genome_data = self.ws.get_objects2({'objects':
                                             [{'ref': genome_ref}]})['data'][0]['data']
+        print('>>>>>>>>>>genome_data: ' + str(genome_data))
 
         gff_handle_ref = genome_data.get('gff_handle_ref')
+        print('>>>>>>>>>>gff_handle_ref: ' + str(gff_handle_ref))
 
         if gff_handle_ref:
             log('getting reference annotation file from genome')
             annotation_file = self.dfu.shock_to_file({'handle_id': gff_handle_ref,
                                                       'file_path': result_directory,
                                                       'unpack': 'unpack'})['file_path']
+            print('>>>>>>>>>>annotation file: ' + str(annotation_file))
         else:
-            annotation_file = self._create_gtf_file(genome_ref)
+            print('>>>>>>>>>>creating gtf file...')
+            #annotation_file = self._create_gtf_file(genome_ref)
+            annotation_file = self._create_gtf_annotation_from_genome(genome_ref)
 
+        print('>>>>>>>>>>gtf file: '+str(annotation_file))
         return annotation_file
 
     def _get_input_file(self, alignment_ref):
@@ -220,6 +271,17 @@ class CufflinksUtils:
         if 'overhang_tolerance' in params and params['overhang_tolerance'] is not None:
             cufflinks_command += (' --overhang-tolerance ' + str(params['overhang_tolerance']))
 
+        ######################################################################
+        '''
+        print('>>>>>>>>>>>>>>>>>>old_path: '+str(params['gtf_file']))
+        if not os.path.exists('/kb/module/work/tmp/my_gtf'):
+            os.mkdir('/kb/module/work/tmp/my_gtf')
+        import shutil
+        shutil.copyfile('/kb/module/test/data/new_data/at_chrom1_section.gtf', '/kb/module/work/tmp/my_gtf/at_chrom1_section.gtf')
+        params['gtf_file'] = '/kb/module/work/tmp/my_gtf/at_chrom1_section.gtf'
+        print('>>>>>>>>>>>>>>>>>>new_path: ' + str(params['gtf_file']))
+        '''
+        #######################################################################
         cufflinks_command += " -o {0} -G {1} {2}".format(
             params['result_directory'], params['gtf_file'], params['input_file'])
 
