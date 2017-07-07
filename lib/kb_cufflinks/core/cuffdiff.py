@@ -12,6 +12,7 @@ from gff_utils import GFFUtils
 
 from Workspace.WorkspaceClient import Workspace as Workspace
 from DataFileUtil.DataFileUtilClient import DataFileUtil
+from DataFileUtil.baseclient import ServerError as DFUError
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
 from ExpressionUtils.ExpressionUtilsClient import ExpressionUtils
@@ -36,6 +37,14 @@ class CuffDiff:
                  ]:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
+
+        ws_name_id = params.get(self.PARAM_IN_WS_NAME)
+        if not isinstance(ws_name_id, int):
+            try:
+                ws_name_id = self.dfu.ws_name_to_id(ws_name_id)
+            except DFUError as se:
+                prefix = se.message.split('.')[0]
+                raise ValueError(prefix)
 
     def _generate_output_file_list(self, result_directory):
         """
@@ -144,6 +153,10 @@ class CuffDiff:
         """
         expression_set = self.ws_client.get_objects2(
                         {'objects': [{'ref': expressionset_ref}]})['data'][0]
+
+        if not expression_set.get('info')[2].startswith('KBaseRNASeq.RNASeqExpressionSet'):
+            raise TypeError('"{}" should be of type KBaseRNASeq.RNASeqExpressionSet'
+                            .format(self.PARAM_IN_EXPSET_REF))
 
         expression_set_data = expression_set['data']
 
