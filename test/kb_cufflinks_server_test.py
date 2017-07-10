@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
 import unittest
 import os  # noqa: F401
-import json  # noqa: F401
 import time
-import requests
-import shutil
-from string import Template
 
 from os import environ
 try:
     from ConfigParser import ConfigParser  # py2
-except:
+except BaseException:
     from configparser import ConfigParser  # py3
 
-from pprint import pprint  # noqa: F401
 
 from biokbase.workspace.client import Workspace as workspaceService
 from kb_cufflinks.kb_cufflinksImpl import kb_cufflinks
@@ -89,4 +84,3 @@ class kb_cufflinksTest(unittest.TestCase):
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
         pass
-

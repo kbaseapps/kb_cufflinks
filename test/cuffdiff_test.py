@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
 import os  # noqa: F401
-import json  # noqa: F401
 import time
 import hashlib
 import inspect
@@ -15,7 +14,7 @@ from string import Template
 from os import environ
 try:
     from ConfigParser import ConfigParser  # py2
-except:
+except BaseException:
     from configparser import ConfigParser  # py3
 
 from pprint import pprint  # noqa: F401
@@ -33,6 +32,7 @@ from kb_stringtie.kb_stringtieClient import kb_stringtie
 
 class CuffdiffTest(unittest.TestCase):
 
+
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
@@ -44,7 +44,7 @@ class CuffdiffTest(unittest.TestCase):
             cls.cfg[nameval[0]] = nameval[1]
         # Getting username from Auth profile for token
         authServiceUrl = cls.cfg['auth-service-url']
-        #authServiceUrlAllowInsecure = cls.cfg['auth_service_url_allow_insecure']
+        # authServiceUrlAllowInsecure = cls.cfg['auth_service_url_allow_insecure']
         auth_client = _KBaseAuth(authServiceUrl)
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
@@ -311,6 +311,7 @@ class CuffdiffTest(unittest.TestCase):
         print("============ DIFFERENTIAL EXPRESSION OUTPUT ==============")
         pprint(outputObj)
         print("==========================================================")
+
 
         self.assertEqual(outputObj['info'][2].startswith('KBaseRNASeq.RNASeqDifferentialExpression'), True)
         inputData = inputObj['data']

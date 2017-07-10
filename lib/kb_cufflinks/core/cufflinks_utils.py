@@ -6,14 +6,17 @@ import errno
 import json
 import re
 import subprocess
+import traceback
 from pathos.multiprocessing import ProcessingPool as Pool
 import multiprocessing
 import zipfile
+import contig_id_mapping as c_mapping
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from Workspace.WorkspaceClient import Workspace as Workspace
 from KBaseReport.KBaseReportClient import KBaseReport
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
+from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
 
 
@@ -42,6 +45,7 @@ class CufflinksUtils:
         self.shock_url = config['shock-url']
         self.dfu = DataFileUtil(self.callback_url)
         self.gfu = GenomeFileUtil(self.callback_url)
+        self.au = AssemblyUtil(self.callback_url)
         self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
         self.ws = Workspace(self.ws_url, token=self.token)
 
@@ -52,6 +56,35 @@ class CufflinksUtils:
         self.tool_version = os.environ['VERSION']
         # END_CONSTRUCTOR
         pass
+
+    def parse_FPKMtracking_calc_TPM(self, filename):
+        """
+        Generates TPM from FPKM
+        :return:
+        """
+        fpkm_dict = {}
+        tpm_dict = {}
+        gene_col = 0
+        fpkm_col = 9
+        sum_fpkm = 0.0
+        with open(filename) as f:
+            next(f)
+            for line in f:
+                larr = line.split("\t")
+                gene_id = larr[gene_col]
+                if gene_id != "":
+                    fpkm = float(larr[fpkm_col])
+                    sum_fpkm = sum_fpkm + fpkm
+                    fpkm_dict[gene_id] = math.log(fpkm + 1, 2)
+                    tpm_dict[gene_id] = fpkm
+
+        if sum_fpkm == 0.0:
+            log("Warning: Unable to calculate TPM values as sum of FPKM values is 0")
+        else:
+            for g in tpm_dict:
+                tpm_dict[g] = math.log((tpm_dict[g] / sum_fpkm) * 1e6 + 1, 2)
+
+        return fpkm_dict, tpm_dict
 
     def _mkdir_p(self, path):
         """
@@ -111,23 +144,44 @@ class CufflinksUtils:
 
         self._run_command(command)
 
-    def _create_gtf_file(self, genome_ref):
+    def _create_gtf_annotation_from_genome(self, genome_ref):
         """
-        _create_gtf_file: create reference annotation file from genome
+         Create reference annotation file from genome
         """
-        log('start generating reference annotation file')
-        result_directory = self.scratch
+        ref = self.ws.get_object_subset(
+            [{'ref': genome_ref, 'included': ['contigset_ref', 'assembly_ref']}])
+        if 'contigset_ref' in ref[0]['data']:
+            contig_id = ref[0]['data']['contigset_ref']
+        elif 'assembly_ref' in ref[0]['data']:
+            contig_id = ref[0]['data']['assembly_ref']
+        if contig_id is None:
+            raise ValueError(
+                "Genome at {0} does not have reference to the assembly object".format(
+                    genome_ref))
+        print contig_id
+        log("Generating GFF file from Genome")
+        try:
+            ret = self.au.get_assembly_as_fasta({'ref': contig_id})
+            output_file = ret['path']
+            mapping_filename = c_mapping.create_sanitized_contig_ids(output_file)
+            os.remove(output_file)
+            # get the GFF
+            ret = self.gfu.genome_to_gff({'genome_ref': genome_ref})
+            genome_gff_file = ret['file_path']
+            c_mapping.replace_gff_contig_ids(genome_gff_file, mapping_filename, to_modified=True)
+            gtf_ext = ".gtf"
 
-        genome_gff_file = self.gfu.genome_to_gff({'genome_ref': genome_ref,
-                                                  'target_dir': result_directory})['file_path']
+            if not genome_gff_file.endswith(gtf_ext):
+                gtf_path = os.path.splitext(genome_gff_file)[0] + '.gtf'
+                self._run_gffread(genome_gff_file, gtf_path)
+            else:
+                gtf_path = genome_gff_file
 
-        gtf_ext = '.gtf'
-        if not genome_gff_file.endswith(gtf_ext):
-            gtf_path = os.path.splitext(genome_gff_file)[0] + '.gtf'
-            self._run_gffread(genome_gff_file, gtf_path)
-        else:
-            gtf_path = genome_gff_file
-
+            log("gtf file : " + gtf_path)
+        except Exception:
+            raise ValueError(
+                "Generating GTF file from Genome Annotation object Failed :  {}".format(
+                    "".join(traceback.format_exc())))
         return gtf_path
 
     def _get_gtf_file(self, alignment_ref):
@@ -153,7 +207,7 @@ class CufflinksUtils:
                                                       'file_path': result_directory,
                                                       'unpack': 'unpack'})['file_path']
         else:
-            annotation_file = self._create_gtf_file(genome_ref)
+            annotation_file = self._create_gtf_annotation_from_genome(genome_ref)
 
         return annotation_file
 
@@ -226,6 +280,12 @@ class CufflinksUtils:
         returnVal = {'result_directory': result_directory,
                      'expression_obj_ref': expression_obj_ref,
                      'alignment_ref': alignment_ref}
+
+        expression_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
+                                                  includeMetadata=None)[0][1]
+
+        widget_params = {"output": expression_name, "workspace": params.get('workspace_name')}
+        returnVal.update(widget_params)
 
         return returnVal
 
@@ -313,8 +373,7 @@ class CufflinksUtils:
             workspace_id = self.dfu.ws_name_to_id(workspace_name)
 
         expression_set_data = self._generate_expression_set_data(alignment_expression_map,
-                                                                 alignment_set_ref,
-                                                                 workspace_name)
+                                                                 alignment_set_ref)
 
         object_type = 'KBaseRNASeq.RNASeqExpressionSet'
         save_object_params = {
@@ -478,12 +537,11 @@ class CufflinksUtils:
         read_sample_id = alignment_data.get('read_sample_id')
         expression_data.update({'mapped_rnaseq_alignment': {read_sample_id: alignment_ref}})
 
-        exp_dict = self._parse_FPKMtracking(os.path.join(result_directory,
-                                                         'genes.fpkm_tracking'), 'FPKM')
+        exp_dict, tpm_exp_dict = self.parse_FPKMtracking_calc_TPM(
+            os.path.join(result_directory, 'genes.fpkm_tracking'))
+
         expression_data.update({'expression_levels': exp_dict})
 
-        tpm_exp_dict = self._parse_FPKMtracking(os.path.join(result_directory,
-                                                             'genes.fpkm_tracking'), 'TPM')
         expression_data.update({'tpm_expression_levels': tpm_exp_dict})
 
         handle = self.dfu.file_to_shock({'file_path': result_directory,
@@ -493,8 +551,7 @@ class CufflinksUtils:
 
         return expression_data
 
-    def _generate_expression_set_data(self, alignment_expression_map, alignment_set_ref,
-                                      workspace_name):
+    def _generate_expression_set_data(self, alignment_expression_map, alignment_set_ref):
         """
         _generate_expression_set_data: generate ExpressionSet object with cufflinks output files
         """
@@ -585,6 +642,13 @@ class CufflinksUtils:
         report_output = self._generate_report(expression_obj_ref,
                                               params.get('workspace_name'),
                                               result_directory)
+
+        expression_set_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
+                                                      includeMetadata=None)[0][1]
+
+        widget_params = {"output": expression_set_name, "workspace": params.get('workspace_name')}
+        returnVal.update(widget_params)
+
         returnVal.update(report_output)
 
         return returnVal
@@ -603,10 +667,10 @@ class CufflinksUtils:
         if re.match('KBaseRNASeq.RNASeqAlignment-\d.\d', alignment_object_type):
             params.update({'alignment_ref': alignment_object_ref})
             returnVal = self._process_alignment_object(params)
-            report_output = self._generate_report(returnVal.get('expression_obj_ref'),
-                                                  params.get('workspace_name'),
-                                                  returnVal.get('result_directory'))
-            returnVal.update(report_output)
+            # report_output = self._generate_report(returnVal.get('expression_obj_ref'),
+            #                                      params.get('workspace_name'),
+            #                                      returnVal.get('result_directory'))
+            # returnVal.update(report_output)
         elif re.match('KBaseRNASeq.RNASeqAlignmentSet-\d.\d', alignment_object_type):
             params.update({'alignment_set_ref': alignment_object_ref})
             returnVal = self._process_alignment_set_object(params)
