@@ -46,7 +46,7 @@ module kb_cufflinks {
 	typedef structure{
         obj_ref     expressionset_ref;
         string      workspace_name;
-        string      diff_expression_obj_name;
+        string      diffexpr_obj_name;
 
         string      filtered_expression_matrix_name; /* Optional - name of the filtered
                                                         expression matrix output object  */
