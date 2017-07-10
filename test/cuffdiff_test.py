@@ -277,12 +277,12 @@ class CuffdiffTest(unittest.TestCase):
                     print('************** md5s differ **************')
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    # Following test uses object refs from a narrative. uncomment the next line to skip the test
-    #@unittest.skip("skipped test_cuffdiff_RNASeq_objects_success")
+    # Following test uses object refs from a narrative. Comment the next line to run the test
+    @unittest.skip("skipped test_cuffdiff_RNASeq_objects_success")
     def test_cuffdiff_RNASeq_objects_success(self):
         """
         Input object: downsized_AT_reads_tophat_AlignmentSet_cufflinks_ExpressionSet (4389/45/1)
-        Expected output object: downsized_AT_reads_cuffdiff_output (4389/58/1)
+        Expected output object: downsized_AT_tophat_cuffdiff_output (4389/58/1)
         Files in output object should be the same as in expected output object
         """
         input_obj_ref = '4389/45/1'
