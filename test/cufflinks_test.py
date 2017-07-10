@@ -54,7 +54,7 @@ class CufflinksTest(unittest.TestCase):
         cls.wsClient = Workspace(url=cls.wsURL, token=token)
         cls.serviceImpl = kb_cufflinks(cls.cfg)
         cls.scratch = cls.cfg['scratch']
-        cls.callback_url = os.environ['SDK_CALLBACK_URL']
+        cls.callback_url = environ.get('SDK_CALLBACK_URL')
 
         cls.gfu = GenomeFileUtil(cls.callback_url)
         cls.dfu = DataFileUtil(cls.callback_url)
@@ -63,9 +63,10 @@ class CufflinksTest(unittest.TestCase):
 
         cls.cufflinks_runner = CufflinksUtils(cls.cfg)
 
+        # cls.wsName = 'cufflinks_test_' + user_id  # reuse existing workspace
         suffix = int(time.time() * 1000)
-        #cls.wsName = "test_kb_cufflinks_" + str(suffix)
-        cls.wsName = "test_kb_cufflinks_1002"
+        cls.wsName = "test_kb_cufflinks_" + str(suffix)
+        print('workspace_name: ' + cls.wsName)
 
         try:
             # reuse existing (previously torn down) workspace
@@ -83,76 +84,6 @@ class CufflinksTest(unittest.TestCase):
 
         cls.prepare_data()
 
-        '''
-        input_meta_data_filename = '/kb/module/test/metadata/cufflinks_input.json'
-
-        with open(input_meta_data_filename,'r') as infile:
-            input_meta_data = json.load(infile)
-
-        # update workspace name in input.json files and write to work dir
-        ws_id_t = Template(input_meta_data['params'][0]['ws_id'])
-        cls.wsName = ws_id_t.substitute(user_id=user_id)
-
-        print('workspace_name: ' + cls.wsName)
-
-        # create workspace that is local to the user if it does not exist
-        cls.ws = Workspace(url=cls.wsURL, token=token)
-
-        try:
-            cls.ws.undelete_workspace({'workspace': cls.wsName})
-            print('reusing old workspace...')
-        except:
-            ws_info = cls.ws.get_workspace_info({'workspace': cls.wsName})
-            print("creating new workspace: " + str(ws_info))
-
-
-        # upload genbank file
-        print('uploading genbank file to workspace...')
-        INPUT_DATA_DIR = "/kb/module/test/data/"
-        TMP_INPUT_DATA_DIR = "/kb/module/work/tmp/"
-        genbank_file_name = 'Atmt.gbk'
-        genbank_data_path = os.path.join(INPUT_DATA_DIR, genbank_file_name)
-
-        print('input data path: ' + genbank_data_path)
-
-        # data has to be copied to tmp dir so it can be seen by
-        # GenomeFileUtil subjob running in a separate docker container
-        tmp_genbank_data_path = os.path.join(TMP_INPUT_DATA_DIR, genbank_file_name)
-        shutil.copy(genbank_data_path, tmp_genbank_data_path)
-
-        genbankToGenomeParams = {"file": {"path": tmp_genbank_data_path},
-                                 "genome_name": "KBase_derived_Athaliana_PhytozomeV11_TAIR10",
-                                 "workspace_name": cls.wsName,
-                                 "source": "thale-cress",
-                                 "release": "1TAIR10",
-                                 "generate_ids_if_needed": True,
-                                 "type": "User upload"
-                                 }
-        gfu = GenomeFileUtil(os.environ['SDK_CALLBACK_URL'], token=token)
-        save_result = gfu.genbank_to_genome(genbankToGenomeParams)
-        print('genbank_to_genome save result: ' + str(save_result))
-
-
-        # upload downsized single reads
-        ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'], token=token)
-        reads_file_name = 'Ath_hy5_rep1.fastq'
-
-        reads_data_path = os.path.join(INPUT_DATA_DIR, reads_file_name)
-        tmp_reads_data_path = os.path.join(TMP_INPUT_DATA_DIR, reads_file_name)
-        shutil.copy(reads_data_path, tmp_reads_data_path)
-        print('input data path: ' + reads_data_path)
-        result = ru.upload_reads({"fwd_file": tmp_reads_data_path,
-                                  "sequencing_tech": "Illumina",
-                                  "wsname": cls.wsName,
-                                  "name": reads_file_name})
-        print('reads upload save result: ' + str(result))
-
-
-        # data has to be copied to tmp dir so it can be seen by
-        # ReadsAlignmentUtils subjob running in a separate docker container
-        shutil.copy('/kb/module/test/data/accepted_hits.bam', '/kb/module/work/tmp')
-        '''
-
     @classmethod
     def tearDownClass(cls):
         if hasattr(cls, 'wsName'):
@@ -162,7 +93,6 @@ class CufflinksTest(unittest.TestCase):
     @classmethod
     def prepare_data(cls):
         # upload genome object
-        #genbank_file_name = 'minimal.gbff'
         genbank_file_name = 'at_chrom1_section.gbk'
         genbank_file_path = os.path.join(cls.scratch, genbank_file_name)
         shutil.copy(os.path.join('data', genbank_file_name), genbank_file_path)
@@ -196,7 +126,6 @@ class CufflinksTest(unittest.TestCase):
                                                })['obj_ref']
 
         # upload alignment object
-        #alignment_file_name = 'accepted_hits.bam'
         alignment_file_name = 'extracted_hy5_rep1_tophat_alignment.bam'
         alignment_file_path = os.path.join(cls.scratch, alignment_file_name)
         shutil.copy(os.path.join('data', alignment_file_name), alignment_file_path)
@@ -303,10 +232,6 @@ class CufflinksTest(unittest.TestCase):
 
         result = self.getImpl().run_cufflinks(self.ctx, params)[0]
 
-        from pprint import pprint
-        print('>>>>>>>>>>>>>>>>>result: ')
-        pprint(result)
-
         self.assertTrue('result_directory' in result)
         result_files = os.listdir(result['result_directory'])
         print 'result files: ' + str(result_files)
@@ -314,15 +239,12 @@ class CufflinksTest(unittest.TestCase):
                                'isoforms.fpkm_tracking', 'skipped.gtf']
         self.assertTrue(all(x in result_files for x in expect_result_files))
         self.assertTrue('expression_obj_ref' in result)
-        #self.assertTrue('report_name' in result)
-        #self.assertTrue('report_ref' in result)
         expression_data = self.getWsClient().get_objects([{'objid': int(result.get(
             'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('condition'), self.condition_1)
         self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_1')
 
-    '''
     def test_cufflinks_app_alignment_set(self):
         params = {
             "workspace_name": self.getWsName(),
@@ -349,4 +271,3 @@ class CufflinksTest(unittest.TestCase):
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('sampleset_id'), self.sample_set_ref)
         self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_set')
-    '''
