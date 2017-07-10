@@ -95,7 +95,6 @@ class CuffdiffTest(unittest.TestCase):
     @classmethod
     def prepare_data(cls):
         # upload genome object
-
         genbank_file_name = 'minimal.gbff'
         genbank_file_path = os.path.join(cls.scratch, genbank_file_name)
         shutil.copy(os.path.join('data', genbank_file_name), genbank_file_path)
