@@ -2,7 +2,8 @@ module-name:
     kb_cufflinks
 
 module-description:
-    A KBase module
+    http://cole-trapnell-lab.github.io/cufflinks/
+    Cufflinks version 2.2.1
 
 service-language:
     python
