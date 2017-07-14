@@ -165,6 +165,7 @@ class CuffDiff:
         output_data['alignmentSet_id'] = expression_set_data.get('alignmentSet_id')
         output_data['sampleset_id'] = expression_set_data.get('sampleset_id')
         output_data['genome_id'] = expression_set_data.get('genome_id')
+        self.genome_ref = output_data['genome_id']
         """
         Get gtf file from genome_ref. Used as input to cuffmerge.
         """
@@ -347,11 +348,10 @@ class CuffDiff:
         """
         diffexpr_params = { 'destination_ref': params.get(self.PARAM_IN_WS_NAME) + '/' +
                                                params.get(self.PARAM_IN_OBJ_NAME),
-                            'source_dir': cuffdiff_dir,
-                            'expressionset_ref': params.get(self.PARAM_IN_EXPSET_REF),
+                            'genome_ref': self.genome_ref,
                             'tool_used': 'cuffdiff',
                             'tool_version': os.environ['VERSION'],
-                            'diffexpr_filename': 'gene_exp.diff'
+                            'diffexpr_filepath': os.path.join(cuffdiff_dir, 'gene_exp.diff')
                           }
         return self.deu.upload_differentialExpression(diffexpr_params)
 
