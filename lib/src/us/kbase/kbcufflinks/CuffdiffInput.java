@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * Required input parameters for run_Cuffdiff.
  * expressionset_ref           -   reference for an expressionset object
  * workspace_name              -   workspace name to save the differential expression output object
- * diff_expression_obj_name    -   name of the differential expression output object
+ * output_obj_name             -   name of the differential expression matrix set output object
  * </pre>
  * 
  */
@@ -26,8 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "expressionset_ref",
     "workspace_name",
-    "diff_expression_obj_name",
-    "filtered_expression_matrix_name",
+    "output_obj_name",
     "library_norm_method",
     "multi_read_correct",
     "time_series",
@@ -39,10 +38,8 @@ public class CuffdiffInput {
     private String expressionsetRef;
     @JsonProperty("workspace_name")
     private String workspaceName;
-    @JsonProperty("diff_expression_obj_name")
-    private String diffExpressionObjName;
-    @JsonProperty("filtered_expression_matrix_name")
-    private String filteredExpressionMatrixName;
+    @JsonProperty("output_obj_name")
+    private String outputObjName;
     @JsonProperty("library_norm_method")
     private String libraryNormMethod;
     @JsonProperty("multi_read_correct")
@@ -83,33 +80,18 @@ public class CuffdiffInput {
         return this;
     }
 
-    @JsonProperty("diff_expression_obj_name")
-    public String getDiffExpressionObjName() {
-        return diffExpressionObjName;
+    @JsonProperty("output_obj_name")
+    public String getOutputObjName() {
+        return outputObjName;
     }
 
-    @JsonProperty("diff_expression_obj_name")
-    public void setDiffExpressionObjName(String diffExpressionObjName) {
-        this.diffExpressionObjName = diffExpressionObjName;
+    @JsonProperty("output_obj_name")
+    public void setOutputObjName(String outputObjName) {
+        this.outputObjName = outputObjName;
     }
 
-    public CuffdiffInput withDiffExpressionObjName(String diffExpressionObjName) {
-        this.diffExpressionObjName = diffExpressionObjName;
-        return this;
-    }
-
-    @JsonProperty("filtered_expression_matrix_name")
-    public String getFilteredExpressionMatrixName() {
-        return filteredExpressionMatrixName;
-    }
-
-    @JsonProperty("filtered_expression_matrix_name")
-    public void setFilteredExpressionMatrixName(String filteredExpressionMatrixName) {
-        this.filteredExpressionMatrixName = filteredExpressionMatrixName;
-    }
-
-    public CuffdiffInput withFilteredExpressionMatrixName(String filteredExpressionMatrixName) {
-        this.filteredExpressionMatrixName = filteredExpressionMatrixName;
+    public CuffdiffInput withOutputObjName(String outputObjName) {
+        this.outputObjName = outputObjName;
         return this;
     }
 
@@ -185,7 +167,7 @@ public class CuffdiffInput {
 
     @Override
     public String toString() {
-        return ((((((((((((((((((("CuffdiffInput"+" [expressionsetRef=")+ expressionsetRef)+", workspaceName=")+ workspaceName)+", diffExpressionObjName=")+ diffExpressionObjName)+", filteredExpressionMatrixName=")+ filteredExpressionMatrixName)+", libraryNormMethod=")+ libraryNormMethod)+", multiReadCorrect=")+ multiReadCorrect)+", timeSeries=")+ timeSeries)+", minAlignmentCount=")+ minAlignmentCount)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((("CuffdiffInput"+" [expressionsetRef=")+ expressionsetRef)+", workspaceName=")+ workspaceName)+", outputObjName=")+ outputObjName)+", libraryNormMethod=")+ libraryNormMethod)+", multiReadCorrect=")+ multiReadCorrect)+", timeSeries=")+ timeSeries)+", minAlignmentCount=")+ minAlignmentCount)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

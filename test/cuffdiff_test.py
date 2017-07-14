@@ -289,7 +289,7 @@ class CuffdiffTest(unittest.TestCase):
 
         params = {'expressionset_ref': input_obj_ref,
                   'workspace_name': self.getWsName(),
-                  'diffexpr_obj_name': 'test_cuffdiff_rnaseqExprSet',
+                  'output_obj_name': 'test_cuffdiff_rnaseqExprSet',
                   'filtered_expression_matrix_name': 'test_output_expmatrix',
                   'library_norm_method': 'classic-fpkm',
                   'library_type': 'fr-unstranded'
@@ -353,7 +353,7 @@ class CuffdiffTest(unittest.TestCase):
 
         cuffdiff_params = { 'expressionset_ref': self.expressionset_ref,
                             'workspace_name': self.getWsName(),
-                            'diffexpr_obj_name': 'test_cuffdiff_createdExprSet',
+                            'output_obj_name': 'test_cuffdiff_createdExprSet',
                             'filtered_expression_matrix_name': 'test_output_expmatrix',
                             'library_norm_method': 'classic-fpkm',
                             'library_type': 'fr-unstranded'
@@ -387,7 +387,7 @@ class CuffdiffTest(unittest.TestCase):
         self.fail_cuffdiff(
                         {
                          'expressionset_ref': self.expressionset_ref,
-                         'diffexpr_obj_name': 'test_createdExprSet'
+                         'output_obj_name': 'test_createdExprSet'
                          },
             '"workspace_name" parameter is required, but missing')
 
@@ -397,13 +397,13 @@ class CuffdiffTest(unittest.TestCase):
                          'workspace_name': self.getWsName(),
                          'expressionset_ref': self.expressionset_ref
                          },
-            '"diffexpr_obj_name" parameter is required, but missing')
+            '"output_obj_name" parameter is required, but missing')
 
     def test_cuffdiff_fail_no_exprset_ref(self):
         self.fail_cuffdiff(
                         {
                          'workspace_name': self.getWsName(),
-                         'diffexpr_obj_name': 'test_createdExprSet'
+                         'output_obj_name': 'test_createdExprSet'
                          },
             '"expressionset_ref" parameter is required, but missing')
 
@@ -412,7 +412,7 @@ class CuffdiffTest(unittest.TestCase):
                         {
                          'workspace_name': '&bad',
                          'expressionset_ref': self.expressionset_ref,
-                         'diffexpr_obj_name': 'test_createdExprSet'
+                         'output_obj_name': 'test_createdExprSet'
                          },
             'Illegal character in workspace name &bad: &')
 
@@ -421,7 +421,7 @@ class CuffdiffTest(unittest.TestCase):
                         {
                          'workspace_name': '1s',
                          'expressionset_ref': self.expressionset_ref,
-                         'diffexpr_obj_name': 'test_createdExprSet'
+                         'output_obj_name': 'test_createdExprSet'
                          },
             'No workspace with name 1s exists')
 
@@ -430,9 +430,10 @@ class CuffdiffTest(unittest.TestCase):
                         {
                          'workspace_name': self.getWsName(),
                          'expressionset_ref': self.reads_ref_1,
-                         'diffexpr_obj_name': 'test_createdExprSet'
+                         'output_obj_name': 'test_createdExprSet'
                          },
             '"expressionset_ref" should be of type KBaseRNASeq.RNASeqExpressionSet',
             exception=TypeError)
+
 
 

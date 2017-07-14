@@ -22,7 +22,7 @@ from KBaseReport.KBaseReportClient import KBaseReport
 class CuffDiff:
 
     PARAM_IN_WS_NAME = 'workspace_name'
-    PARAM_IN_OBJ_NAME = 'diffexpr_obj_name'
+    PARAM_IN_OBJ_NAME = 'output_obj_name'
     PARAM_IN_EXPSET_REF = 'expressionset_ref'
 
     GFFREAD_TOOLKIT_PATH = '/kb/deployment/bin/gffread'
@@ -98,7 +98,7 @@ class CuffDiff:
 
         overview_content = ''
         overview_content += '<p>Generated Differential Expression Object:</p><p>{}</p>'.format(
-                                                    params.get('diff_expression_obj_name'))
+                                                    params.get(self.PARAM_IN_OBJ_NAME))
 
         with open(result_file_path, 'w') as result_file:
             with open(os.path.join(os.path.dirname(__file__), 'report_template.html'),
@@ -353,5 +353,16 @@ class CuffDiff:
                             'tool_version': os.environ['VERSION'],
                             'diffexpr_filepath': os.path.join(cuffdiff_dir, 'gene_exp.diff')
                           }
-        return self.deu.upload_differentialExpression(diffexpr_params)
+        dems_ref = self.deu.upload_differentialExpression(diffexpr_params).get('diffExprMatrixSet_ref')
+
+        returnVal = {'diffExprMatrixSet_ref': dems_ref,
+                     'destination_dir': cuffdiff_dir
+                     }
+
+        report_output = self._generate_report(dems_ref,
+                                              params,
+                                              cuffdiff_dir)
+        returnVal.update(report_output)
+        return returnVal
+
 

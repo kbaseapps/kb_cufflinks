@@ -307,8 +307,7 @@ $returnVal is a kb_cufflinks.CuffdiffResult
 CuffdiffInput is a reference to a hash where the following keys are defined:
 	expressionset_ref has a value which is a kb_cufflinks.obj_ref
 	workspace_name has a value which is a string
-	diff_expression_obj_name has a value which is a string
-	filtered_expression_matrix_name has a value which is a string
+	output_obj_name has a value which is a string
 	library_norm_method has a value which is a string
 	multi_read_correct has a value which is a kb_cufflinks.boolean
 	time_series has a value which is a kb_cufflinks.boolean
@@ -317,8 +316,7 @@ obj_ref is a string
 boolean is an int
 CuffdiffResult is a reference to a hash where the following keys are defined:
 	result_directory has a value which is a string
-	diff_expression_obj_ref has a value which is a kb_cufflinks.obj_ref
-	filtered_expression_matrix_ref has a value which is a kb_cufflinks.obj_ref
+	diffExprMatrixSet_ref has a value which is a kb_cufflinks.obj_ref
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -333,8 +331,7 @@ $returnVal is a kb_cufflinks.CuffdiffResult
 CuffdiffInput is a reference to a hash where the following keys are defined:
 	expressionset_ref has a value which is a kb_cufflinks.obj_ref
 	workspace_name has a value which is a string
-	diff_expression_obj_name has a value which is a string
-	filtered_expression_matrix_name has a value which is a string
+	output_obj_name has a value which is a string
 	library_norm_method has a value which is a string
 	multi_read_correct has a value which is a kb_cufflinks.boolean
 	time_series has a value which is a kb_cufflinks.boolean
@@ -343,8 +340,7 @@ obj_ref is a string
 boolean is an int
 CuffdiffResult is a reference to a hash where the following keys are defined:
 	result_directory has a value which is a string
-	diff_expression_obj_ref has a value which is a kb_cufflinks.obj_ref
-	filtered_expression_matrix_ref has a value which is a kb_cufflinks.obj_ref
+	diffExprMatrixSet_ref has a value which is a kb_cufflinks.obj_ref
 	report_name has a value which is a string
 	report_ref has a value which is a string
 
@@ -647,7 +643,7 @@ Required input parameters for run_Cuffdiff.
 
 expressionset_ref           -   reference for an expressionset object
 workspace_name              -   workspace name to save the differential expression output object
-diff_expression_obj_name    -   name of the differential expression output object
+output_obj_name             -   name of the differential expression matrix set output object
 
 
 =item Definition
@@ -658,8 +654,7 @@ diff_expression_obj_name    -   name of the differential expression output objec
 a reference to a hash where the following keys are defined:
 expressionset_ref has a value which is a kb_cufflinks.obj_ref
 workspace_name has a value which is a string
-diff_expression_obj_name has a value which is a string
-filtered_expression_matrix_name has a value which is a string
+output_obj_name has a value which is a string
 library_norm_method has a value which is a string
 multi_read_correct has a value which is a kb_cufflinks.boolean
 time_series has a value which is a kb_cufflinks.boolean
@@ -674,8 +669,7 @@ min_alignment_count has a value which is an int
 a reference to a hash where the following keys are defined:
 expressionset_ref has a value which is a kb_cufflinks.obj_ref
 workspace_name has a value which is a string
-diff_expression_obj_name has a value which is a string
-filtered_expression_matrix_name has a value which is a string
+output_obj_name has a value which is a string
 library_norm_method has a value which is a string
 multi_read_correct has a value which is a kb_cufflinks.boolean
 time_series has a value which is a kb_cufflinks.boolean
@@ -701,8 +695,7 @@ min_alignment_count has a value which is an int
 <pre>
 a reference to a hash where the following keys are defined:
 result_directory has a value which is a string
-diff_expression_obj_ref has a value which is a kb_cufflinks.obj_ref
-filtered_expression_matrix_ref has a value which is a kb_cufflinks.obj_ref
+diffExprMatrixSet_ref has a value which is a kb_cufflinks.obj_ref
 report_name has a value which is a string
 report_ref has a value which is a string
 
@@ -714,8 +707,7 @@ report_ref has a value which is a string
 
 a reference to a hash where the following keys are defined:
 result_directory has a value which is a string
-diff_expression_obj_ref has a value which is a kb_cufflinks.obj_ref
-filtered_expression_matrix_ref has a value which is a kb_cufflinks.obj_ref
+diffExprMatrixSet_ref has a value which is a kb_cufflinks.obj_ref
 report_name has a value which is a string
 report_ref has a value which is a string
 

@@ -28,7 +28,7 @@
       }
     },
     {
-      "id": "diff_expression_obj_name",
+      "id": "output_obj_name",
       "optional": false,
       "advanced": false,
       "allow_multiple": false,
@@ -38,7 +38,7 @@
       "field_type": "text",
       "text_options": {
         "valid_ws_types": [
-          "KBaseRNASeq.RNASeqDifferentialExpression"
+          "KBaseSets.DifferentialExpressionMatrixSet"
         ],
         "is_output_name": true
       }
@@ -142,22 +142,22 @@
           "target_property": "library_norm_method"
         },
         {
-          "input_parameter": "diff_expression_obj_name",
-          "target_property": "diff_expression_obj_name"
+          "input_parameter": "output_obj_name",
+          "target_property": "output_obj_name"
         }
       ],
       "output_mapping": [
         {
-          "input_parameter": "diff_expression_obj_name",
-          "target_property": "diff_expression_obj_name"
+          "input_parameter": "output_obj_name",
+          "target_property": "output_obj_name"
         },
         {
           "service_method_output_path": [0, "result_directory"],
           "target_property": "result_directory"
         },
         {
-          "service_method_output_path": [0, "diff_expression_obj_ref"],
-          "target_property": "diff_expression_obj_ref"
+          "service_method_output_path": [0, "diffExprMatrixSet_ref"],
+          "target_property": "diffExprMatrixSet_ref"
         },
         {
           "service_method_output_path": [0, "report_name"],

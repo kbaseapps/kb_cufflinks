@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * <p>Original spec-file type: CuffdiffResult</p>
+ * <p>Original spec-file type: CufflinksResult</p>
  * 
  * 
  */
@@ -20,16 +20,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "result_directory",
-    "diffExprMatrixSet_ref",
+    "expression_obj_ref",
     "report_name",
     "report_ref"
 })
-public class CuffdiffResult {
+public class CufflinksResult {
 
     @JsonProperty("result_directory")
     private String resultDirectory;
-    @JsonProperty("diffExprMatrixSet_ref")
-    private String diffExprMatrixSetRef;
+    @JsonProperty("expression_obj_ref")
+    private String expressionObjRef;
     @JsonProperty("report_name")
     private String reportName;
     @JsonProperty("report_ref")
@@ -46,23 +46,23 @@ public class CuffdiffResult {
         this.resultDirectory = resultDirectory;
     }
 
-    public CuffdiffResult withResultDirectory(String resultDirectory) {
+    public CufflinksResult withResultDirectory(String resultDirectory) {
         this.resultDirectory = resultDirectory;
         return this;
     }
 
-    @JsonProperty("diffExprMatrixSet_ref")
-    public String getDiffExprMatrixSetRef() {
-        return diffExprMatrixSetRef;
+    @JsonProperty("expression_obj_ref")
+    public String getExpressionObjRef() {
+        return expressionObjRef;
     }
 
-    @JsonProperty("diffExprMatrixSet_ref")
-    public void setDiffExprMatrixSetRef(String diffExprMatrixSetRef) {
-        this.diffExprMatrixSetRef = diffExprMatrixSetRef;
+    @JsonProperty("expression_obj_ref")
+    public void setExpressionObjRef(String expressionObjRef) {
+        this.expressionObjRef = expressionObjRef;
     }
 
-    public CuffdiffResult withDiffExprMatrixSetRef(String diffExprMatrixSetRef) {
-        this.diffExprMatrixSetRef = diffExprMatrixSetRef;
+    public CufflinksResult withExpressionObjRef(String expressionObjRef) {
+        this.expressionObjRef = expressionObjRef;
         return this;
     }
 
@@ -76,7 +76,7 @@ public class CuffdiffResult {
         this.reportName = reportName;
     }
 
-    public CuffdiffResult withReportName(String reportName) {
+    public CufflinksResult withReportName(String reportName) {
         this.reportName = reportName;
         return this;
     }
@@ -91,7 +91,7 @@ public class CuffdiffResult {
         this.reportRef = reportRef;
     }
 
-    public CuffdiffResult withReportRef(String reportRef) {
+    public CufflinksResult withReportRef(String reportRef) {
         this.reportRef = reportRef;
         return this;
     }
@@ -108,7 +108,7 @@ public class CuffdiffResult {
 
     @Override
     public String toString() {
-        return ((((((((((("CuffdiffResult"+" [resultDirectory=")+ resultDirectory)+", diffExprMatrixSetRef=")+ diffExprMatrixSetRef)+", reportName=")+ reportName)+", reportRef=")+ reportRef)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("CufflinksResult"+" [resultDirectory=")+ resultDirectory)+", expressionObjRef=")+ expressionObjRef)+", reportName=")+ reportName)+", reportRef=")+ reportRef)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
