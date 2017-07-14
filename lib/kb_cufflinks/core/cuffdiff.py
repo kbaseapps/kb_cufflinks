@@ -97,7 +97,7 @@ class CuffDiff:
                      os.path.join(output_directory, 'splicing.diff'))
 
         overview_content = ''
-        overview_content += '<p>Generated Differential Expression Object:</p><p>{}</p>'.format(
+        overview_content += '<p>Generated Differential Expression Matrix Set Object:</p><p>{}</p>'.format(
                                                     params.get(self.PARAM_IN_OBJ_NAME))
 
         with open(result_file_path, 'w') as result_file:
