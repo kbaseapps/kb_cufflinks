@@ -72,7 +72,7 @@ class CuffdiffTest(unittest.TestCase):
         cls.wsName = "test_cuffdiff_" + str(suffix)
         cls.wsClient.create_workspace({'workspace': cls.wsName})
         cls.stringtie = kb_stringtie(cls.callback_url, service_ver='dev')
-        cls.prepare_data()
+        #cls.prepare_data()
 
     @classmethod
     def tearDownClass(cls):
@@ -307,9 +307,29 @@ class CuffdiffTest(unittest.TestCase):
         outputObj = self.dfu.get_objects(
             {'object_refs': [cuffdiff_retVal.get('diffExprMatrixSet_ref')]})['data'][0]
 
+        print("============ OUTPUT FROM CUFFDIFF ==============")
+        pprint(cuffdiff_retVal)
         print("============ DIFFERENTIAL EXPRESSION MATRIX SET OUTPUT ==============")
         pprint(outputObj)
         print("==========================================================")
+
+        """
+        Get files from expected object ref
+        """
+        timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
+        expected_dir = os.path.join(self.scratch, 'expected_' + str(timestamp))
+        os.mkdir(expected_dir)
+
+        expectedObj = self.dfu.get_objects(
+            {'object_refs': [expected_obj_ref]})['data'][0]
+        expectedFile = expectedObj['data']['file']
+        expectedFile_ret = self.dfu.shock_to_file({
+            'shock_id': expectedFile['id'],
+            'file_path': expected_dir,
+            'unpack': 'unpack'
+        })
+        for f in glob.glob(expected_dir + '/*.zip'):
+            os.remove(f)
 
         '''
         self.assertEqual(outputObj['info'][2].startswith('KBaseRNASeq.RNASeqDifferentialExpression'), True)
@@ -322,23 +342,7 @@ class CuffdiffTest(unittest.TestCase):
 
         output_dir = self.deu.download_differentialExpression(
                             {'source_ref': cuffdiff_retVal.get('diffexpr_obj_ref')}).get('destination_dir')
-        """
-        Get files from expected object ref
-        """
-        timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
-        expected_dir = os.path.join(self.scratch, 'expected_' + str(timestamp))
-        os.mkdir(expected_dir)
-
-        expectedObj = self.dfu.get_objects(
-            {'object_refs': [expected_obj_ref]})['data'][0]
-        expectedFile = expectedObj['data']['file']
-        expectedFile_ret = self.dfu.shock_to_file({
-                                                   'shock_id': expectedFile['id'],
-                                                   'file_path': expected_dir,
-                                                   'unpack': 'unpack'
-                                                   })
-        for f in glob.glob(expected_dir + '/*.zip'):
-            os.remove(f)
+        
         self.check_files(output_dir, expected_dir)
         '''
 
@@ -434,6 +438,7 @@ class CuffdiffTest(unittest.TestCase):
                          },
             '"expressionset_ref" should be of type KBaseRNASeq.RNASeqExpressionSet',
             exception=TypeError)
+    
 
 
 

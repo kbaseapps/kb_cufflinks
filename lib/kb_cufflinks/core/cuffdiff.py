@@ -1,14 +1,12 @@
 import os
 import uuid
 from pprint import pprint
-import errno
 import zipfile
 import shutil
 import multiprocessing as mp
 import handler_utils
 import script_utils
 from cuffmerge import CuffMerge
-from gff_utils import GFFUtils
 
 from Workspace.WorkspaceClient import Workspace as Workspace
 from DataFileUtil.DataFileUtilClient import DataFileUtil
@@ -45,6 +43,22 @@ class CuffDiff:
             except DFUError as se:
                 prefix = se.message.split('.')[0]
                 raise ValueError(prefix)
+
+    def _get_genome_gtf_file(self, gnm_ref, gtf_file_dir):
+        """
+        Get data from genome object ref and return the GTF filename (with path)
+        """
+        self.logger.info("Converting genome {0} to GTF file {1}".format(gnm_ref, gtf_file_dir))
+        try:
+            gfu_ret = self.gfu.genome_to_gff({'genome_ref': gnm_ref,
+                                         'is_gtf': 1,
+                                         'target_dir': gtf_file_dir})
+        except ValueError as egfu:
+            self.logger.info('GFU getting GTF file raised error:\n')
+            pprint(egfu)
+            return None
+        else:  # no exception raised
+            return gfu_ret.get('file_path')
 
     def _generate_output_file_list(self, result_directory):
         """
@@ -169,7 +183,8 @@ class CuffDiff:
         """
         Get gtf file from genome_ref. Used as input to cuffmerge.
         """
-        output_data['gtf_file_path'] = self.gff_utils.get_gtf_file(output_data['genome_id'])
+        output_data['gtf_file_path'] = self._get_genome_gtf_file(output_data['genome_id'],
+                                                                 self.scratch)
 
         condition = []
         bam_files = []
@@ -281,7 +296,6 @@ class CuffDiff:
         self.eu = ExpressionUtils(self.callback_url, service_ver='dev')
         self.deu = DifferentialExpressionUtils(self.callback_url, service_ver='dev')
         self.cuffmerge_runner = CuffMerge(config, logger)
-        self.gff_utils = GFFUtils(config, logger)
         self.num_threads = mp.cpu_count()
         handler_utils._mkdir_p(self.scratch)
 
