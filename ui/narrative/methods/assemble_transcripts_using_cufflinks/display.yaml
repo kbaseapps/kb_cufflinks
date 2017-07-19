@@ -26,9 +26,9 @@ method-suggestions :
 parameters :
   alignment_object_ref :
     ui-name : |
-        RNA-seq Alignment or Alignment Set
+        KBaseRNASeq Alignment, Alignment Set or KbaseSets Alignment Set
     short-hint : |
-        Select the RNA-seq alignment or alignment set created by Bowtie2 or TopHat2 or HISAT2.
+        Select a KBaseRNASeq alignment, alignment set or KbaseSets alignment set created by Bowtie2 or TopHat2 or HISAT2.
   genome_ref :
     ui-name : |
         Genome
