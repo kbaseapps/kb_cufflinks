@@ -460,7 +460,7 @@ class CufflinksUtils:
         })['obj_ref']
 
         return expression_ref
-    
+
 
     def _save_rnaseq_expression_set(self, alignment_expression_map, alignment_set_ref, workspace_name):
         """
@@ -790,6 +790,9 @@ class CufflinksUtils:
             json.dumps(params, indent=1)))
 
         alignment_set_ref = params.get('alignment_set_ref')
+
+        if not '/' in params['genome_ref']:
+            params['genome_ref'] = params['workspace_name']+'/'+params['genome_ref']
 
         params['gtf_file'] = self._get_gtf_file_from_genome_ref(params['genome_ref'])
 
