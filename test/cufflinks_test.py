@@ -9,6 +9,7 @@ from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from ReadsUtils.ReadsUtilsClient import ReadsUtils
 from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
 from DataFileUtil.DataFileUtilClient import DataFileUtil
+from SetAPI.SetAPIClient import SetAPI
 
 from os import environ
 try:
@@ -60,11 +61,13 @@ class CufflinksTest(unittest.TestCase):
         cls.dfu = DataFileUtil(cls.callback_url)
         cls.ru = ReadsUtils(cls.callback_url)
         cls.rau = ReadsAlignmentUtils(cls.callback_url, service_ver='dev')
+        cls.set_api = SetAPI(cls.callback_url)
 
         cls.cufflinks_runner = CufflinksUtils(cls.cfg)
 
         # cls.wsName = 'cufflinks_test_' + user_id  # reuse existing workspace
         suffix = int(time.time() * 1000)
+#       suffix = 1009
         cls.wsName = "test_kb_cufflinks_" + str(suffix)
         print('workspace_name: ' + cls.wsName)
 
@@ -126,7 +129,7 @@ class CufflinksTest(unittest.TestCase):
                                                })['obj_ref']
 
         # upload alignment object
-        alignment_file_name = 'extracted_hy5_rep1_tophat_alignment.bam'
+        alignment_file_name = 'accepted_hits_sorted.bam'
         alignment_file_path = os.path.join(cls.scratch, alignment_file_name)
         shutil.copy(os.path.join('data', alignment_file_name), alignment_file_path)
 
@@ -175,7 +178,7 @@ class CufflinksTest(unittest.TestCase):
         dfu_oi = cls.dfu.save_objects(save_object_params)[0]
         cls.sample_set_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
 
-        # upload alignment_set object
+        # upload KBaseRNASeq.RNASeqAlignmentSet object
         object_type = 'KBaseRNASeq.RNASeqAlignmentSet'
         alignment_set_object_name = 'test_Alignment_Set'
         alignment_set_data = {
@@ -197,7 +200,31 @@ class CufflinksTest(unittest.TestCase):
         }
 
         dfu_oi = cls.dfu.save_objects(save_object_params)[0]
-        cls.alignment_set_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
+        cls.alignment_rnaseq_set_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
+
+        # upload KBaseSets.ReadsAlignmentSet object
+        alignment_items = list()
+        alignment_items.append({
+            "ref": cls.alignment_ref_1,
+            "label": cls.condition_1
+        })
+        alignment_items.append({
+            "ref": cls.alignment_ref_2,
+            "label": cls.condition_2
+        })
+        alignment_set = {
+            "description": "Alignments using Tophat",
+            "items": alignment_items
+        }
+
+        set_info = cls.set_api.save_reads_alignment_set_v1({
+            "workspace": cls.wsName,
+            "output_object_name": 'test_expression_set',
+            "data": alignment_set
+        })
+        cls.alignment_kbasesets_set_ref = set_info['set_ref']
+
+
 
     def getWsClient(self):
         return self.__class__.wsClient
@@ -244,11 +271,12 @@ class CufflinksTest(unittest.TestCase):
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('condition'), self.condition_1)
         self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_1')
+    
 
-    def test_cufflinks_app_alignment_set(self):
+    def test_cufflinks_app_rnaseq_alignment_set(self):
         params = {
             "workspace_name": self.getWsName(),
-            "alignment_object_ref": self.alignment_set_ref,
+            "alignment_object_ref": self.alignment_rnaseq_set_ref,
             "genome_ref": self.__class__.genome_ref,
             "min-intron-length": 50,
             "max-intron-length": 300000,
@@ -271,3 +299,41 @@ class CufflinksTest(unittest.TestCase):
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('sampleset_id'), self.sample_set_ref)
         self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_set')
+
+    def test_cufflinks_app_kbasesets_alignment_set(self):
+        params = {
+            "workspace_name": self.getWsName(),
+            "alignment_object_ref": self.alignment_kbasesets_set_ref,
+            #"alignment_object_ref": '24097/9/4',
+            "genome_ref": self.__class__.genome_ref,
+            #"genome_ref": '24097/2/2',
+            "min-intron-length": 50,
+            "max-intron-length": 300000,
+            "overhang-tolerance": 8,
+            "num_threads": 2
+        }
+
+        result = self.getImpl().run_cufflinks(self.ctx, params)[0]
+
+        from pprint import pprint
+        print 'result: '
+        pprint(result)
+
+        self.assertTrue('result_directory' in result)
+        result_files = os.listdir(result['result_directory'])
+        print 'result files: ' + str(result_files)
+        expect_result_files = ['test_Alignment_1', 'test_Alignment_2']
+        self.assertTrue(all(x in result_files for x in expect_result_files))
+        self.assertTrue('expression_obj_ref' in result)
+        self.assertTrue('report_name' in result)
+        self.assertTrue('report_ref' in result)
+        expression_data = self.getWsClient().get_objects([{'objid': int(result.get(
+            'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
+
+        pprint(expression_data.get('items')[0]['label'])
+        pprint(expression_data.get('items')[1]['label'])
+        self.assertTrue(expression_data.get('items')[0]['label'].startswith('test_condition_'))
+        self.assertTrue(expression_data.get('items')[1]['label'].startswith('test_condition_'))
+
+
+
