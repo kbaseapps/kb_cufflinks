@@ -11,6 +11,7 @@ from pathos.multiprocessing import ProcessingPool as Pool
 import multiprocessing
 import zipfile
 import contig_id_mapping as c_mapping
+from pprint import pprint
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from Workspace.WorkspaceClient import Workspace as Workspace
@@ -18,6 +19,8 @@ from KBaseReport.KBaseReportClient import KBaseReport
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
+from ExpressionUtils.ExpressionUtilsClient import ExpressionUtils
+from SetAPI.SetAPIClient import SetAPI
 
 
 def log(message, prefix_newline=False):
@@ -47,6 +50,8 @@ class CufflinksUtils:
         self.gfu = GenomeFileUtil(self.callback_url)
         self.au = AssemblyUtil(self.callback_url)
         self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
+        self.set_api = SetAPI(self.callback_url)
+        self.eu = ExpressionUtils(self.callback_url, service_ver='dev')
         self.ws = Workspace(self.ws_url, token=self.token)
 
         self.scratch = os.path.join(config['scratch'], str(uuid.uuid4()))
@@ -211,6 +216,27 @@ class CufflinksUtils:
 
         return annotation_file
 
+    def _get_gtf_file_from_genome_ref(self, genome_ref):
+        """
+        _get_gtf_file: get the reference annotation file (in GTF or GFF3 format)
+        """
+        result_directory = self.scratch
+
+        genome_data = self.ws.get_objects2({'objects':
+                                            [{'ref': genome_ref}]})['data'][0]['data']
+
+        gff_handle_ref = genome_data.get('gff_handle_ref')
+
+        if gff_handle_ref:
+            log('getting reference annotation file from genome')
+            annotation_file = self.dfu.shock_to_file({'handle_id': gff_handle_ref,
+                                                      'file_path': result_directory,
+                                                      'unpack': 'unpack'})['file_path']
+        else:
+            annotation_file = self._create_gtf_annotation_from_genome(genome_ref)
+
+        return annotation_file
+
     def _get_input_file(self, alignment_ref):
         """
         _get_input_file: get input BAM file from Alignment object
@@ -252,7 +278,7 @@ class CufflinksUtils:
 
         return cufflinks_command
 
-    def _process_alignment_object(self, params):
+    def _process_rnaseq_alignment_object(self, params):
         """
         _process_alignment_object: process KBaseRNASeq.RNASeqAlignment type input object
         """
@@ -272,10 +298,49 @@ class CufflinksUtils:
         command = self._generate_command(params)
         self._run_command(command)
 
-        expression_obj_ref = self._save_expression(result_directory,
+        expression_obj_ref = self._save_rnaseq_expression(result_directory,
                                                    alignment_ref,
                                                    params.get('workspace_name'),
                                                    params['gtf_file'])
+
+        returnVal = {'result_directory': result_directory,
+                     'expression_obj_ref': expression_obj_ref,
+                     'alignment_ref': alignment_ref}
+
+        expression_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
+                                                  includeMetadata=None)[0][1]
+
+        widget_params = {"output": expression_name, "workspace": params.get('workspace_name')}
+        returnVal.update(widget_params)
+
+        return returnVal
+
+
+    def _process_kbasesets_alignment_object(self, params):
+        """
+        _process_alignment_object: process KBaseRNASeq.RNASeqAlignment type input object
+        """
+        log('start processing KBaseSets object\nparams:\n{}'.format(
+            json.dumps(params, indent=1)))
+        alignment_ref = params.get('alignment_ref')
+
+        result_directory = os.path.join(self.scratch, str(uuid.uuid4()))
+        self._mkdir_p(result_directory)
+        params['result_directory'] = str(result_directory)
+
+        # input files
+        params['input_file'] = self._get_input_file(alignment_ref)
+        if not params.get('gtf_file'):
+            params['gtf_file'] = self._get_gtf_file(alignment_ref)
+
+        command = self._generate_command(params)
+        self._run_command(command)
+
+        expression_obj_ref = self._save_kbasesets_expression(result_directory,
+                                                   alignment_ref,
+                                                   params.get('workspace_name'),
+                                                   params.get('genome_ref'),
+                                                   params.get('gtf_file'))
 
         returnVal = {'result_directory': result_directory,
                      'expression_obj_ref': expression_obj_ref,
@@ -317,6 +382,17 @@ class CufflinksUtils:
                 expression_name = self.ws.get_object_info([{"ref": expression_ref}],
                                                           includeMetadata=None)[0][1]
                 Overview_Content += '<p>{}</p>'.format(expression_name)
+        elif re.match('KBaseSets.ExpressionSet-\d.\d', expression_object_type):
+            pprint(expression_object)
+            Overview_Content += '<p>Generated Expression Set Object:</p><p>{}</p>'.format(
+                expression_object.get('info')[1])
+            Overview_Content += '<br><p>Generated Expression Object:</p>'
+            for expression_ref in expression_object['data']['items']:
+                expression_name = self.ws.get_object_info([{"ref": expression_ref['ref']}],
+                                                          includeMetadata=None)[0][1]
+                condition = expression_ref['label']
+                Overview_Content += '<p>condition:{0}; expression_name: {1}</p>'.format(condition, expression_name)
+
 
         with open(result_file_path, 'w') as result_file:
             with open(os.path.join(os.path.dirname(__file__), 'report_template.html'),
@@ -332,9 +408,9 @@ class CufflinksUtils:
                             'description': 'HTML summary report for Cufflinks App'})
         return html_report
 
-    def _save_expression(self, result_directory, alignment_ref, workspace_name, gtf_file):
+    def _save_rnaseq_expression(self, result_directory, alignment_ref, workspace_name, gtf_file):
         """
-        _save_expression: save Expression object to workspace
+        _save_rnaseq_expression: save Expression object to workspace
         """
         log('start saving Expression object')
         if isinstance(workspace_name, int) or workspace_name.isdigit():
@@ -362,9 +438,61 @@ class CufflinksUtils:
 
         return expression_ref
 
-    def _save_expression_set(self, alignment_expression_map, alignment_set_ref, workspace_name):
+    def _save_kbasesets_expression(self, result_directory, alignment_ref, workspace_name, genome_ref, gtf_file):
         """
-        _save_expression_set: save ExpressionSet object to workspace
+        _save_kbasesets_expression: save Expression object to workspace using ExpressionUtils
+        and SetAPI
+        """
+        log('start saving Expression object')
+
+        alignment_name = self.ws.get_object_info([{"ref": alignment_ref}],
+                                                 includeMetadata=None)[0][1]
+
+        gff_annotation_obj_ref = self._save_gff_annotation(genome_ref, gtf_file, workspace_name)
+
+        expression_ref = self.eu.upload_expression({
+            'destination_ref': workspace_name+'/'+alignment_name,
+            'source_dir': result_directory,
+            'alignment_ref': alignment_ref,
+            'tool_used': self.tool_used,
+            'tool_version': self.tool_version,
+            'annotation_ref': gff_annotation_obj_ref,
+        })['obj_ref']
+
+        return expression_ref
+    
+
+    def _save_rnaseq_expression_set(self, alignment_expression_map, alignment_set_ref, workspace_name):
+        """
+        _save_rnaseq_expression_set: save ExpressionSet object to workspace
+        """
+        log('start saving ExpressionSet object')
+        if isinstance(workspace_name, int) or workspace_name.isdigit():
+            workspace_id = workspace_name
+        else:
+            workspace_id = self.dfu.ws_name_to_id(workspace_name)
+
+        expression_set_data = self._generate_expression_set_data(alignment_expression_map,
+                                                                 alignment_set_ref)
+
+        object_type = 'KBaseRNASeq.RNASeqExpressionSet'
+        save_object_params = {
+            'id': workspace_id,
+            'objects': [{
+                'type': object_type,
+                'data': expression_set_data,
+                'name': expression_set_data.get('id')
+            }]
+        }
+
+        dfu_oi = self.dfu.save_objects(save_object_params)[0]
+        expression_set_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
+
+        return expression_set_ref
+
+    def _save_kbasesets_expression_set(self, alignment_expression_map, alignment_set_ref, workspace_name):
+        """
+        _save_kbasesets_expression_set: save ExpressionSet object to workspace
         """
         log('start saving ExpressionSet object')
         if isinstance(workspace_name, int) or workspace_name.isdigit():
@@ -595,11 +723,11 @@ class CufflinksUtils:
 
         return expression_set_data
 
-    def _process_alignment_set_object(self, params):
+    def _process_rnaseq_alignment_set_object(self, params):
         """
         _process_alignment_set_object: process KBaseRNASeq.RNASeqAlignmentSet type input object
         """
-        log('start processing RNASeqAlignmentSet object\nparams:\n{}'.format(
+        log('start processing KBaseRNASeq.RNASeqAlignmentSet object\nparams:\n{}'.format(
             json.dumps(params, indent=1)))
 
         alignment_set_ref = params.get('alignment_set_ref')
@@ -620,7 +748,7 @@ class CufflinksUtils:
         cpus = min(params.get('num_threads'), multiprocessing.cpu_count())
         pool = Pool(ncpus=cpus)
         log('running _process_alignment_object with {} cpus'.format(cpus))
-        alignment_expression_map = pool.map(self._process_alignment_object, mul_processor_params)
+        alignment_expression_map = pool.map(self._process_rnaseq_alignment_object, mul_processor_params)
 
         result_directory = os.path.join(self.scratch, str(uuid.uuid4()))
         self._mkdir_p(result_directory)
@@ -632,7 +760,7 @@ class CufflinksUtils:
             self._run_command('cp -R {} {}'.format(proc_alignment_return.get('result_directory'),
                                                    os.path.join(result_directory, expression_name)))
 
-        expression_obj_ref = self._save_expression_set(alignment_expression_map,
+        expression_obj_ref = self._save_rnaseq_expression_set(alignment_expression_map,
                                                        alignment_set_ref,
                                                        params.get('workspace_name'))
 
@@ -653,6 +781,82 @@ class CufflinksUtils:
 
         return returnVal
 
+
+    def _process_kbasesets_alignment_set_object(self, params):
+        """
+        _process_alignment_set_object: process KBaseSets.ReadsAlignmentSet type input object
+        """
+        log('start processing KBaseSets.ReadsAlignmentSet object\nparams:\n{}'.format(
+            json.dumps(params, indent=1)))
+
+        alignment_set_ref = params.get('alignment_set_ref')
+
+        params['gtf_file'] = self._get_gtf_file_from_genome_ref(params['genome_ref'])
+
+        alignment_set_data = self.ws.get_objects2({'objects':
+                                                   [{'ref': alignment_set_ref}]})['data'][0]['data']
+
+        ########################################
+        alignment_items = alignment_set_data['items']
+        mul_processor_params = []
+        for item in alignment_items:
+            alignment_upload_params = params.copy()
+            alignment_upload_params['alignment_ref'] = item['ref']
+            mul_processor_params.append(alignment_upload_params)
+
+        cpus = min(params.get('num_threads'), multiprocessing.cpu_count())
+        pool = Pool(ncpus=cpus)
+        log('running _process_alignment_object with {} cpus'.format(cpus))
+        alignment_expression_map = pool.map(self._process_kbasesets_alignment_object, mul_processor_params)
+
+        result_directory = os.path.join(self.scratch, str(uuid.uuid4()))
+        self._mkdir_p(result_directory)
+
+        expression_items = list()
+        for proc_alignment_return in alignment_expression_map:
+            expression_obj_ref = proc_alignment_return.get('expression_obj_ref')
+            alignment_ref = proc_alignment_return.get('alignment_ref')
+            condition = self.ws.get_object_info([{"ref": alignment_ref}],includeMetadata=1)[0][10]['condition']
+            expression_items.append({
+                "ref": expression_obj_ref,
+                "label": condition,
+            })
+            expression_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
+                                                      includeMetadata=None)[0][1]
+            self._run_command('cp -R {} {}'.format(proc_alignment_return.get('result_directory'),
+                                                   os.path.join(result_directory, expression_name)))
+
+        alignment_set_name = self.ws.get_object_info([{"ref": params['alignment_object_ref']}], includeMetadata=None)[0][1]
+        output_object_name = alignment_set_name+'_expression_set'
+
+        expression_set = {
+            "description": "generated by kb_cufflinks",
+            "items": expression_items
+        }
+
+        expression_set_info = self.set_api.save_expression_set_v1({
+            "workspace": params['workspace_name'],
+            "output_object_name": output_object_name,
+            "data": expression_set
+        })
+
+        returnVal = {'result_directory': result_directory,
+                     'expression_obj_ref': expression_set_info['set_ref']}
+
+        report_output = self._generate_report(expression_set_info['set_ref'],
+                                              params.get('workspace_name'),
+                                              result_directory)
+
+
+
+        widget_params = {"output": output_object_name, "workspace": params.get('workspace_name')}
+        returnVal.update(widget_params)
+
+        returnVal.update(report_output)
+
+        return returnVal
+        ###############################################
+
     def run_cufflinks_app(self, params):
         log('--->\nrunning CufflinksUtil.run_cufflinks_app\n' +
             'params:\n{}'.format(json.dumps(params, indent=1)))
@@ -664,16 +868,22 @@ class CufflinksUtils:
             "objects": [{"ref": alignment_object_ref}]})['infos'][0]
         alignment_object_type = alignment_object_info[2]
 
+        log('--->\nalignment object type: \n' +
+            '{}'.format(alignment_object_type))
+
         if re.match('KBaseRNASeq.RNASeqAlignment-\d.\d', alignment_object_type):
             params.update({'alignment_ref': alignment_object_ref})
-            returnVal = self._process_alignment_object(params)
+            returnVal = self._process_rnaseq_alignment_object(params)
             # report_output = self._generate_report(returnVal.get('expression_obj_ref'),
             #                                      params.get('workspace_name'),
             #                                      returnVal.get('result_directory'))
             # returnVal.update(report_output)
         elif re.match('KBaseRNASeq.RNASeqAlignmentSet-\d.\d', alignment_object_type):
             params.update({'alignment_set_ref': alignment_object_ref})
-            returnVal = self._process_alignment_set_object(params)
+            returnVal = self._process_rnaseq_alignment_set_object(params)
+        elif re.match('KBaseSets.ReadsAlignmentSet-\d.\d', alignment_object_type):
+            params.update({'alignment_set_ref': alignment_object_ref})
+            returnVal = self._process_kbasesets_alignment_set_object(params)
         else:
             raise ValueError('None RNASeqAlignment type\nObject info:\n{}'.format(
                 alignment_object_info))
