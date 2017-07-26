@@ -28,7 +28,7 @@ parameters :
     ui-name : |
       RNA-seq Expression Set
     short-hint : |
-      Select the RNA-seq expression set associated with transcripts assembled by Cufflinks
+      Select the expression set associated with transcripts assembled by Cufflinks or Stringtie
   output_obj_name :
     ui-name : |
       Differential Expression Matrix Set Object Name

@@ -3,6 +3,7 @@ import uuid
 from pprint import pprint
 import zipfile
 import shutil
+import re
 import multiprocessing as mp
 import handler_utils
 import script_utils
@@ -160,26 +161,17 @@ class CuffDiff:
 
         return report_output
 
-    def _get_expressionset_data(self, expressionset_ref, result_directory):
+    def _get_rnaseq_expressionset_data(self, expression_set_data, result_directory):
         """
         Get data from expressionset object in the form required 
         for input to cuffmerge and cuffdiff
         """
-        expression_set = self.ws_client.get_objects2(
-                        {'objects': [{'ref': expressionset_ref}]})['data'][0]
-
-        if not expression_set.get('info')[2].startswith('KBaseRNASeq.RNASeqExpressionSet'):
-            raise TypeError('"{}" should be of type KBaseRNASeq.RNASeqExpressionSet'
-                            .format(self.PARAM_IN_EXPSET_REF))
-
-        expression_set_data = expression_set['data']
+        self.logger.info('Getting data from RNASeq expression set input')
 
         output_data = {}
-        output_data['expressionSet_id'] = expressionset_ref
         output_data['alignmentSet_id'] = expression_set_data.get('alignmentSet_id')
         output_data['sampleset_id'] = expression_set_data.get('sampleset_id')
         output_data['genome_id'] = expression_set_data.get('genome_id')
-        self.genome_ref = output_data['genome_id']
         """
         Get gtf file from genome_ref. Used as input to cuffmerge.
         """
@@ -248,6 +240,99 @@ class CuffDiff:
         output_data['condition'] = condition
         output_data['bam_files'] = bam_files
         return output_data
+
+    def _get_setapi_expressionset_data(self, expr_obj_data, result_directory):
+        """
+        Get data from expressionset object in the form required 
+        for input to cuffmerge and cuffdiff
+        """
+        self.logger.info('Getting data from SETAPI expression set input')
+        output_data = dict()
+        condition = list()
+        bam_files = list()
+
+        assembly_file = os.path.join(result_directory, "assembly_gtf.txt")
+        list_file = open(assembly_file, 'w')
+
+        items = expr_obj_data.get('items')
+        for item in items:
+            """
+            assembly_gtf.txt will contain the file paths of all .gtf files 
+            in the expressionset. Used as input to cuffmerge.
+            """
+            expression_ref = item['ref']
+            expression_retval = self.eu.download_expression({'source_ref': expression_ref})
+            expression_dir = expression_retval.get('destination_dir')
+            e_file_path = os.path.join(expression_dir, "transcripts.gtf")
+
+            if os.path.exists(e_file_path):
+                self.logger.info('Adding:  ' + expression_ref + ':, ' + e_file_path)
+                list_file.write("{0}\n".format(e_file_path))
+            else:
+                raise ValueError(e_file_path + " not found")
+            """
+            Create a list of all conditions in expressionset. Used as input to cuffdiff.
+            """
+            expression_data = self.ws_client.get_objects2(
+                {'objects':
+                     [{'ref': expression_ref}]})['data'][0]['data']
+            expression_condition = expression_data.get('condition')
+            if expression_condition not in condition:
+                condition.append(expression_condition)
+            """
+            Create a list of bam files in alignment set. Used as input to cuffdiff.
+            """
+            alignment_ref = expression_data['mapped_rnaseq_alignment'].values()[0]
+            alignment_retval = self.rau.download_alignment({'source_ref': alignment_ref})
+            alignment_dir = alignment_retval.get('destination_dir')
+            align_path, align_dir = os.path.split(alignment_dir)
+            new_alignment_dir = os.path.join(align_path, expression_condition + '_' + align_dir)
+            os.rename(alignment_dir, os.path.join(align_path, new_alignment_dir))
+
+        list_file.close()
+
+        """
+        Get gtf file from genome_ref. Used as input to cuffmerge.
+        """
+        output_data['genome_id'] = expression_data.get('genome_id')
+        output_data['gtf_file_path'] = self._get_genome_gtf_file(output_data['genome_id'],
+                                                                 self.scratch)
+        """
+        Get list of bamfiles in the format required by cuffdiff
+        """
+        align_dirs = os.listdir(align_path)
+        for c in condition:
+            rep_files = []
+            for d in align_dirs:
+                path, dir = os.path.split(d)
+                if c in dir:
+                    bfile = os.path.join(align_path, d + '/accepted_hits.bam')
+                    if os.path.exists(bfile):
+                        rep_files.append(bfile)
+                    else:
+                        raise ValueError('{} does not exist'.format(bfile))
+            if len(rep_files) > 0:
+                bam_files.append(' ' + ','.join(bf for bf in rep_files))
+
+        output_data['assembly_file'] = assembly_file
+        output_data['condition'] = condition
+        output_data['bam_files'] = bam_files
+        return output_data
+
+    def _get_expressionset_data(self, expressionset_ref, result_directory):
+
+        exprset_obj = self.ws_client.get_objects2(
+            {'objects': [{'ref': expressionset_ref}]})['data'][0]
+
+        expr_set_obj_type = exprset_obj.get('info')[2]
+        if re.match('KBaseRNASeq.RNASeqExpressionSet-\d.\d', expr_set_obj_type):
+            return self._get_rnaseq_expressionset_data(exprset_obj.get('data'), result_directory)
+        elif re.match('KBaseSets.ExpressionSet-\d.\d', expr_set_obj_type):
+            return self._get_setapi_expressionset_data(exprset_obj.get('data'), result_directory)
+        else:
+            raise TypeError(self.PARAM_IN_EXPSET_REF + ' should be of type ' +
+                            'KBaseRNASeq.RNASeqExpressionSet ' +
+                            'or KBaseSets.ExpressionSet')
 
     def _assemble_cuffdiff_command(self, params, expressionset_data, merged_gtf, output_dir):
 
@@ -362,7 +447,7 @@ class CuffDiff:
         """
         diffexpr_params = { 'destination_ref': params.get(self.PARAM_IN_WS_NAME) + '/' +
                                                params.get(self.PARAM_IN_OBJ_NAME),
-                            'genome_ref': self.genome_ref,
+                            'genome_ref': expressionset_data['genome_id'],
                             'tool_used': 'cuffdiff',
                             'tool_version': os.environ['VERSION'],
                             'diffexpr_filepath': os.path.join(cuffdiff_dir, 'gene_exp.diff')

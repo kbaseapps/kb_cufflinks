@@ -23,7 +23,7 @@
       "field_type": "text",
       "text_options": {
         "valid_ws_types": [
-          "KBaseRNASeq.RNASeqExpressionSet"
+          "KBaseRNASeq.RNASeqExpressionSet", "KBaseSets.ExpressionSet"
         ]
       }
     },

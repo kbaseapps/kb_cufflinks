@@ -28,10 +28,8 @@ from DifferentialExpressionUtils.DifferentialExpressionUtilsClient import Differ
 from kb_cufflinks.kb_cufflinksImpl import kb_cufflinks
 from kb_cufflinks.kb_cufflinksServer import MethodContext
 from kb_cufflinks.authclient import KBaseAuth as _KBaseAuth
-from kb_stringtie.kb_stringtieClient import kb_stringtie
 
 class CuffdiffTest(unittest.TestCase):
-
 
     @classmethod
     def setUpClass(cls):
@@ -71,8 +69,7 @@ class CuffdiffTest(unittest.TestCase):
         suffix = int(time.time() * 1000)
         cls.wsName = "test_cuffdiff_" + str(suffix)
         cls.wsClient.create_workspace({'workspace': cls.wsName})
-        cls.stringtie = kb_stringtie(cls.callback_url, service_ver='dev')
-        #cls.prepare_data()
+        cls.upload_genome()
 
     @classmethod
     def tearDownClass(cls):
@@ -93,8 +90,9 @@ class CuffdiffTest(unittest.TestCase):
         return self.__class__.ctx
 
     @classmethod
-    def prepare_data(cls):
+    def upload_genome(cls):
         # upload genome object
+
         genbank_file_name = 'minimal.gbff'
         genbank_file_path = os.path.join(cls.scratch, genbank_file_name)
         shutil.copy(os.path.join('data', genbank_file_name), genbank_file_path)
@@ -104,6 +102,9 @@ class CuffdiffTest(unittest.TestCase):
                                                     'workspace_name': cls.wsName,
                                                     'genome_name': genome_object_name
                                                     })['genome_ref']
+    @classmethod
+    def prepare_data(cls):
+
         # upload reads object
         reads_file_name = 'Sample1.fastq'
         reads_file_path = os.path.join(cls.scratch, reads_file_name)
@@ -223,23 +224,7 @@ class CuffdiffTest(unittest.TestCase):
         }
 
         dfu_oi = cls.dfu.save_objects(save_object_params)[0]
-        cls.alignment_set_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
-
-        # upload expression_set object
-        cls.expressionset_ref = cls.stringtie.run_stringtie_app(
-            {'alignment_object_ref': cls.alignment_set_ref,
-             'workspace_name': cls.wsName,
-             "min_read_coverage": 2.5,
-             "junction_base": 10,
-             "num_threads": 3,
-             "min_isoform_abundance": 0.1,
-             "min_length": 200,
-             "skip_reads_with_no_ref": 1,
-             "merge": 0,
-             "junction_coverage": 1,
-             "ballgown_mode": 1,
-             "min_locus_gap_sep_value": 50,
-             "disable_trimming": 1})['expression_obj_ref']
+        cls.alignment_rnaseq_set_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
 
     @classmethod
     def getSize(cls, filename):
@@ -268,7 +253,7 @@ class CuffdiffTest(unittest.TestCase):
             if not zipfile.is_zipfile(new_file_path):
                 print
                 print("%%%%%%%%%%%%%%%%%%%% new_file_path: ", new_file_path)
-                print("%%%%%%%%%%%%%%%%%%%% orig_file_path: ", orig_file_path)
+                print("%%%%%%%%%%%%%%%%%%% orig_file_path: ", orig_file_path)
 
                 if self.getSize(new_file_path) != self.getSize(orig_file_path):
                     print('************** sizes differ ************')
@@ -276,21 +261,14 @@ class CuffdiffTest(unittest.TestCase):
                     print('************** md5s differ **************')
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    # Following test uses object refs from a narrative. Comment the next line to run the test
-    @unittest.skip("skipped test_cuffdiff_RNASeq_objects_success")
-    def test_cuffdiff_RNASeq_objects_success(self):
-        """
-        Input object: downsized_AT_reads_tophat_AlignmentSet_cufflinks_ExpressionSet (4389/45/1)
-        Expected output object: downsized_AT_tophat_cufflinks_cuffdiff_output (4389/58/1)
-        Files in output object should be the same as in expected output object
-        """
-        input_obj_ref = '4389/45/1'
-        expected_obj_ref = '4389/58/1'
+    def cuffdiff_success(self, input_exprset_ref, output_obj_name, expected_obj_ref=None, expected_dir=None):
 
-        params = {'expressionset_ref': input_obj_ref,
+        test_name = inspect.stack()[1][3]
+        print('\n*** starting expected cuffdiff success test: ' + test_name + ' **********************')
+
+        params = {'expressionset_ref': input_exprset_ref,
                   'workspace_name': self.getWsName(),
-                  'output_obj_name': 'test_cuffdiff_rnaseqExprSet',
-                  'filtered_expression_matrix_name': 'test_output_expmatrix',
+                  'output_obj_name': output_obj_name,
                   'library_norm_method': 'classic-fpkm',
                   'library_type': 'fr-unstranded'
                   }
@@ -298,7 +276,9 @@ class CuffdiffTest(unittest.TestCase):
         cuffdiff_retVal = self.getImpl().run_Cuffdiff(self.ctx, params)[0]
 
         inputObj = self.dfu.get_objects(
-            {'object_refs': [input_obj_ref]})['data'][0]
+            {'object_refs': [input_exprset_ref]})['data'][0]
+
+        output_dir = cuffdiff_retVal.get('destination_dir')
 
         print("============ INPUT EXPRESSION SET OBJECT ==============")
         pprint(inputObj)
@@ -316,63 +296,69 @@ class CuffdiffTest(unittest.TestCase):
         """
         Get files from expected object ref
         """
-        timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
-        expected_dir = os.path.join(self.scratch, 'expected_' + str(timestamp))
-        os.mkdir(expected_dir)
+        if expected_obj_ref is not None:
+            timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
+            expected_dir = os.path.join(self.scratch, 'expected_' + str(timestamp))
+            os.mkdir(expected_dir)
 
-        expectedObj = self.dfu.get_objects(
-            {'object_refs': [expected_obj_ref]})['data'][0]
-        expectedFile = expectedObj['data']['file']
-        expectedFile_ret = self.dfu.shock_to_file({
-            'shock_id': expectedFile['id'],
-            'file_path': expected_dir,
-            'unpack': 'unpack'
-        })
-        for f in glob.glob(expected_dir + '/*.zip'):
-            os.remove(f)
+            expected_obj = self.dfu.get_objects(
+                {'object_refs': [expected_obj_ref]})['data'][0]
+            expected_file = expected_obj['data']['file']
+            expected_file_ret = self.dfu.shock_to_file({
+                'shock_id': expected_file['id'],
+                'file_path': expected_dir,
+                'unpack': 'unpack'
+            })
+            for f in glob.glob(expected_dir + '/*.zip'):
+                os.remove(f)
 
-        '''
-        self.assertEqual(outputObj['info'][2].startswith('KBaseRNASeq.RNASeqDifferentialExpression'), True)
-        inputData = inputObj['data']
-        outputData = outputObj['data']
-        self.assertEqual(outputData['genome_id'], inputData['genome_id'])
-        self.assertEqual(outputData['expressionSet_id'], input_obj_ref)
-        self.assertEqual(outputData['alignmentSet_id'], inputData['alignmentSet_id'])
-        self.assertEqual(outputData['sampleset_id'], inputData['sampleset_id'])
+        if expected_dir is not None:
+            self.check_files(output_dir, expected_dir)
 
-        output_dir = self.deu.download_differentialExpression(
-                            {'source_ref': cuffdiff_retVal.get('diffexpr_obj_ref')}).get('destination_dir')
-        
-        self.check_files(output_dir, expected_dir)
-        '''
+    # Following test uses object refs from a narrative. Comment the next line to run the test
+    @unittest.skip("skipped test_cuffdiff_RNASeq_exprset_success")
+    def test_cuffdiff_narrative_rnaseq_exprset_success(self):
+        """
+        Input object: downsized_AT_reads_tophat_AlignmentSet_cufflinks_ExpressionSet (4389/45/1)
+        Expected output object: downsized_AT_tophat_cufflinks_cuffdiff_output (4389/58/1)
+        Files in output object should be the same as in expected output object
+        """
+        narrative_rnaseq_exprset_ref = '4389/45/1'
+        narrative_expected_obj_ref = '4389/58/1'
 
-    def test_cuffdiff_success(self):
+        self.cuffdiff_success(narrative_rnaseq_exprset_ref,
+                              'narrative_rnaseq_exprset_cuffdiff_output',
+                              expected_obj_ref=narrative_expected_obj_ref)
 
-        inputObj = self.dfu.get_objects(
-                        {'object_refs': [self.expressionset_ref]})['data'][0]
 
-        print("============ EXPRESSION SET OBJECT FROM STRINGTIE ==============")
-        pprint(inputObj)
-        print("==========================================================")
+    @unittest.skip("skipped test_cuffdiff_narrative_setapi_exprset_success")
+    def test_cuffdiff_narrative_setapi_exprset_success(self):
 
-        cuffdiff_params = { 'expressionset_ref': self.expressionset_ref,
-                            'workspace_name': self.getWsName(),
-                            'output_obj_name': 'test_cuffdiff_createdExprSet',
-                            'filtered_expression_matrix_name': 'test_output_expmatrix',
-                            'library_norm_method': 'classic-fpkm',
-                            'library_type': 'fr-unstranded'
-                           }
-        cuffdiff_retVal = self.getImpl().run_Cuffdiff(self.ctx, cuffdiff_params)[0]
+        narrarive_setapi_exprset_ref = '2409/348/1'
 
-        outputObj = self.dfu.get_objects(
-            {'object_refs': [cuffdiff_retVal.get('diffExprMatrixSet_ref')]})['data'][0]
+        self.cuffdiff_success(narrarive_setapi_exprset_ref,
+                              'narrative_setapi_exprset_cuffdiff_output')
 
-        print("============ DIFFERENTIAL EXPRESSION MATRIX SET OBJECT FROM CUFFDIFF ==============")
-        pprint(outputObj)
-        print("================================================================")
+    @unittest.skip("skipped test_cuffdiff_created_setapi_exprset_success")
+    def test_cuffdiff_created_setapi_exprset_success(self):
 
-    
-    def fail_cuffdiff(self, params, error, exception=ValueError, do_startswith=False):
+        self.prepare_data()
+        # upload expression_set object
+        params = {
+            "workspace_name": self.wsName,
+            "alignment_object_ref": self.alignment_rnaseq_set_ref,
+            "genome_ref": self.genome_ref,
+            "min-intron-length": 50,
+            "max-intron-length": 300000,
+            "overhang-tolerance": 8,
+            "num_threads": 2
+        }
+        cufflinks_retval = self.getImpl().run_cufflinks(self.ctx, params)[0]
+
+        self.cuffdiff_success(cufflinks_retval.get('expression_obj_ref'),
+                              'created_setapi_exprset_cuffdiff_output')
+
+    def cuffdiff_fail(self, params, error, exception=ValueError, do_startswith=False):
 
         test_name = inspect.stack()[1][3]
         print('\n*** starting expected cuffdiff fail test: ' + test_name + ' **********************')
@@ -388,23 +374,23 @@ class CuffdiffTest(unittest.TestCase):
             self.assertEqual(error, str(context.exception.message))
 
     def test_cuffdiff_fail_no_ws_name(self):
-        self.fail_cuffdiff(
+        self.cuffdiff_fail(
                         {
-                         'expressionset_ref': self.expressionset_ref,
+                         'expressionset_ref': '1/1/1',
                          'output_obj_name': 'test_createdExprSet'
                          },
             '"workspace_name" parameter is required, but missing')
 
     def test_cuffdiff_fail_no_obj_name(self):
-        self.fail_cuffdiff(
+        self.cuffdiff_fail(
                         {
                          'workspace_name': self.getWsName(),
-                         'expressionset_ref': self.expressionset_ref
+                         'expressionset_ref': '1/1/1'
                          },
             '"output_obj_name" parameter is required, but missing')
 
     def test_cuffdiff_fail_no_exprset_ref(self):
-        self.fail_cuffdiff(
+        self.cuffdiff_fail(
                         {
                          'workspace_name': self.getWsName(),
                          'output_obj_name': 'test_createdExprSet'
@@ -412,33 +398,34 @@ class CuffdiffTest(unittest.TestCase):
             '"expressionset_ref" parameter is required, but missing')
 
     def test_cuffdiff_fail_bad_wsname(self):
-        self.fail_cuffdiff(
+        self.cuffdiff_fail(
                         {
                          'workspace_name': '&bad',
-                         'expressionset_ref': self.expressionset_ref,
+                         'expressionset_ref': '1/1/1',
                          'output_obj_name': 'test_createdExprSet'
                          },
             'Illegal character in workspace name &bad: &')
 
     def test_cuffdiff_fail_non_existant_wsname(self):
-        self.fail_cuffdiff(
+        self.cuffdiff_fail(
                         {
                          'workspace_name': '1s',
-                         'expressionset_ref': self.expressionset_ref,
+                         'expressionset_ref': '1/1/1',
                          'output_obj_name': 'test_createdExprSet'
                          },
             'No workspace with name 1s exists')
 
     def test_cuffdiff_fail_non_expset_ref(self):
-        self.fail_cuffdiff(
+        self.cuffdiff_fail(
                         {
                          'workspace_name': self.getWsName(),
-                         'expressionset_ref': self.reads_ref_1,
+                         'expressionset_ref': self.genome_ref,
                          'output_obj_name': 'test_createdExprSet'
                          },
-            '"expressionset_ref" should be of type KBaseRNASeq.RNASeqExpressionSet',
-            exception=TypeError)
-    
+            'expressionset_ref should be of type KBaseRNASeq.RNASeqExpressionSet ' +
+            'or KBaseSets.ExpressionSet', exception=TypeError)
+
+
 
 
 
