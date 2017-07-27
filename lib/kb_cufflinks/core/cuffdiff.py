@@ -4,6 +4,7 @@ from pprint import pprint
 import zipfile
 import shutil
 import re
+import glob
 import multiprocessing as mp
 import handler_utils
 import script_utils
@@ -306,11 +307,16 @@ class CuffDiff:
             for d in align_dirs:
                 path, dir = os.path.split(d)
                 if c in dir:
-                    bfile = os.path.join(align_path, d + '/accepted_hits.bam')
-                    if os.path.exists(bfile):
-                        rep_files.append(bfile)
-                    else:
-                        raise ValueError('{} does not exist'.format(bfile))
+                    allbamfiles = glob.glob(dir+'/*.bam')
+                    bfile = None
+                    if len(allbamfiles) == 1:
+                        bfile = allbamfiles[0]
+                    elif len(allbamfiles) > 1:
+                        bfile = os.path.join(align_path, d + '/accepted_hits.bam')
+                        if os.path.exists(bfile):
+                            rep_files.append(bfile)
+                        else:
+                            raise ValueError('{} does not exist'.format(bfile))
             if len(rep_files) > 0:
                 bam_files.append(' ' + ','.join(bf for bf in rep_files))
 

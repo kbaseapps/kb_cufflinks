@@ -26,7 +26,7 @@ method-suggestions :
 parameters :
   expressionset_ref :
     ui-name : |
-      RNA-seq Expression Set
+      Expression Set
     short-hint : |
       Select the expression set associated with transcripts assembled by Cufflinks or Stringtie
   output_obj_name :
