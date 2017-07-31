@@ -102,7 +102,7 @@ class CuffDiff:
 
         output_directory = os.path.join(self.scratch, str(uuid.uuid4()))
         handler_utils._mkdir_p(output_directory)
-        result_file_path = os.path.join(output_directory, 'detailed_report.html')
+        result_file_path = os.path.join(output_directory, 'report.html')
 
         diff_expr_set = self.ws_client.get_objects2({'objects':
                                                        [{'ref':
@@ -144,7 +144,7 @@ class CuffDiff:
         overview_content += '</table>'
 
         with open(result_file_path, 'w') as result_file:
-            with open(os.path.join(os.path.dirname(__file__), 'report_template_detailed.html'),
+            with open(os.path.join(os.path.dirname(__file__), 'report_template.html'),
                       'r') as report_template_file:
                 report_template = report_template_file.read()
                 report_template = report_template.replace('<p>Overview_Content</p>',
