@@ -170,8 +170,8 @@ class CuffDiff:
         output_files = self._generate_output_file_list(result_directory)
 
         output_html_files = self._generate_html_report(result_directory,
-                                                                diff_expression_obj_ref,
-                                                                genome_ref)
+                                                        diff_expression_obj_ref,
+                                                        genome_ref)
         diff_expr_set_data = self.ws_client.get_objects2({'objects':
                                                         [{'ref':
                                                         diff_expression_obj_ref}]})['data'][0]['data']
@@ -431,7 +431,6 @@ class CuffDiff:
         self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
         self.eu = ExpressionUtils(self.callback_url, service_ver='dev')
         self.deu = DifferentialExpressionUtils(self.callback_url, service_ver='dev')
-        self.gsu = GenomeSearchUtil(self.callback_url)
         self.cuffmerge_runner = CuffMerge(config, logger)
         self.num_threads = mp.cpu_count()
         handler_utils._mkdir_p(self.scratch)
