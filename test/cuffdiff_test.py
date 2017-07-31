@@ -316,7 +316,7 @@ class CuffdiffTest(unittest.TestCase):
             self.check_files(output_dir, expected_dir)
 
     # Following test uses object refs from a narrative. Comment the next line to run the test
-    @unittest.skip("skipped test_cuffdiff_RNASeq_exprset_success")
+    #@unittest.skip("skipped test_cuffdiff_RNASeq_exprset_success")
     def test_cuffdiff_narrative_rnaseq_exprset_success(self):
         """
         Input object: downsized_AT_reads_tophat_AlignmentSet_cufflinks_ExpressionSet (4389/45/1)
@@ -325,6 +325,10 @@ class CuffdiffTest(unittest.TestCase):
         """
         narrative_rnaseq_exprset_ref = '4389/45/1'
         narrative_expected_obj_ref = '4389/58/1'
+        #narrative_rnaseq_exprset_ref = '6743/48/2'
+
+        appdev_three_by_two_diffexpr_matrixset_obj_ref = '5264/17/1'
+        appdev_three_by_two_diffexpr_matrixset_obj_name = 'three_by_two_diffexp_output'
 
         self.cuffdiff_success(narrative_rnaseq_exprset_ref,
                               'narrative_rnaseq_exprset_cuffdiff_output',
@@ -424,6 +428,7 @@ class CuffdiffTest(unittest.TestCase):
                          },
             'expressionset_ref should be of type KBaseRNASeq.RNASeqExpressionSet ' +
             'or KBaseSets.ExpressionSet', exception=TypeError)
+
 
 
 

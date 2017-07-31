@@ -2,7 +2,6 @@ import os
 import uuid
 from pprint import pprint
 import zipfile
-import shutil
 import re
 import glob
 import multiprocessing as mp
@@ -91,33 +90,61 @@ class CuffDiff:
 
         return output_files
 
-    def _generate_html_report(self, result_directory, diff_expression_obj_ref,
-                              params):
+    def _generate_html_report(self, result_directory,
+                                       diff_expression_obj_ref,
+                                       genome_ref):
         """
         _generate_html_report: generate html summary report
         """
-        self.logger.info('Start generating html report')
+
+        self.logger.info('start generating html report')
         html_report = list()
 
         output_directory = os.path.join(self.scratch, str(uuid.uuid4()))
         handler_utils._mkdir_p(output_directory)
-        result_file_path = os.path.join(output_directory, 'report.html')
+        result_file_path = os.path.join(output_directory, 'detailed_report.html')
 
-        shutil.copy2(os.path.join(result_directory, 'gene_exp.diff'),
-                     os.path.join(output_directory, 'gene_exp.diff'))
-        shutil.copy2(os.path.join(result_directory, 'isoform_exp.diff'),
-                     os.path.join(output_directory, 'isoform_exp.diff'))
-        shutil.copy2(os.path.join(result_directory, 'promoters.diff'),
-                     os.path.join(output_directory, 'promoters.diff'))
-        shutil.copy2(os.path.join(result_directory, 'splicing.diff'),
-                     os.path.join(output_directory, 'splicing.diff'))
+        diff_expr_set = self.ws_client.get_objects2({'objects':
+                                                       [{'ref':
+                                                             diff_expression_obj_ref}]})['data'][0]
+        diff_expr_set_data = diff_expr_set['data']
+        diff_expr_set_info = diff_expr_set['info']
+        diff_expr_set_name = diff_expr_set_info[1]
 
         overview_content = ''
-        overview_content += '<p>Generated Differential Expression Matrix Set Object:</p><p>{}</p>'.format(
-                                                    params.get(self.PARAM_IN_OBJ_NAME))
+        overview_content += '<br/><table><tr><th>Generated DifferentialExpressionMatrixSet'
+        overview_content += ' Object</th></tr>'
+        overview_content += '<tr><td>{} ({})'.format(diff_expr_set_name,
+                                                     diff_expression_obj_ref)
+        overview_content += '</td></tr></table>'
+
+        overview_content += '<p><br/></p>'
+
+        overview_content += '<br/><table><tr><th>Generated DifferentialExpressionMatrix'
+        overview_content += ' Object</th><th></th><th></th><th></th></tr>'
+        overview_content += '<tr><th>Differential Expression Matrix Name</th>'
+        overview_content += '<th>Condition 1</th>'
+        overview_content += '<th>Condition 2</th>'
+        overview_content += '</tr>'
+
+        for item in diff_expr_set_data['items']:
+            item_diffexprmatrix_object = self.ws_client.get_objects2({'objects':
+                                                               [{'ref': item['ref']}]})['data'][0]
+            item_diffexprmatrix_info = item_diffexprmatrix_object['info']
+            item_diffexprmatrix_data = item_diffexprmatrix_object['data']
+            diffexprmatrix_name = item_diffexprmatrix_info[1]
+
+            overview_content += '<tr><td>{} ({})</td>'.format(diffexprmatrix_name,
+                                                              item['ref'])
+            overview_content += '<td>{}</td>'.format(item_diffexprmatrix_data.
+                                                     get('condition_mapping').keys()[0])
+            overview_content += '<td>{}</td>'.format(item_diffexprmatrix_data.
+                                                     get('condition_mapping').values()[0])
+            overview_content += '</tr>'
+        overview_content += '</table>'
 
         with open(result_file_path, 'w') as result_file:
-            with open(os.path.join(os.path.dirname(__file__), 'report_template.html'),
+            with open(os.path.join(os.path.dirname(__file__), 'report_template_detailed.html'),
                       'r') as report_template_file:
                 report_template = report_template_file.read()
                 report_template = report_template.replace('<p>Overview_Content</p>',
@@ -133,7 +160,7 @@ class CuffDiff:
                             'description': 'HTML summary report for Cuffdiff App'})
         return html_report
 
-    def _generate_report(self, diff_expression_obj_ref,
+    def _generate_report(self, diff_expression_obj_ref, genome_ref,
                          params, result_directory):
         """
         _generate_report: generate summary report
@@ -143,12 +170,24 @@ class CuffDiff:
         output_files = self._generate_output_file_list(result_directory)
 
         output_html_files = self._generate_html_report(result_directory,
-                                                       diff_expression_obj_ref,
-                                                       params)
+                                                                diff_expression_obj_ref,
+                                                                genome_ref)
+        diff_expr_set_data = self.ws_client.get_objects2({'objects':
+                                                        [{'ref':
+                                                        diff_expression_obj_ref}]})['data'][0]['data']
+
+        objects_created = [{'ref': diff_expression_obj_ref,
+                            'description': 'Differential Expression Matrix Set generated by Cuffdiff'}]
+
+        items = diff_expr_set_data['items']
+        for item in items:
+            objects_created.append({'ref': item['ref'],
+                                    'description': 'Differential Expression Matrix generated by Cuffdiff'})
         report_params = {
                          'message': '',
                          'workspace_name': params.get('workspace_name'),
                          'file_links': output_files,
+                         'objects_created': objects_created,
                          'html_links': output_html_files,
                          'direct_html_link_index': 0,
                          'html_window_height': 333,
@@ -178,7 +217,6 @@ class CuffDiff:
         """
         output_data['gtf_file_path'] = self._get_genome_gtf_file(output_data['genome_id'],
                                                                  self.scratch)
-
         condition = []
         bam_files = []
 
@@ -393,6 +431,7 @@ class CuffDiff:
         self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
         self.eu = ExpressionUtils(self.callback_url, service_ver='dev')
         self.deu = DifferentialExpressionUtils(self.callback_url, service_ver='dev')
+        self.gsu = GenomeSearchUtil(self.callback_url)
         self.cuffmerge_runner = CuffMerge(config, logger)
         self.num_threads = mp.cpu_count()
         handler_utils._mkdir_p(self.scratch)
@@ -401,6 +440,7 @@ class CuffDiff:
         """
         Check input parameters
         """
+
         self._process_params(params)
 
         expressionset_ref = params.get('expressionset_ref')
@@ -472,6 +512,7 @@ class CuffDiff:
                      }
 
         report_output = self._generate_report(dems_ref,
+                                              expressionset_data['genome_id'],
                                               params,
                                               cuffdiff_dir)
         returnVal.update(report_output)
