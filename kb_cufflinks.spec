@@ -23,6 +23,8 @@ module kb_cufflinks {
 	typedef structure{
 		string workspace_name;
 		string alignment_object_ref;
+		string expression_set_suffix;
+		string expression_suffix;
 		string genome_ref;
 		int num_threads;
 		/*string library-type; */

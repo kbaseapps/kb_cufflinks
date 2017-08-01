@@ -66,8 +66,8 @@ class CufflinksTest(unittest.TestCase):
         cls.cufflinks_runner = CufflinksUtils(cls.cfg)
 
         # cls.wsName = 'cufflinks_test_' + user_id  # reuse existing workspace
-        suffix = int(time.time() * 1000)
-#       suffix = 1009
+#        suffix = int(time.time() * 1000)
+        suffix = 1009
         cls.wsName = "test_kb_cufflinks_" + str(suffix)
         print('workspace_name: ' + cls.wsName)
 
@@ -90,7 +90,7 @@ class CufflinksTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         if hasattr(cls, 'wsName'):
-            cls.wsClient.delete_workspace({'workspace': cls.wsName})
+            #cls.wsClient.delete_workspace({'workspace': cls.wsName})
             print('Test workspace was deleted')
 
     @classmethod
@@ -249,6 +249,8 @@ class CufflinksTest(unittest.TestCase):
     def test_cufflinks_app_alignment(self):
         params = {
             "workspace_name": self.getWsName(),
+            "expression_set_suffix": "_expression_set",
+            "expression_suffix": "_expression",
             "alignment_object_ref": self.alignment_ref_1,
             "genome_ref": self.__class__.genome_ref,
             "min-intron-length": 50,
@@ -270,12 +272,14 @@ class CufflinksTest(unittest.TestCase):
             'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('condition'), self.condition_1)
-        self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_1')
-    
+        self.assertEqual(expression_data.get('id'), 'test_Alignment_1_expression')
+
 
     def test_cufflinks_app_rnaseq_alignment_set(self):
         params = {
             "workspace_name": self.getWsName(),
+            "expression_set_suffix": "_expression_set",
+            "expression_suffix": "_expression",
             "alignment_object_ref": self.alignment_rnaseq_set_ref,
             "genome_ref": self.__class__.genome_ref,
             "min-intron-length": 50,
@@ -289,7 +293,7 @@ class CufflinksTest(unittest.TestCase):
         self.assertTrue('result_directory' in result)
         result_files = os.listdir(result['result_directory'])
         print 'result files: ' + str(result_files)
-        expect_result_files = ['test_cufflinks_expression_1', 'test_cufflinks_expression_2']
+        expect_result_files = ['test_Alignment_1_expression', 'test_Alignment_2_expression']
         self.assertTrue(all(x in result_files for x in expect_result_files))
         self.assertTrue('expression_obj_ref' in result)
         self.assertTrue('report_name' in result)
@@ -298,11 +302,13 @@ class CufflinksTest(unittest.TestCase):
             'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('sampleset_id'), self.sample_set_ref)
-        self.assertEqual(expression_data.get('id'), 'test_cufflinks_expression_set')
+        self.assertEqual(expression_data.get('id'), 'test_expression_set')
 
     def test_cufflinks_app_kbasesets_alignment_set(self):
         params = {
             "workspace_name": self.getWsName(),
+            "expression_set_suffix": "_expression_set",
+            "expression_suffix": "_expression",
             "alignment_object_ref": self.alignment_kbasesets_set_ref,
             #"alignment_object_ref": '24097/9/4',
             "genome_ref": self.__class__.genome_ref,
@@ -322,7 +328,7 @@ class CufflinksTest(unittest.TestCase):
         self.assertTrue('result_directory' in result)
         result_files = os.listdir(result['result_directory'])
         print 'result files: ' + str(result_files)
-        expect_result_files = ['test_Alignment_1', 'test_Alignment_2']
+        expect_result_files = ['test_Alignment_1_expression', 'test_Alignment_2_expression']
         self.assertTrue(all(x in result_files for x in expect_result_files))
         self.assertTrue('expression_obj_ref' in result)
         self.assertTrue('report_name' in result)
@@ -335,5 +341,40 @@ class CufflinksTest(unittest.TestCase):
         self.assertTrue(expression_data.get('items')[0]['label'].startswith('test_condition_'))
         self.assertTrue(expression_data.get('items')[1]['label'].startswith('test_condition_'))
 
+    def test_cufflinks_app_kbasesets_alignment_set_with_genome_name_ref(self):
+        params = {
+            "workspace_name": self.getWsName(),
+            "alignment_object_ref": self.alignment_kbasesets_set_ref,
+            #"alignment_object_ref": '24097/9/4',
+            "expression_set_suffix": "_expression_set",
+            "expression_suffix": "_expression",
+            "genome_ref": 'at_chrom1_section',
+            # "genome_ref": '24097/2/2',
+            "min-intron-length": 50,
+            "max-intron-length": 300000,
+            "overhang-tolerance": 8,
+            "num_threads": 2
+        }
 
+        result = self.getImpl().run_cufflinks(self.ctx, params)[0]
 
+        from pprint import pprint
+        print 'result: '
+        pprint(result)
+
+        self.assertTrue('result_directory' in result)
+        result_files = os.listdir(result['result_directory'])
+        print 'result files: ' + str(result_files)
+        expect_result_files = ['test_Alignment_1_expression', 'test_Alignment_2_expression']
+        self.assertTrue(all(x in result_files for x in expect_result_files))
+        self.assertTrue('expression_obj_ref' in result)
+        self.assertTrue('report_name' in result)
+        self.assertTrue('report_ref' in result)
+        expression_data = self.getWsClient().get_objects([{'objid': int(result.get(
+            'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0][
+            'data']
+
+        pprint(expression_data.get('items')[0]['label'])
+        pprint(expression_data.get('items')[1]['label'])
+        self.assertTrue(expression_data.get('items')[0]['label'].startswith('test_condition_'))
+        self.assertTrue(expression_data.get('items')[1]['label'].startswith('test_condition_'))
