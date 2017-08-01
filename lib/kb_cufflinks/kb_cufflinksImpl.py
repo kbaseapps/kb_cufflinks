@@ -31,7 +31,7 @@ class kb_cufflinks:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "git@github.com:arfathpasha/kb_cufflinks.git"
-    GIT_COMMIT_HASH = "a3f1137ea97cb43e847760dad8386ad92a707c64"
+    GIT_COMMIT_HASH = "6a3d9599156578d656710b74f3abe59b90cf8b05"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
