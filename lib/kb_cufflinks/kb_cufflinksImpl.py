@@ -30,8 +30,8 @@ class kb_cufflinks:
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.1"
-    GIT_URL = "https://github.com/kbaseapps/kb_cufflinks.git"
-    GIT_COMMIT_HASH = "f3496194d465131a7e05a81dd48b315f4b20cf2d"
+    GIT_URL = "git@github.com:arfathpasha/kb_cufflinks.git"
+    GIT_COMMIT_HASH = "a3f1137ea97cb43e847760dad8386ad92a707c64"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -80,10 +80,12 @@ class kb_cufflinks:
         """
         :param params: instance of type "CufflinksParams" -> structure:
            parameter "workspace_name" of String, parameter
-           "alignment_object_ref" of String, parameter "genome_ref" of
-           String, parameter "num_threads" of Long, parameter
-           "min-intron-length" of Long, parameter "max-intron-length" of
-           Long, parameter "overhang-tolerance" of Long
+           "alignment_object_ref" of String, parameter
+           "expression_set_suffix" of String, parameter "expression_suffix"
+           of String, parameter "genome_ref" of String, parameter
+           "num_threads" of Long, parameter "min_intron_length" of Long,
+           parameter "max_intron_length" of Long, parameter
+           "overhang_tolerance" of Long
         :returns: instance of type "CufflinksResult" -> structure: parameter
            "result_directory" of String, parameter "expression_obj_ref" of
            type "obj_ref" (An X/Y/Z style reference), parameter "report_name"

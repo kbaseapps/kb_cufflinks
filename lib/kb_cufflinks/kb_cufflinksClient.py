@@ -52,10 +52,12 @@ class kb_cufflinks(object):
         """
         :param params: instance of type "CufflinksParams" -> structure:
            parameter "workspace_name" of String, parameter
-           "alignment_object_ref" of String, parameter "genome_ref" of
-           String, parameter "num_threads" of Long, parameter
-           "min-intron-length" of Long, parameter "max-intron-length" of
-           Long, parameter "overhang-tolerance" of Long
+           "alignment_object_ref" of String, parameter
+           "expression_set_suffix" of String, parameter "expression_suffix"
+           of String, parameter "genome_ref" of String, parameter
+           "num_threads" of Long, parameter "min_intron_length" of Long,
+           parameter "max_intron_length" of Long, parameter
+           "overhang_tolerance" of Long
         :returns: instance of type "CufflinksResult" -> structure: parameter
            "result_directory" of String, parameter "expression_obj_ref" of
            type "obj_ref" (An X/Y/Z style reference), parameter "report_name"
