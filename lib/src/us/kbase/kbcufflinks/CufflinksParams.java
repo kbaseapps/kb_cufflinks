@@ -21,11 +21,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "workspace_name",
     "alignment_object_ref",
+    "expression_set_suffix",
+    "expression_suffix",
     "genome_ref",
     "num_threads",
-    "min-intron-length",
-    "max-intron-length",
-    "overhang-tolerance"
+    "min_intron_length",
+    "max_intron_length",
+    "overhang_tolerance"
 })
 public class CufflinksParams {
 
@@ -33,15 +35,19 @@ public class CufflinksParams {
     private String workspaceName;
     @JsonProperty("alignment_object_ref")
     private String alignmentObjectRef;
+    @JsonProperty("expression_set_suffix")
+    private String expressionSetSuffix;
+    @JsonProperty("expression_suffix")
+    private String expressionSuffix;
     @JsonProperty("genome_ref")
     private String genomeRef;
     @JsonProperty("num_threads")
     private Long numThreads;
-    @JsonProperty("min-intron-length")
+    @JsonProperty("min_intron_length")
     private Long minIntronLength;
-    @JsonProperty("max-intron-length")
+    @JsonProperty("max_intron_length")
     private Long maxIntronLength;
-    @JsonProperty("overhang-tolerance")
+    @JsonProperty("overhang_tolerance")
     private Long overhangTolerance;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -75,6 +81,36 @@ public class CufflinksParams {
         return this;
     }
 
+    @JsonProperty("expression_set_suffix")
+    public String getExpressionSetSuffix() {
+        return expressionSetSuffix;
+    }
+
+    @JsonProperty("expression_set_suffix")
+    public void setExpressionSetSuffix(String expressionSetSuffix) {
+        this.expressionSetSuffix = expressionSetSuffix;
+    }
+
+    public CufflinksParams withExpressionSetSuffix(String expressionSetSuffix) {
+        this.expressionSetSuffix = expressionSetSuffix;
+        return this;
+    }
+
+    @JsonProperty("expression_suffix")
+    public String getExpressionSuffix() {
+        return expressionSuffix;
+    }
+
+    @JsonProperty("expression_suffix")
+    public void setExpressionSuffix(String expressionSuffix) {
+        this.expressionSuffix = expressionSuffix;
+    }
+
+    public CufflinksParams withExpressionSuffix(String expressionSuffix) {
+        this.expressionSuffix = expressionSuffix;
+        return this;
+    }
+
     @JsonProperty("genome_ref")
     public String getGenomeRef() {
         return genomeRef;
@@ -105,12 +141,12 @@ public class CufflinksParams {
         return this;
     }
 
-    @JsonProperty("min-intron-length")
+    @JsonProperty("min_intron_length")
     public Long getMinIntronLength() {
         return minIntronLength;
     }
 
-    @JsonProperty("min-intron-length")
+    @JsonProperty("min_intron_length")
     public void setMinIntronLength(Long minIntronLength) {
         this.minIntronLength = minIntronLength;
     }
@@ -120,12 +156,12 @@ public class CufflinksParams {
         return this;
     }
 
-    @JsonProperty("max-intron-length")
+    @JsonProperty("max_intron_length")
     public Long getMaxIntronLength() {
         return maxIntronLength;
     }
 
-    @JsonProperty("max-intron-length")
+    @JsonProperty("max_intron_length")
     public void setMaxIntronLength(Long maxIntronLength) {
         this.maxIntronLength = maxIntronLength;
     }
@@ -135,12 +171,12 @@ public class CufflinksParams {
         return this;
     }
 
-    @JsonProperty("overhang-tolerance")
+    @JsonProperty("overhang_tolerance")
     public Long getOverhangTolerance() {
         return overhangTolerance;
     }
 
-    @JsonProperty("overhang-tolerance")
+    @JsonProperty("overhang_tolerance")
     public void setOverhangTolerance(Long overhangTolerance) {
         this.overhangTolerance = overhangTolerance;
     }
@@ -162,7 +198,7 @@ public class CufflinksParams {
 
     @Override
     public String toString() {
-        return ((((((((((((((((("CufflinksParams"+" [workspaceName=")+ workspaceName)+", alignmentObjectRef=")+ alignmentObjectRef)+", genomeRef=")+ genomeRef)+", numThreads=")+ numThreads)+", minIntronLength=")+ minIntronLength)+", maxIntronLength=")+ maxIntronLength)+", overhangTolerance=")+ overhangTolerance)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((("CufflinksParams"+" [workspaceName=")+ workspaceName)+", alignmentObjectRef=")+ alignmentObjectRef)+", expressionSetSuffix=")+ expressionSetSuffix)+", expressionSuffix=")+ expressionSuffix)+", genomeRef=")+ genomeRef)+", numThreads=")+ numThreads)+", minIntronLength=")+ minIntronLength)+", maxIntronLength=")+ maxIntronLength)+", overhangTolerance=")+ overhangTolerance)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

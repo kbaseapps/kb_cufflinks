@@ -180,11 +180,13 @@ $return is a kb_cufflinks.CufflinksResult
 CufflinksParams is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a string
 	alignment_object_ref has a value which is a string
+	expression_set_suffix has a value which is a string
+	expression_suffix has a value which is a string
 	genome_ref has a value which is a string
 	num_threads has a value which is an int
-	min-intron-length has a value which is an int
-	max-intron-length has a value which is an int
-	overhang-tolerance has a value which is an int
+	min_intron_length has a value which is an int
+	max_intron_length has a value which is an int
+	overhang_tolerance has a value which is an int
 CufflinksResult is a reference to a hash where the following keys are defined:
 	result_directory has a value which is a string
 	expression_obj_ref has a value which is a kb_cufflinks.obj_ref
@@ -203,11 +205,13 @@ $return is a kb_cufflinks.CufflinksResult
 CufflinksParams is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a string
 	alignment_object_ref has a value which is a string
+	expression_set_suffix has a value which is a string
+	expression_suffix has a value which is a string
 	genome_ref has a value which is a string
 	num_threads has a value which is an int
-	min-intron-length has a value which is an int
-	max-intron-length has a value which is an int
-	overhang-tolerance has a value which is an int
+	min_intron_length has a value which is an int
+	max_intron_length has a value which is an int
+	overhang_tolerance has a value which is an int
 CufflinksResult is a reference to a hash where the following keys are defined:
 	result_directory has a value which is a string
 	expression_obj_ref has a value which is a kb_cufflinks.obj_ref
@@ -603,11 +607,13 @@ report_ref has a value which is a string
 a reference to a hash where the following keys are defined:
 workspace_name has a value which is a string
 alignment_object_ref has a value which is a string
+expression_set_suffix has a value which is a string
+expression_suffix has a value which is a string
 genome_ref has a value which is a string
 num_threads has a value which is an int
-min-intron-length has a value which is an int
-max-intron-length has a value which is an int
-overhang-tolerance has a value which is an int
+min_intron_length has a value which is an int
+max_intron_length has a value which is an int
+overhang_tolerance has a value which is an int
 
 </pre>
 
@@ -618,11 +624,13 @@ overhang-tolerance has a value which is an int
 a reference to a hash where the following keys are defined:
 workspace_name has a value which is a string
 alignment_object_ref has a value which is a string
+expression_set_suffix has a value which is a string
+expression_suffix has a value which is a string
 genome_ref has a value which is a string
 num_threads has a value which is an int
-min-intron-length has a value which is an int
-max-intron-length has a value which is an int
-overhang-tolerance has a value which is an int
+min_intron_length has a value which is an int
+max_intron_length has a value which is an int
+overhang_tolerance has a value which is an int
 
 
 =end text

@@ -253,9 +253,9 @@ class CufflinksTest(unittest.TestCase):
             "expression_suffix": "_expression",
             "alignment_object_ref": self.alignment_ref_1,
             "genome_ref": self.__class__.genome_ref,
-            "min-intron-length": 50,
-            "max-intron-length": 300000,
-            "overhang-tolerance": 8,
+            "min_intron_length": 50,
+            "max_intron_length": 300000,
+            "overhang_tolerance": 8,
             "num_threads": 1
         }
 
@@ -282,9 +282,9 @@ class CufflinksTest(unittest.TestCase):
             "expression_suffix": "_expression",
             "alignment_object_ref": self.alignment_rnaseq_set_ref,
             "genome_ref": self.__class__.genome_ref,
-            "min-intron-length": 50,
-            "max-intron-length": 300000,
-            "overhang-tolerance": 8,
+            "min_intron_length": 50,
+            "max_intron_length": 300000,
+            "overhang_tolerance": 8,
             "num_threads": 2
         }
 
@@ -313,9 +313,9 @@ class CufflinksTest(unittest.TestCase):
             #"alignment_object_ref": '24097/9/4',
             "genome_ref": self.__class__.genome_ref,
             #"genome_ref": '24097/2/2',
-            "min-intron-length": 50,
-            "max-intron-length": 300000,
-            "overhang-tolerance": 8,
+            "min_intron_length": 50,
+            "max_intron_length": 300000,
+            "overhang_tolerance": 8,
             "num_threads": 2
         }
 
@@ -350,9 +350,9 @@ class CufflinksTest(unittest.TestCase):
             "expression_suffix": "_expression",
             "genome_ref": 'at_chrom1_section',
             # "genome_ref": '24097/2/2',
-            "min-intron-length": 50,
-            "max-intron-length": 300000,
-            "overhang-tolerance": 8,
+            "min_intron_length": 50,
+            "max_intron_length": 300000,
+            "overhang_tolerance": 8,
             "num_threads": 2
         }
 

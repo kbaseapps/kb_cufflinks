@@ -879,7 +879,6 @@ class CufflinksUtils:
         """
         expression_set_suffix = params['expression_set_suffix']
         expression_suffix = params['expression_suffix']
-        print('>>>>>>>>>>>>>>>>>type: '+alignment_object_type)
 
         if re.match('^KBaseRNASeq.RNASeqAlignment-\d*', alignment_object_type):
             if re.match('.*_[Aa]lignment$', alignment_object_name):

@@ -29,9 +29,9 @@ module kb_cufflinks {
 		int num_threads;
 		/*string library-type; */
 		/*string library-norm-method; */
-		int min-intron-length;
-		int max-intron-length;
-		int overhang-tolerance;
+		int min_intron_length;
+		int max_intron_length;
+		int overhang_tolerance;
 	} CufflinksParams;
 
     async funcdef run_cufflinks(CufflinksParams params)
