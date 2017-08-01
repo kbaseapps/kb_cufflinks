@@ -1,0 +1,10 @@
+[run]
+include =
+    lib/kb_cufflinks/*
+    /kb/module/lib/kb_cufflinks/*
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover

@@ -1,3 +1,8 @@
+Build status:<br>
+master: [![Coverage Status](https://coveralls.io/repos/github/arfathpasha/kb_cufflinks/badge.svg?branch=master)](https://coveralls.io/github/arfathpasha/kb_cufflinks?branch=master)<br>
+master:  [![Build Status](https://travis-ci.org/arfathpasha/kb_cufflinks.svg?branch=master)](https://travis-ci.org/arfathpasha/kb_cufflinks)<br>
+develop: [![Build Status](https://travis-ci.org/arfathpasha/kb_cufflinks.svg?branch=develop)](https://master-ci.org/arfathpasha/kb_cufflinks)
+
 # kb_cufflinks
 ---
 
