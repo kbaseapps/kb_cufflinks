@@ -866,7 +866,7 @@ class CufflinksUtils:
         return returnVal
 
 
-    def _generate_output_object_name(self, params, alignment_object_type, alignment_object_name, alignment_object_data):
+    def _generate_output_object_name(self, params, alignment_object_type, alignment_object_name):
         """
         Generates the output object name based on input object type and name and stores it in 
         params with key equal to 'expression' or 'expression_set' based on whether the input
@@ -917,11 +917,9 @@ class CufflinksUtils:
 
         alignment_object_type = alignment_object_info[2]
         alignment_object_name = alignment_object_info[1]
-        alignment_object_data = self.ws.get_objects2({
-            "objects": [{"ref": alignment_object_ref}]})['data']
 
         # get output object name
-        self._generate_output_object_name(params, alignment_object_type, alignment_object_name, alignment_object_data)
+        self._generate_output_object_name(params, alignment_object_type, alignment_object_name)
 
         log('--->\nalignment object type: \n' +
             '{}'.format(alignment_object_type))

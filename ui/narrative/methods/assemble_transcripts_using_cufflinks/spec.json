@@ -110,7 +110,15 @@
         {
           "input_parameter" : "overhang_tolerance",
           "target_property" : "overhang_tolerance"
-      }],
+        },
+        {
+          "input_parameter" : "expression_set_suffix",
+          "target_property" : "expression_set_suffix"
+        },
+        {
+          "input_parameter" : "expression_suffix",
+          "target_property" : "expression_suffix"
+        }],
       "output_mapping" : [
         {
          "service_method_output_path": [0,"output"],
