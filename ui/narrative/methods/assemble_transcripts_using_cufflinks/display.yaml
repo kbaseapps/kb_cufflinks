@@ -49,6 +49,16 @@ parameters :
       Overhang Tolerance
     short-hint : |
       The number of terminal exon base pairs allowed in a transcript intron. The default is 8bp.
+  expression_suffix :
+    ui-name : |
+      Expression Suffix
+    short-hint : |
+      Provide a suffix for the expression output object names
+  expression_set_suffix :
+    ui-name : |
+      Expression Set Suffix
+    short-hint : |
+      Provide a suffix for the expression set output object name
 
 description : |
     <p>This App assembles transcripts for a given sample or a sample set using Cufflinks so that you can view the relative abundances of the assembled transcripts in a histogram, obtained as output from Cufflinks. </p>

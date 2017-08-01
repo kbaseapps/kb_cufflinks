@@ -59,7 +59,23 @@
     "text_options" : {
       "validate_as": "int"
     }
-  } ],
+  }, {
+    "id" : "expression_suffix",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "_expression" ],
+    "field_type" : "text",
+    "text_options" : {}
+  }, {
+    "id" : "expression_set_suffix",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "_expression_set" ],
+    "field_type" : "text",
+    "text_options" : {}
+  }],
   "behavior" : {
     "service-mapping" : {
       "url" : "",
