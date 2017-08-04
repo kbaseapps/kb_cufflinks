@@ -316,7 +316,7 @@ class CuffdiffTest(unittest.TestCase):
             self.check_files(output_dir, expected_dir)
 
     # Following test uses object refs from a narrative. Comment the next line to run the test
-    #@unittest.skip("skipped test_cuffdiff_RNASeq_exprset_success")
+    @unittest.skip("skipped test_cuffdiff_RNASeq_exprset_success")
     def test_cuffdiff_narrative_rnaseq_exprset_success(self):
         """
         Input object: downsized_AT_reads_tophat_AlignmentSet_cufflinks_ExpressionSet (4389/45/1)
