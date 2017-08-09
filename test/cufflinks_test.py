@@ -303,6 +303,8 @@ class CufflinksTest(unittest.TestCase):
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('sampleset_id'), self.sample_set_ref)
         self.assertEqual(expression_data.get('id'), 'test_expression_set')
+        self.assertTrue('exprMatrix_FPKM_ref' in result)
+        self.assertTrue('exprMatrix_TPM_ref' in result)
 
     def test_cufflinks_app_kbasesets_alignment_set(self):
         params = {
@@ -340,6 +342,8 @@ class CufflinksTest(unittest.TestCase):
         pprint(expression_data.get('items')[1]['label'])
         self.assertTrue(expression_data.get('items')[0]['label'].startswith('test_condition_'))
         self.assertTrue(expression_data.get('items')[1]['label'].startswith('test_condition_'))
+        self.assertTrue('exprMatrix_FPKM_ref' in result)
+        self.assertTrue('exprMatrix_TPM_ref' in result)
 
     def test_cufflinks_app_kbasesets_alignment_set_with_genome_name_ref(self):
         params = {
@@ -378,3 +382,5 @@ class CufflinksTest(unittest.TestCase):
         pprint(expression_data.get('items')[1]['label'])
         self.assertTrue(expression_data.get('items')[0]['label'].startswith('test_condition_'))
         self.assertTrue(expression_data.get('items')[1]['label'].startswith('test_condition_'))
+        self.assertTrue('exprMatrix_FPKM_ref' in result)
+        self.assertTrue('exprMatrix_TPM_ref' in result)
