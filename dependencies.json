@@ -13,7 +13,7 @@
 }, {
   "module_name" : "ExpressionUtils",
   "type" : "sdk",
-  "version_tag" : "release"
+  "version_tag" : "dev"
 }, {
   "module_name" : "GenomeFileUtil",
   "type" : "sdk",
