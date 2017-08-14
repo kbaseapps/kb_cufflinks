@@ -46,12 +46,12 @@ class CufflinksUtils:
         self.callback_url = config['SDK_CALLBACK_URL']
         self.token = config['KB_AUTH_TOKEN']
         self.shock_url = config['shock-url']
-        self.dfu = DataFileUtil(self.callback_url, service_ver='dev')
+        self.dfu = DataFileUtil(self.callback_url, service_ver='beta')
         self.gfu = GenomeFileUtil(self.callback_url)
         self.au = AssemblyUtil(self.callback_url)
-        self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='dev')
+        self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='beta')
         self.set_api = SetAPI(self.callback_url)
-        self.eu = ExpressionUtils(self.callback_url, service_ver='dev')
+        self.eu = ExpressionUtils(self.callback_url, service_ver='beta')
         self.ws = Workspace(self.ws_url, token=self.token)
 
         self.scratch = os.path.join(config['scratch'], str(uuid.uuid4()))
@@ -946,7 +946,7 @@ class CufflinksUtils:
 
         #dummy call to dfu to cache the beta version of callback server
         ws_id = self.dfu.ws_name_to_id(params['workspace_name'])
-        print('>>>>>>>>>>>>>>>>>>ws_id: '+str(ws_id))
+        print('ws_id: '+str(ws_id))
 
         self._validate_run_cufflinks_params(params)
 
