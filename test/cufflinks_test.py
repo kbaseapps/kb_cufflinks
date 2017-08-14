@@ -81,10 +81,10 @@ class CufflinksTest(unittest.TestCase):
         cls.dfu = DataFileUtil(cls.callback_url)
         # dummy call to dfu to cache the beta version of callback server
         ws_id = cls.dfu.ws_name_to_id(cls.wsName)
-        print('>>>>>>>>>>>>>>>>>>test ws_id: ' + str(ws_id))
+        print('test ws_id: ' + str(ws_id))
         cls.gfu = GenomeFileUtil(cls.callback_url)
         cls.ru = ReadsUtils(cls.callback_url)
-        cls.rau = ReadsAlignmentUtils(cls.callback_url, service_ver='dev')
+        cls.rau = ReadsAlignmentUtils(cls.callback_url, service_ver='beta')
         cls.set_api = SetAPI(cls.callback_url)
 
         cls.cufflinks_runner = CufflinksUtils(cls.cfg)
