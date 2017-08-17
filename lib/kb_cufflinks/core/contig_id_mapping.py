@@ -113,8 +113,9 @@ def replace_gff_contig_ids(gff_filename=None, mapping_filename=None, to_modified
                 temp_gff.write(line)
             else:
                 contig_id = line.split()[0]
-                modified_line = line.replace(contig_id, contig_id_mapping[contig_id])
-                temp_gff.write(modified_line)
+                #modified_line = line.replace(contig_id, contig_id_mapping[contig_id])
+                #temp_gff.write(modified_line)
+                temp_gff.write(line)
                 
             line = gff_data.readline()
     
