@@ -8,11 +8,8 @@ import sys
 from core import script_utils
 from core.cuffdiff import CuffDiff
 
-
-
 from kb_cufflinks.core.cufflinks_utils import CufflinksUtils
 #END_HEADER
-
 
 class kb_cufflinks:
     '''
@@ -74,7 +71,6 @@ class kb_cufflinks:
         self.cuffdiff_runner = CuffDiff(config, self.__SERVICES, self.__LOGGER)
         #END_CONSTRUCTOR
         pass
-
 
     def run_cufflinks(self, ctx, params):
         """

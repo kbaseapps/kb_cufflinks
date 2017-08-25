@@ -8,6 +8,7 @@ import multiprocessing as mp
 import handler_utils
 import script_utils
 from cuffmerge import CuffMerge
+from cuffdiff_output import process_cuffdiff_file
 
 from Workspace.WorkspaceClient import Workspace as Workspace
 from DataFileUtil.DataFileUtilClient import DataFileUtil
@@ -497,6 +498,8 @@ class CuffDiff:
         """
         Upload differential expression data
         """
+
+        '''
         diffexpr_params = { 'destination_ref': params.get(self.PARAM_IN_WS_NAME) + '/' +
                                                params.get(self.PARAM_IN_OBJ_NAME),
                             'genome_ref': expressionset_data['genome_id'],
@@ -505,6 +508,23 @@ class CuffDiff:
                             'diffexpr_filepath': os.path.join(cuffdiff_dir, 'gene_exp.diff')
                           }
         dems_ref = self.deu.upload_differentialExpression(diffexpr_params).get('diffExprMatrixSet_ref')
+        '''
+
+        """
+        Save differential expression data with files for all condition pairs
+        """
+        de_data = process_cuffdiff_file(os.path.join(cuffdiff_dir, 'gene_exp.diff'),
+                                        self.scratch)
+
+        diffexpr_params = {'destination_ref': params.get(self.PARAM_IN_WS_NAME) + '/' +
+                                              params.get(self.PARAM_IN_OBJ_NAME),
+                           'genome_ref': expressionset_data['genome_id'],
+                           'tool_used': 'cuffdiff',
+                           'tool_version': os.environ['VERSION'],
+                           'diffexpr_data': de_data
+                           }
+
+        dems_ref = self.deu.save_differential_expression_matrix_set(diffexpr_params).get('diffExprMatrixSet_ref')
 
         returnVal = {'diffExprMatrixSet_ref': dems_ref,
                      'destination_dir': cuffdiff_dir
