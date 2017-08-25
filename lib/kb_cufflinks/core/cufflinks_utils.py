@@ -301,6 +301,7 @@ class CufflinksUtils:
         expression_obj_ref = self._save_rnaseq_expression(result_directory,
                                                    alignment_ref,
                                                    params.get('workspace_name'),
+                                                   params.get('genome_ref'),
                                                    params['gtf_file'],
                                                    params['expression_suffix'])
 
@@ -410,34 +411,32 @@ class CufflinksUtils:
                             'description': 'HTML summary report for Cufflinks App'})
         return html_report
 
-    def _save_rnaseq_expression(self, result_directory, alignment_ref, workspace_name, gtf_file, expression_suffix):
+    def _save_rnaseq_expression(self, result_directory, alignment_ref, workspace_name, genome_ref, gtf_file, expression_suffix):
         """
         _save_rnaseq_expression: save Expression object to workspace
         """
         log('start saving Expression object')
-        if isinstance(workspace_name, int) or workspace_name.isdigit():
-            workspace_id = workspace_name
-        else:
-            workspace_id = self.dfu.ws_name_to_id(workspace_name)
+        alignment_object_name = self.ws.get_object_info([{"ref": alignment_ref}],
+                                                        includeMetadata=None)[0][1]
 
-        expression_data = self._generate_expression_data(result_directory,
-                                                         alignment_ref,
-                                                         gtf_file,
-                                                         workspace_name,
-                                                         expression_suffix)
+        # set expression name
+        if re.match('.*_[Aa]lignment$', alignment_object_name):
+            expression_name = re.sub('_[Aa]lignment$',
+                                     expression_suffix,
+                                     alignment_object_name)
+        else:  # assume user specified suffix
+            expression_name = alignment_object_name + expression_suffix
 
-        object_type = 'KBaseRNASeq.RNASeqExpression'
-        save_object_params = {
-            'id': workspace_id,
-            'objects': [{
-                'type': object_type,
-                'data': expression_data,
-                'name': expression_data.get('id')
-            }]
-        }
+        gff_annotation_obj_ref = self._save_gff_annotation(genome_ref, gtf_file, workspace_name)
 
-        dfu_oi = self.dfu.save_objects(save_object_params)[0]
-        expression_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
+        expression_ref = self.eu.upload_expression({
+            'destination_ref': workspace_name + '/' + expression_name,
+            'source_dir': result_directory,
+            'alignment_ref': alignment_ref,
+            'tool_used': self.tool_used,
+            'tool_version': self.tool_version,
+            'annotation_ref': gff_annotation_obj_ref,
+        })['obj_ref']
 
         return expression_ref
 

@@ -92,7 +92,7 @@ def replace_fasta_contig_ids(fasta_filename=None, mapping_filename=None, to_modi
     shutil.copyfile(temp_name, fasta_filename)
 
 def replace_gff_contig_ids(gff_filename=None, mapping_filename=None, to_modified=True):
-    """Replace FASTA contig id strings with modified id strings (to_modified=True) or vice versa (to_modified=False) 
+    """Replace GFF contig id strings with modified id strings (to_modified=True) or vice versa (to_modified=False) 
     from a tab delimited file created by create_sanitized_contig_ids()"""
     
     # key = from, value = to
