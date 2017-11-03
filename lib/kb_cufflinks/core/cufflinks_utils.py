@@ -44,14 +44,15 @@ class CufflinksUtils:
         self.ws_url = config["workspace-url"]
         self.ws_url = config["workspace-url"]
         self.callback_url = config['SDK_CALLBACK_URL']
+        self.srv_wiz_url = config['srv-wiz-url']
         self.token = config['KB_AUTH_TOKEN']
         self.shock_url = config['shock-url']
-        self.dfu = DataFileUtil(self.callback_url, service_ver='beta')
+        self.dfu = DataFileUtil(self.callback_url)
         self.gfu = GenomeFileUtil(self.callback_url)
         self.au = AssemblyUtil(self.callback_url)
-        self.rau = ReadsAlignmentUtils(self.callback_url, service_ver='beta')
-        self.set_api = SetAPI(self.callback_url)
-        self.eu = ExpressionUtils(self.callback_url, service_ver='beta')
+        self.rau = ReadsAlignmentUtils(self.callback_url)
+        self.set_api = SetAPI(self.srv_wiz_url)
+        self.eu = ExpressionUtils(self.callback_url)
         self.ws = Workspace(self.ws_url, token=self.token)
 
         self.scratch = os.path.join(config['scratch'], str(uuid.uuid4()))
