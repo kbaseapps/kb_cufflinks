@@ -56,13 +56,13 @@ class CufflinksTest(unittest.TestCase):
         cls.serviceImpl = kb_cufflinks(cls.cfg)
         cls.scratch = cls.cfg['scratch']
         cls.callback_url = environ.get('SDK_CALLBACK_URL')
+        cls.srv_wiz_url = cls.cfg['srv-wiz-url']
 
         # cls.wsName = 'cufflinks_test_' + user_id  # reuse existing workspace
-#        suffix = int(time.time() * 1000)
-        suffix = 1009
+#       suffix = int(time.time() * 1000)
+        suffix = 1509715902867  #1009
         cls.wsName = "test_kb_cufflinks_" + str(suffix)
         print('workspace_name: ' + cls.wsName)
-
 
         try:
             # reuse existing (previously torn down) workspace
@@ -79,13 +79,11 @@ class CufflinksTest(unittest.TestCase):
                 print("creating new workspace: " + str(ws_info))
 
         cls.dfu = DataFileUtil(cls.callback_url)
-        # dummy call to dfu to cache the beta version of callback server
-        ws_id = cls.dfu.ws_name_to_id(cls.wsName)
-        print('test ws_id: ' + str(ws_id))
+
         cls.gfu = GenomeFileUtil(cls.callback_url)
         cls.ru = ReadsUtils(cls.callback_url)
-        cls.rau = ReadsAlignmentUtils(cls.callback_url, service_ver='beta')
-        cls.set_api = SetAPI(cls.callback_url)
+        cls.rau = ReadsAlignmentUtils(cls.callback_url)
+        cls.set_api = SetAPI(cls.srv_wiz_url)
 
         cls.cufflinks_runner = CufflinksUtils(cls.cfg)
 
