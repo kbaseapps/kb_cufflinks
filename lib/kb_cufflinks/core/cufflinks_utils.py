@@ -759,82 +759,34 @@ class CufflinksUtils:
 
         return expression_set_data
 
-    def _process_rnaseq_alignment_set_object(self, params):
+    def _process_alignment_set_object(self, params, alignment_object_type):
         """
         _process_alignment_set_object: process KBaseRNASeq.RNASeqAlignmentSet type input object
+                                        and KBaseSets.ReadsAlignmentSet type object
         """
-        log('start processing KBaseRNASeq.RNASeqAlignmentSet object\nparams:\n{}'.format(
+        log('start processing KBaseRNASeq.RNASeqAlignmentSet object or KBaseSets.ReadsAlignmentSet object'
+            '\nparams:\n{}'.format(
             json.dumps(params, indent=1)))
 
         alignment_set_ref = params.get('alignment_set_ref')
 
-        params['gtf_file'] = self._get_gtf_file(alignment_set_ref)
+        if re.match('^KBaseRNASeq.RNASeqAlignmentSet-\d*', alignment_object_type):
+            params['gtf_file'] = self._get_gtf_file(alignment_set_ref)
+        else:
+            if not '/' in params['genome_ref']:
+                params['genome_ref'] = params['workspace_name']+'/'+params['genome_ref']
 
-        alignment_set_data = self.ws.get_objects2({'objects':
-                                                   [{'ref': alignment_set_ref}]})['data'][0]['data']
+            params['gtf_file'] = self._get_gtf_file_from_genome_ref(params['genome_ref'])
 
-        mapped_alignment_ids = alignment_set_data['mapped_alignments_ids']
+        alignment_set = self.set_api.get_reads_alignment_set_v1({
+                                            'ref': alignment_set_ref,
+                                            'include_item_info': 0
+                                            })
         mul_processor_params = []
-        for i in mapped_alignment_ids:
-            for sample_name, alignment_id in i.items():
-                aliment_upload_params = params.copy()
-                aliment_upload_params['alignment_ref'] = alignment_id
-                mul_processor_params.append(aliment_upload_params)
-
-        cpus = min(params.get('num_threads'), multiprocessing.cpu_count())
-        pool = Pool(ncpus=cpus)
-        log('running _process_alignment_object with {} cpus'.format(cpus))
-        alignment_expression_map = pool.map(self._process_rnaseq_alignment_object, mul_processor_params)
-
-        result_directory = os.path.join(self.scratch, str(uuid.uuid4()))
-        self._mkdir_p(result_directory)
-
-        for proc_alignment_return in alignment_expression_map:
-            expression_obj_ref = proc_alignment_return.get('expression_obj_ref')
-            expression_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
-                                                      includeMetadata=None)[0][1]
-            self._run_command('cp -R {} {}'.format(proc_alignment_return.get('result_directory'),
-                                                   os.path.join(result_directory, expression_name)))
-
-        expression_obj_ref = self._save_rnaseq_expression_set(alignment_expression_map,
-                                                       alignment_set_ref,
-                                                       params.get('workspace_name'),
-                                                       params.get('expression_set_name'))
-
-        returnVal = {'result_directory': result_directory,
-                     'expression_obj_ref': expression_obj_ref}
-
-        expression_set_name = self.ws.get_object_info([{"ref": expression_obj_ref}],
-                                                      includeMetadata=None)[0][1]
-
-        widget_params = {"output": expression_set_name, "workspace": params.get('workspace_name')}
-        returnVal.update(widget_params)
-
-        return returnVal
-
-
-    def _process_kbasesets_alignment_set_object(self, params):
-        """
-        _process_alignment_set_object: process KBaseSets.ReadsAlignmentSet type input object
-        """
-        log('start processing KBaseSets.ReadsAlignmentSet object\nparams:\n{}'.format(
-            json.dumps(params, indent=1)))
-
-        alignment_set_ref = params.get('alignment_set_ref')
-
-        if not '/' in params['genome_ref']:
-            params['genome_ref'] = params['workspace_name']+'/'+params['genome_ref']
-
-        params['gtf_file'] = self._get_gtf_file_from_genome_ref(params['genome_ref'])
-
-        alignment_set_data = self.ws.get_objects2({'objects':
-                                                   [{'ref': alignment_set_ref}]})['data'][0]['data']
-
-        alignment_items = alignment_set_data['items']
-        mul_processor_params = []
-        for item in alignment_items:
+        for alignment in alignment_set["data"]["items"]:
+            alignment_ref = alignment['ref']
             alignment_upload_params = params.copy()
-            alignment_upload_params['alignment_ref'] = item['ref']
+            alignment_upload_params['alignment_ref'] = alignment_ref
             mul_processor_params.append(alignment_upload_params)
 
         cpus = min(params.get('num_threads'), multiprocessing.cpu_count())
@@ -849,7 +801,7 @@ class CufflinksUtils:
         for proc_alignment_return in alignment_expression_map:
             expression_obj_ref = proc_alignment_return.get('expression_obj_ref')
             alignment_ref = proc_alignment_return.get('alignment_ref')
-            condition = self.ws.get_object_info([{"ref": alignment_ref}],includeMetadata=1)[0][10]['condition']
+            condition = self.ws.get_object_info([{"ref": alignment_ref}], includeMetadata=1)[0][10]['condition']
             expression_items.append({
                 "ref": expression_obj_ref,
                 "label": condition,
@@ -877,7 +829,6 @@ class CufflinksUtils:
         returnVal.update(widget_params)
 
         return returnVal
-
 
     def _generate_output_object_name(self, params, alignment_object_type, alignment_object_name):
         """
@@ -945,10 +896,6 @@ class CufflinksUtils:
         log('--->\nrunning CufflinksUtil.run_cufflinks_app\n' +
             'params:\n{}'.format(json.dumps(params, indent=1)))
 
-        #dummy call to dfu to cache the beta version of callback server
-        ws_id = self.dfu.ws_name_to_id(params['workspace_name'])
-        print('ws_id: '+str(ws_id))
-
         self._validate_run_cufflinks_params(params)
 
         alignment_object_ref = params.get('alignment_object_ref')
@@ -971,26 +918,12 @@ class CufflinksUtils:
                                                   params.get('workspace_name'),
                                                   returnVal.get('result_directory'))
             returnVal.update(report_output)
-        elif re.match('^KBaseRNASeq.RNASeqAlignmentSet-\d*', alignment_object_type):
+        elif re.match('^KBaseRNASeq.RNASeqAlignmentSet-\d*', alignment_object_type) or \
+             re.match('^KBaseSets.ReadsAlignmentSet-\d*', alignment_object_type):
             params.update({'alignment_set_ref': alignment_object_ref})
-            returnVal = self._process_rnaseq_alignment_set_object(params)
+            returnVal = self._process_alignment_set_object(params, alignment_object_type)
             expression_matrix_refs = self._save_expression_matrix(returnVal['expression_obj_ref'],
                                                                   params.get('workspace_name'))
-
-            returnVal.update(expression_matrix_refs)
-
-            report_output = self._generate_report(returnVal['expression_obj_ref'],
-                                                  params.get('workspace_name'),
-                                                  returnVal['result_directory'],
-                                                  expression_matrix_refs['exprMatrix_FPKM_ref'],
-                                                  expression_matrix_refs['exprMatrix_TPM_ref'])
-            returnVal.update(report_output)
-        elif re.match('^KBaseSets.ReadsAlignmentSet-\d*', alignment_object_type):
-            params.update({'alignment_set_ref': alignment_object_ref})
-            returnVal = self._process_kbasesets_alignment_set_object(params)
-            expression_matrix_refs = self._save_expression_matrix(returnVal['expression_obj_ref'],
-                                                                  params.get('workspace_name'))
-
             returnVal.update(expression_matrix_refs)
 
             report_output = self._generate_report(returnVal['expression_obj_ref'],
@@ -1002,6 +935,5 @@ class CufflinksUtils:
         else:
             raise ValueError('None RNASeqAlignment type\nObject info:\n{}'.format(
                 alignment_object_info))
-
 
         return returnVal

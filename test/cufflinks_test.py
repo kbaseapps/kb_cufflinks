@@ -4,6 +4,7 @@ import unittest
 import os  # noqa: F401
 import time
 import shutil
+from pprint import pprint
 
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from ReadsUtils.ReadsUtilsClient import ReadsUtils
@@ -260,7 +261,6 @@ class CufflinksTest(unittest.TestCase):
             "overhang_tolerance": 8,
             "num_threads": 1
         }
-
         result = self.getImpl().run_cufflinks(self.ctx, params)[0]
 
         self.assertTrue('result_directory' in result)
@@ -302,9 +302,11 @@ class CufflinksTest(unittest.TestCase):
         self.assertTrue('report_ref' in result)
         expression_data = self.getWsClient().get_objects([{'objid': int(result.get(
             'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
-        self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
-        self.assertEqual(expression_data.get('sampleset_id'), self.sample_set_ref)
-        self.assertEqual(expression_data.get('id'), 'test_expression_set')
+
+        pprint(expression_data.get('items')[0]['label'])
+        pprint(expression_data.get('items')[1]['label'])
+        self.assertTrue(expression_data.get('items')[0]['label'].startswith('test_condition_'))
+        self.assertTrue(expression_data.get('items')[1]['label'].startswith('test_condition_'))
         self.assertTrue('exprMatrix_FPKM_ref' in result)
         self.assertTrue('exprMatrix_TPM_ref' in result)
 
@@ -386,3 +388,4 @@ class CufflinksTest(unittest.TestCase):
         self.assertTrue(expression_data.get('items')[1]['label'].startswith('test_condition_'))
         self.assertTrue('exprMatrix_FPKM_ref' in result)
         self.assertTrue('exprMatrix_TPM_ref' in result)
+
