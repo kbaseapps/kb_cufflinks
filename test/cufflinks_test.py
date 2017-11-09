@@ -84,7 +84,7 @@ class CufflinksTest(unittest.TestCase):
         cls.gfu = GenomeFileUtil(cls.callback_url)
         cls.ru = ReadsUtils(cls.callback_url)
         cls.rau = ReadsAlignmentUtils(cls.callback_url)
-        cls.set_api = SetAPI(cls.srv_wiz_url)
+        cls.set_api = SetAPI(cls.srv_wiz_url, service_ver='dev')
 
         cls.cufflinks_runner = CufflinksUtils(cls.cfg)
 

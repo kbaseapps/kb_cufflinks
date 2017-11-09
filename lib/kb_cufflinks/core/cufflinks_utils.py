@@ -51,7 +51,7 @@ class CufflinksUtils:
         self.gfu = GenomeFileUtil(self.callback_url)
         self.au = AssemblyUtil(self.callback_url)
         self.rau = ReadsAlignmentUtils(self.callback_url)
-        self.set_api = SetAPI(self.srv_wiz_url)
+        self.set_api = SetAPI(self.srv_wiz_url, service_ver='dev')
         self.eu = ExpressionUtils(self.callback_url)
         self.ws = Workspace(self.ws_url, token=self.token)
 
@@ -426,7 +426,6 @@ class CufflinksUtils:
                                                          gtf_file,
                                                          workspace_name,
                                                          expression_suffix)
-
         object_type = 'KBaseRNASeq.RNASeqExpression'
         save_object_params = {
             'id': workspace_id,
@@ -449,8 +448,9 @@ class CufflinksUtils:
         """
         log('start saving Expression object')
 
-        alignment_object_name = self.ws.get_object_info([{"ref": alignment_ref}],
-                                                 includeMetadata=None)[0][1]
+        alignment_info = self.ws.get_object_info3({'objects': [{"ref": alignment_ref}]})
+        alignment_object_name = alignment_info['infos'][0][1]
+
         # set expression name
         if re.match('.*_[Aa]lignment$', alignment_object_name):
             expression_name = re.sub('_[Aa]lignment$',
@@ -779,15 +779,18 @@ class CufflinksUtils:
             params['gtf_file'] = self._get_gtf_file_from_genome_ref(params['genome_ref'])
 
         alignment_set = self.set_api.get_reads_alignment_set_v1({
-                                            'ref': alignment_set_ref,
-                                            'include_item_info': 0
-                                            })
+                                                                'ref': alignment_set_ref,
+                                                                'include_item_info': 0,
+                                                                'include_set_item_ref_paths': 1
+                                                                })
         mul_processor_params = []
         for alignment in alignment_set["data"]["items"]:
-            alignment_ref = alignment['ref']
+            alignment_ref = alignment['ref_path']
             alignment_upload_params = params.copy()
             alignment_upload_params['alignment_ref'] = alignment_ref
             mul_processor_params.append(alignment_upload_params)
+            # use the following when you want to run the cmd sequentially
+            #self._process_kbasesets_alignment_object(mul_processor_params[0])
 
         cpus = min(params.get('num_threads'), multiprocessing.cpu_count())
         pool = Pool(ncpus=cpus)
@@ -801,7 +804,8 @@ class CufflinksUtils:
         for proc_alignment_return in alignment_expression_map:
             expression_obj_ref = proc_alignment_return.get('expression_obj_ref')
             alignment_ref = proc_alignment_return.get('alignment_ref')
-            condition = self.ws.get_object_info([{"ref": alignment_ref}], includeMetadata=1)[0][10]['condition']
+            alignment_info = self.ws.get_object_info3({'objects': [{"ref": alignment_ref}], 'includeMetadata': 1})
+            condition = alignment_info['infos'][0][10]['condition']
             expression_items.append({
                 "ref": expression_obj_ref,
                 "label": condition,
