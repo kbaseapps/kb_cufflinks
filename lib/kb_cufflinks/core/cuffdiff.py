@@ -431,7 +431,7 @@ class CuffDiff:
         self.gfu = GenomeFileUtil(self.callback_url)
         self.rau = ReadsAlignmentUtils(self.callback_url)
         self.eu = ExpressionUtils(self.callback_url)
-        self.deu = DifferentialExpressionUtils(self.callback_url, service_ver='beta')
+        self.deu = DifferentialExpressionUtils(self.callback_url)
         self.cuffmerge_runner = CuffMerge(config, logger)
         self.num_threads = mp.cpu_count()
         handler_utils._mkdir_p(self.scratch)
@@ -440,7 +440,6 @@ class CuffDiff:
         """
         Check input parameters
         """
-
         self._process_params(params)
 
         expressionset_ref = params.get('expressionset_ref')
@@ -495,20 +494,6 @@ class CuffDiff:
                             self.logger.info(line)
         except Exception, e:
             raise Exception("Error executing cuffdiff {0},{1}".format(cuffdiff_command, e))
-        """
-        Upload differential expression data
-        """
-
-        '''
-        diffexpr_params = { 'destination_ref': params.get(self.PARAM_IN_WS_NAME) + '/' +
-                                               params.get(self.PARAM_IN_OBJ_NAME),
-                            'genome_ref': expressionset_data['genome_id'],
-                            'tool_used': 'cuffdiff',
-                            'tool_version': os.environ['VERSION'],
-                            'diffexpr_filepath': os.path.join(cuffdiff_dir, 'gene_exp.diff')
-                          }
-        dems_ref = self.deu.upload_differentialExpression(diffexpr_params).get('diffExprMatrixSet_ref')
-        '''
 
         """
         Save differential expression data with files for all condition pairs
