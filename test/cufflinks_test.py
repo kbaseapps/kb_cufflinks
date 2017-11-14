@@ -252,29 +252,35 @@ class CufflinksTest(unittest.TestCase):
     def test_cufflinks_app_alignment(self):
         params = {
             "workspace_name": self.getWsName(),
+            #"workspace_name": "jkbaumohl:narrative_1502496641055",
             "expression_set_suffix": "_expression_set",
             "expression_suffix": "_expression",
             "alignment_object_ref": self.alignment_ref_1,
+            #"alignment_object_ref": "23234/31/1",
             "genome_ref": self.__class__.genome_ref,
+            #"genome_ref": "23234/9/1",
             "min_intron_length": 50,
             "max_intron_length": 300000,
             "overhang_tolerance": 8,
             "num_threads": 1
         }
         result = self.getImpl().run_cufflinks(self.ctx, params)[0]
+        print('result:')
+        pprint(result)
 
         self.assertTrue('result_directory' in result)
+        print 'result directory: ' + str(result['result_directory'])
         result_files = os.listdir(result['result_directory'])
         print 'result files: ' + str(result_files)
-        expect_result_files = ['genes.fpkm_tracking', 'transcripts.gtf',
-                               'isoforms.fpkm_tracking', 'skipped.gtf']
+        expect_result_files = ['i2t.ctab', 'e_data.ctab', 'skipped.gtf', 't_data.ctab',
+                               'e2t.ctab', 'transcripts.gtf', 'genes.fpkm_tracking',
+                               'isoforms.fpkm_tracking', 'i_data.ctab']
         self.assertTrue(all(x in result_files for x in expect_result_files))
         self.assertTrue('expression_obj_ref' in result)
         expression_data = self.getWsClient().get_objects([{'objid': int(result.get(
             'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('condition'), self.condition_1)
-        self.assertEqual(expression_data.get('id'), 'test_Alignment_1_expression')
 
 
     def test_cufflinks_app_rnaseq_alignment_set(self):
