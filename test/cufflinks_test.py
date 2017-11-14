@@ -57,13 +57,13 @@ class CufflinksTest(unittest.TestCase):
         cls.serviceImpl = kb_cufflinks(cls.cfg)
         cls.scratch = cls.cfg['scratch']
         cls.callback_url = environ.get('SDK_CALLBACK_URL')
+        cls.srv_wiz_url = cls.cfg['srv-wiz-url']
 
         # cls.wsName = 'cufflinks_test_' + user_id  # reuse existing workspace
-#        suffix = int(time.time() * 1000)
-        suffix = 1009
+#       suffix = int(time.time() * 1000)
+        suffix = 1509715902867  #1009
         cls.wsName = "test_kb_cufflinks_" + str(suffix)
         print('workspace_name: ' + cls.wsName)
-
 
         try:
             # reuse existing (previously torn down) workspace
@@ -80,13 +80,11 @@ class CufflinksTest(unittest.TestCase):
                 print("creating new workspace: " + str(ws_info))
 
         cls.dfu = DataFileUtil(cls.callback_url)
-        # dummy call to dfu to cache the beta version of callback server
-        ws_id = cls.dfu.ws_name_to_id(cls.wsName)
-        print('test ws_id: ' + str(ws_id))
+
         cls.gfu = GenomeFileUtil(cls.callback_url)
         cls.ru = ReadsUtils(cls.callback_url)
-        cls.rau = ReadsAlignmentUtils(cls.callback_url, service_ver='beta')
-        cls.set_api = SetAPI(cls.callback_url)
+        cls.rau = ReadsAlignmentUtils(cls.callback_url)
+        cls.set_api = SetAPI(cls.srv_wiz_url, service_ver='dev')
 
         cls.cufflinks_runner = CufflinksUtils(cls.cfg)
 
@@ -266,7 +264,6 @@ class CufflinksTest(unittest.TestCase):
             "overhang_tolerance": 8,
             "num_threads": 1
         }
-
         result = self.getImpl().run_cufflinks(self.ctx, params)[0]
         print('result:')
         pprint(result)
@@ -311,9 +308,11 @@ class CufflinksTest(unittest.TestCase):
         self.assertTrue('report_ref' in result)
         expression_data = self.getWsClient().get_objects([{'objid': int(result.get(
             'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
-        self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
-        self.assertEqual(expression_data.get('sampleset_id'), self.sample_set_ref)
-        self.assertEqual(expression_data.get('id'), 'test_expression_set')
+
+        pprint(expression_data.get('items')[0]['label'])
+        pprint(expression_data.get('items')[1]['label'])
+        self.assertTrue(expression_data.get('items')[0]['label'].startswith('test_condition_'))
+        self.assertTrue(expression_data.get('items')[1]['label'].startswith('test_condition_'))
         self.assertTrue('exprMatrix_FPKM_ref' in result)
         self.assertTrue('exprMatrix_TPM_ref' in result)
 
