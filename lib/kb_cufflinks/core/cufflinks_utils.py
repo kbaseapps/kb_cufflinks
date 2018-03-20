@@ -296,6 +296,9 @@ class CufflinksUtils:
         if not params.get('gtf_file'):
             params['gtf_file'] = self._get_gtf_file(alignment_ref)
 
+        if '/' not in params['genome_ref']:
+            params['genome_ref'] = params['workspace_name']+'/'+params['genome_ref']
+
         command = self._generate_command(params)
         self._run_command(command)
 
