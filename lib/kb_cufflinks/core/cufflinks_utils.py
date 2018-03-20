@@ -417,6 +417,10 @@ class CufflinksUtils:
         _save_rnaseq_expression: save Expression object to workspace
         """
         log('start saving Expression object')
+        if isinstance(workspace_name, int) or workspace_name.isdigit():
+            workspace_id = workspace_name
+        else:
+            workspace_id = self.dfu.ws_name_to_id(workspace_name)
         alignment_object_name = self.ws.get_object_info([{"ref": alignment_ref}],
                                                         includeMetadata=None)[0][1]
 
