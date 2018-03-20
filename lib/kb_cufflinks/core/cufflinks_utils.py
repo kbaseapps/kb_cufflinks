@@ -318,7 +318,6 @@ class CufflinksUtils:
 
         return returnVal
 
-
     def _process_kbasesets_alignment_object(self, params):
         """
         _process_alignment_object: process KBaseRNASeq.RNASeqAlignment type input object
@@ -397,7 +396,6 @@ class CufflinksUtils:
                 condition = expression_ref['label']
                 Overview_Content += '<p>condition:{0}; expression_name: {1}</p>'.format(condition, expression_name)
 
-
         with open(result_file_path, 'w') as result_file:
             with open(os.path.join(os.path.dirname(__file__), 'report_template.html'),
                       'r') as report_template_file:
@@ -412,32 +410,25 @@ class CufflinksUtils:
                             'description': 'HTML summary report for Cufflinks App'})
         return html_report
 
-    def _save_rnaseq_expression(self, result_directory, alignment_ref, workspace_name, genome_ref, gtf_file, expression_suffix):
+    def _save_rnaseq_expression(self, result_directory, alignment_ref,
+                                workspace_name, genome_ref, gtf_file,
+                                expression_suffix):
         """
         _save_rnaseq_expression: save Expression object to workspace
         """
         log('start saving Expression object')
-        if isinstance(workspace_name, int) or workspace_name.isdigit():
-            workspace_id = workspace_name
-        else:
-            workspace_id = self.dfu.ws_name_to_id(workspace_name)
         alignment_object_name = self.ws.get_object_info([{"ref": alignment_ref}],
                                                         includeMetadata=None)[0][1]
 
-        expression_data = self._generate_expression_data(result_directory,
-                                                         alignment_ref,
-                                                         gtf_file,
-                                                         workspace_name,
-                                                         expression_suffix)
-        object_type = 'KBaseRNASeq.RNASeqExpression'
-        save_object_params = {
-            'id': workspace_id,
-            'objects': [{
-                'type': object_type,
-                'data': expression_data,
-                'name': expression_data.get('id')
-            }]
-        }
+        # set expression name
+        if re.match('.*_[Aa]lignment$', alignment_object_name):
+            expression_name = re.sub('_[Aa]lignment$',
+                                     expression_suffix,
+                                     alignment_object_name)
+        else:  # assume user specified suffix
+            expression_name = alignment_object_name + expression_suffix
+
+        gff_annotation_obj_ref = self._save_gff_annotation(genome_ref, gtf_file, workspace_name)
 
         expression_ref = self.eu.upload_expression({
             'destination_ref': workspace_name + '/' + expression_name,
@@ -450,7 +441,9 @@ class CufflinksUtils:
 
         return expression_ref
 
-    def _save_kbasesets_expression(self, result_directory, alignment_ref, workspace_name, genome_ref, gtf_file, expression_suffix):
+    def _save_kbasesets_expression(self, result_directory, alignment_ref,
+                                   workspace_name, genome_ref, gtf_file,
+                                   expression_suffix):
         """
         _save_kbasesets_expression: save Expression object to workspace using ExpressionUtils
         and SetAPI
@@ -463,8 +456,8 @@ class CufflinksUtils:
         # set expression name
         if re.match('.*_[Aa]lignment$', alignment_object_name):
             expression_name = re.sub('_[Aa]lignment$',
-                                               expression_suffix,
-                                               alignment_object_name)
+                                     expression_suffix,
+                                     alignment_object_name)
         else:  # assume user specified suffix
             expression_name = alignment_object_name + expression_suffix
 
@@ -481,7 +474,6 @@ class CufflinksUtils:
 
         return expression_ref
 
-
     def _save_rnaseq_expression_set(self, alignment_expression_map, alignment_set_ref, workspace_name, expression_set_name):
         """
         _save_rnaseq_expression_set: save ExpressionSet object to workspace
@@ -493,7 +485,8 @@ class CufflinksUtils:
             workspace_id = self.dfu.ws_name_to_id(workspace_name)
 
         expression_set_data = self._generate_expression_set_data(alignment_expression_map,
-                                                                 alignment_set_ref, expression_set_name)
+                                                                 alignment_set_ref,
+                                                                 expression_set_name)
 
         object_type = 'KBaseRNASeq.RNASeqExpressionSet'
         save_object_params = {
@@ -510,7 +503,9 @@ class CufflinksUtils:
 
         return expression_set_ref
 
-    def _save_kbasesets_expression_set(self, alignment_expression_map, alignment_set_ref, workspace_name, expression_set_name):
+    def _save_kbasesets_expression_set(self, alignment_expression_map,
+                                       alignment_set_ref, workspace_name,
+                                       expression_set_name):
         """
         _save_kbasesets_expression_set: save ExpressionSet object to workspace
         """
@@ -521,7 +516,8 @@ class CufflinksUtils:
             workspace_id = self.dfu.ws_name_to_id(workspace_name)
 
         expression_set_data = self._generate_expression_set_data(alignment_expression_map,
-                                                                 alignment_set_ref, expression_set_name)
+                                                                 alignment_set_ref,
+                                                                 expression_set_name)
 
         object_type = 'KBaseRNASeq.RNASeqExpressionSet'
         save_object_params = {
@@ -688,8 +684,8 @@ class CufflinksUtils:
         alignment_object_name = alignment_data_object['info'][1]
         if re.match('.*_[Aa]lignment$', alignment_object_name):
             expression_name = re.sub('_[Aa]lignment$',
-                                               expression_suffix,
-                                               alignment_object_name)
+                                     expression_suffix,
+                                     alignment_object_name)
         else:  # assume user specified suffix
             expression_name = alignment_object_name + expression_suffix
 
@@ -729,7 +725,8 @@ class CufflinksUtils:
 
         return expression_data
 
-    def _generate_expression_set_data(self, alignment_expression_map, alignment_set_ref, expression_set_name):
+    def _generate_expression_set_data(self, alignment_expression_map,
+                                      alignment_set_ref, expression_set_name):
         """
         _generate_expression_set_data: generate ExpressionSet object with cufflinks output files
         """
@@ -799,7 +796,7 @@ class CufflinksUtils:
             alignment_upload_params['alignment_ref'] = alignment_ref
             mul_processor_params.append(alignment_upload_params)
             # use the following when you want to run the cmd sequentially
-            #self._process_kbasesets_alignment_object(mul_processor_params[0])
+            # self._process_kbasesets_alignment_object(mul_processor_params[0])
 
         cpus = min(params.get('num_threads'), multiprocessing.cpu_count())
         pool = Pool(ncpus=cpus)
@@ -838,17 +835,18 @@ class CufflinksUtils:
         returnVal = {'result_directory': result_directory,
                      'expression_obj_ref': expression_set_info['set_ref']}
 
-        widget_params = {"output": params.get('expression_set_name'), "workspace": params.get('workspace_name')}
+        widget_params = {"output": params.get('expression_set_name'),
+                         "workspace": params.get('workspace_name')}
         returnVal.update(widget_params)
 
         return returnVal
 
     def _generate_output_object_name(self, params, alignment_object_type, alignment_object_name):
         """
-        Generates the output object name based on input object type and name and stores it in 
+        Generates the output object name based on input object type and name and stores it in
         params with key equal to 'expression' or 'expression_set' based on whether the input
-        object is an alignment or alignment_set. 
-        
+        object is an alignment or alignment_set.
+
         :param params: module input params
         :param alignment_object_type: input alignment object type
         :param alignment_object_name: input alignment object name
@@ -881,7 +879,6 @@ class CufflinksUtils:
                                                        alignment_object_name)
             else:  # assume user specified suffix
                 params['expression_set_name'] = alignment_object_name + expression_set_suffix
-
 
     def _save_expression_matrix(self, expressionset_ref, workspace_name):
         """
