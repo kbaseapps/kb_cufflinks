@@ -169,7 +169,7 @@ def runProgram(logger=None,
 
 
 def check_sys_stat(logger):
-    check_disk_space(logger)
+    # check_disk_space(logger)
     check_memory_usage(logger)
     check_cpu_usage(logger)
 
