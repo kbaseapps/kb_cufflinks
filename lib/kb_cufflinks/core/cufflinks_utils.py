@@ -264,7 +264,7 @@ class CufflinksUtils:
         _generate_command: generate cufflinks command
         """
         cufflinks_command = '/opt/cufflinks/cufflinks'
-        cufflinks_command += (' -q -p ' + str(params.get('num_threads', 1)))
+        cufflinks_command += (' -q --no-update-check -p ' + str(params.get('num_threads', 1)))
         if 'max_intron_length' in params and params['max_intron_length'] is not None:
             cufflinks_command += (' --max-intron-length ' + str(params['max_intron_length']))
         if 'min_intron_length' in params and params['min_intron_length'] is not None:
