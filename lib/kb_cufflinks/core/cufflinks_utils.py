@@ -264,7 +264,7 @@ class CufflinksUtils:
         _generate_command: generate cufflinks command
         """
         cufflinks_command = '/opt/cufflinks/cufflinks'
-        cufflinks_command += (' -q -p ' + str(params.get('num_threads', 1)))
+        cufflinks_command += (' -q --no-update-check -p ' + str(params.get('num_threads', 1)))
         if 'max_intron_length' in params and params['max_intron_length'] is not None:
             cufflinks_command += (' --max-intron-length ' + str(params['max_intron_length']))
         if 'min_intron_length' in params and params['min_intron_length'] is not None:
@@ -431,15 +431,12 @@ class CufflinksUtils:
         else:  # assume user specified suffix
             expression_name = alignment_object_name + expression_suffix
 
-        #gff_annotation_obj_ref = self._save_gff_annotation(genome_ref, gtf_file, workspace_name)
-
         expression_ref = self.eu.upload_expression({
             'destination_ref': workspace_name + '/' + expression_name,
             'source_dir': result_directory,
             'alignment_ref': alignment_ref,
             'tool_used': self.tool_used,
             'tool_version': self.tool_version
-            #'annotation_ref': gff_annotation_obj_ref,
         })['obj_ref']
 
         return expression_ref
@@ -464,15 +461,12 @@ class CufflinksUtils:
         else:  # assume user specified suffix
             expression_name = alignment_object_name + expression_suffix
 
-        #gff_annotation_obj_ref = self._save_gff_annotation(genome_ref, gtf_file, workspace_name)
-
         expression_ref = self.eu.upload_expression({
             'destination_ref': workspace_name+'/'+expression_name,
             'source_dir': result_directory,
             'alignment_ref': alignment_ref,
             'tool_used': self.tool_used,
             'tool_version': self.tool_version
-            #'annotation_ref': gff_annotation_obj_ref,
         })['obj_ref']
 
         return expression_ref
@@ -636,44 +630,6 @@ class CufflinksUtils:
 
         return output_files
 
-#    def _save_gff_annotation(self, genome_id, gtf_file, workspace_name):
-#        """
-#        _save_gff_annotation: save GFFAnnotation object to workspace
-#        """
-#        log('start saving GffAnnotation object')
-#
-#        if isinstance(workspace_name, int) or workspace_name.isdigit():
-#            workspace_id = workspace_name
-#        else:
-#            workspace_id = self.dfu.ws_name_to_id(workspace_name)
-#
-#        genome_data = self.ws.get_objects2({'objects':
-#                                            [{'ref': genome_id}]})['data'][0]['data']
-#        genome_name = genome_data.get('id')
-#        genome_scientific_name = genome_data.get('scientific_name')
-#        gff_annotation_name = genome_name + "_GTF_Annotation"
-#        file_to_shock_result = self.dfu.file_to_shock({'file_path': gtf_file,
-#                                                       'make_handle': True})
-#        gff_annotation_data = {'handle': file_to_shock_result['handle'],
-#                               'size': file_to_shock_result['size'],
-#                               'genome_id': genome_id,
-#                               'genome_scientific_name': genome_scientific_name}
-#
-#        object_type = 'KBaseRNASeq.GFFAnnotation'
-#
-#        save_object_params = {
-#            'id': workspace_id,
-#            'objects': [{
-#                'type': object_type,
-#                'data': gff_annotation_data,
-#                'name': gff_annotation_name
-#            }]
-#        }
-#
-#        dfu_oi = self.dfu.save_objects(save_object_params)[0]
-#        gff_annotation_obj_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
-#
-#        return gff_annotation_obj_ref
 
     def _generate_expression_data(self, result_directory, alignment_ref,
                                   gtf_file, workspace_name, expression_suffix):
@@ -707,9 +663,6 @@ class CufflinksUtils:
 
         genome_id = alignment_data.get('genome_id')
         expression_data.update({'genome_id': genome_id})
-
-        #gff_annotation_obj_ref = self._save_gff_annotation(genome_id, gtf_file, workspace_name)
-        #expression_data.update({'annotation_id': gff_annotation_obj_ref})
 
         read_sample_id = alignment_data.get('read_sample_id')
         expression_data.update({'mapped_rnaseq_alignment': {read_sample_id: alignment_ref}})
