@@ -1,14 +1,12 @@
-import os
 import csv
-import uuid
-import errno
-import re
-from pprint import pprint
-from datetime import datetime
+import os
 from collections import namedtuple
+from datetime import datetime
+from pprint import pprint
 
 new_col_names = ['gene_id', 'log2_fold_change', 'p_value', 'q_value']
 delimiter = '\t'
+
 
 def get_max_fold_change_to_handle_inf(infile):
     maxvalue = 0
@@ -21,8 +19,9 @@ def get_max_fold_change_to_handle_inf(infile):
                 if log2fc > maxvalue:
                     maxvalue = log2fc
 
-        print 'maxvalue: ', maxvalue
+        print('maxvalue: ', maxvalue)
         return maxvalue
+
 
 def handle_max_fold_change(infile):
     outfile = infile + '_fc'
@@ -34,7 +33,6 @@ def handle_max_fold_change(infile):
         csv_wtr = csv.DictWriter(outfile_obj, delimiter='\t', fieldnames=new_col_names)
         csv_wtr.writerow(dict((cn, cn) for cn in new_col_names))
 
-        values = []
         for row in rdr:
 
             log2fc_val = row.get('log2_fold_change')
@@ -50,6 +48,7 @@ def handle_max_fold_change(infile):
 
     outfile_obj.close()
     return outfile
+
 
 def process_cuffdiff_file(diffexpr_filepath, scratch):
     cuffdiff_col_names = ['gene',
@@ -98,8 +97,8 @@ def process_cuffdiff_file(diffexpr_filepath, scratch):
         diff_expr_files = list()
 
         for cond_pair, file_info in condPair_fileInfo.iteritems():
-            print 'Cond_pair: ', cond_pair
-            print 'File: ', file_info.file_path
+            print('Cond_pair: ', cond_pair)
+            print('File: ', file_info.file_path)
             tsv_file = file_info.file_path
 
             new_tsv_file = handle_max_fold_change(tsv_file)

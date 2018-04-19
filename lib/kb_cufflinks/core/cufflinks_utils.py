@@ -1,26 +1,27 @@
-import time
-import math
-import os
-import uuid
 import errno
 import json
+import math
+import multiprocessing
+import os
 import re
 import subprocess
+import time
 import traceback
-from pathos.multiprocessing import ProcessingPool as Pool
-import multiprocessing
+import uuid
 import zipfile
-import contig_id_mapping as c_mapping
 from pprint import pprint
 
-from DataFileUtil.DataFileUtilClient import DataFileUtil
-from Workspace.WorkspaceClient import Workspace as Workspace
-from KBaseReport.KBaseReportClient import KBaseReport
-from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
+from pathos.multiprocessing import ProcessingPool as Pool
+
+import kb_cufflinks.core.contig_id_mapping as c_mapping
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
+from DataFileUtil.DataFileUtilClient import DataFileUtil
 from ExpressionUtils.ExpressionUtilsClient import ExpressionUtils
+from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
+from KBaseReport.KBaseReportClient import KBaseReport
+from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
 from SetAPI.SetAPIClient import SetAPI
+from Workspace.WorkspaceClient import Workspace as Workspace
 
 
 def log(message, prefix_newline=False):
@@ -164,7 +165,7 @@ class CufflinksUtils:
             raise ValueError(
                 "Genome at {0} does not have reference to the assembly object".format(
                     genome_ref))
-        print contig_id
+        print(contig_id)
         log("Generating GFF file from Genome")
         try:
             ret = self.au.get_assembly_as_fasta({'ref': contig_id})
