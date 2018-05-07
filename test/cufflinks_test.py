@@ -107,6 +107,7 @@ class CufflinksTest(unittest.TestCase):
                                                     'workspace_name': cls.wsName,
                                                     'genome_name': genome_object_name,
                                                     'generate_missing_genes': 1,
+                                                    'generate_ids_if_needed': 1,
                                                     })['genome_ref']
 
         # upload reads object
@@ -165,6 +166,7 @@ class CufflinksTest(unittest.TestCase):
             'sampleset_desc': 'test sampleset object',
             'Library_type': 'SingleEnd',
             'condition': [cls.condition_1, cls.condition_2],
+            'sample_ids': [cls.reads_ref_1, cls.reads_ref_2],
             'domain': 'Unknown',
             'num_samples': 2,
             'platform': 'Unknown'}
