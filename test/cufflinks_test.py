@@ -60,8 +60,7 @@ class CufflinksTest(unittest.TestCase):
         cls.srv_wiz_url = cls.cfg['srv-wiz-url']
 
         # cls.wsName = 'cufflinks_test_' + user_id  # reuse existing workspace
-#       suffix = int(time.time() * 1000)
-        suffix = 1509715902867  #1009
+        suffix = int(time.time() * 1000)
         cls.wsName = "test_kb_cufflinks_" + str(suffix)
         print('workspace_name: ' + cls.wsName)
 
@@ -107,6 +106,7 @@ class CufflinksTest(unittest.TestCase):
         cls.genome_ref = cls.gfu.genbank_to_genome({'file': {'path': genbank_file_path},
                                                     'workspace_name': cls.wsName,
                                                     'genome_name': genome_object_name,
+                                                    'generate_missing_genes': 1,
                                                     'generate_ids_if_needed': 1,
                                                     })['genome_ref']
 
@@ -166,6 +166,7 @@ class CufflinksTest(unittest.TestCase):
             'sampleset_desc': 'test sampleset object',
             'Library_type': 'SingleEnd',
             'condition': [cls.condition_1, cls.condition_2],
+            'sample_ids': [cls.reads_ref_1, cls.reads_ref_2],
             'domain': 'Unknown',
             'num_samples': 2,
             'platform': 'Unknown'}
@@ -227,8 +228,6 @@ class CufflinksTest(unittest.TestCase):
         })
         cls.alignment_kbasesets_set_ref = set_info['set_ref']
 
-
-
     def getWsClient(self):
         return self.__class__.wsClient
 
@@ -269,9 +268,9 @@ class CufflinksTest(unittest.TestCase):
         pprint(result)
 
         self.assertTrue('result_directory' in result)
-        print 'result directory: ' + str(result['result_directory'])
+        print('result directory: ' + str(result['result_directory']))
         result_files = os.listdir(result['result_directory'])
-        print 'result files: ' + str(result_files)
+        print('result files: ' + str(result_files))
         expect_result_files = ['i2t.ctab', 'e_data.ctab', 'skipped.gtf', 't_data.ctab',
                                'e2t.ctab', 'transcripts.gtf', 'genes.fpkm_tracking',
                                'isoforms.fpkm_tracking', 'i_data.ctab']
@@ -281,7 +280,6 @@ class CufflinksTest(unittest.TestCase):
             'expression_obj_ref').split('/')[1]), 'workspace': self.__class__.wsName}])[0]['data']
         self.assertEqual(expression_data.get('genome_id'), self.genome_ref)
         self.assertEqual(expression_data.get('condition'), self.condition_1)
-
 
     def test_cufflinks_app_rnaseq_alignment_set(self):
         params = {
@@ -300,7 +298,7 @@ class CufflinksTest(unittest.TestCase):
 
         self.assertTrue('result_directory' in result)
         result_files = os.listdir(result['result_directory'])
-        print 'result files: ' + str(result_files)
+        print('result files: ' + str(result_files))
         expect_result_files = ['test_Alignment_1_expression', 'test_Alignment_2_expression']
         self.assertTrue(all(x in result_files for x in expect_result_files))
         self.assertTrue('expression_obj_ref' in result)
@@ -334,12 +332,12 @@ class CufflinksTest(unittest.TestCase):
         result = self.getImpl().run_cufflinks(self.ctx, params)[0]
 
         from pprint import pprint
-        print 'result: '
+        print('result: ')
         pprint(result)
 
         self.assertTrue('result_directory' in result)
         result_files = os.listdir(result['result_directory'])
-        print 'result files: ' + str(result_files)
+        print('result files: ' + str(result_files))
         expect_result_files = ['test_Alignment_1_expression', 'test_Alignment_2_expression']
         self.assertTrue(all(x in result_files for x in expect_result_files))
         self.assertTrue('expression_obj_ref' in result)
@@ -373,12 +371,12 @@ class CufflinksTest(unittest.TestCase):
         result = self.getImpl().run_cufflinks(self.ctx, params)[0]
 
         from pprint import pprint
-        print 'result: '
+        print('result: ')
         pprint(result)
 
         self.assertTrue('result_directory' in result)
         result_files = os.listdir(result['result_directory'])
-        print 'result files: ' + str(result_files)
+        print('result files: ' + str(result_files))
         expect_result_files = ['test_Alignment_1_expression', 'test_Alignment_2_expression']
         self.assertTrue(all(x in result_files for x in expect_result_files))
         self.assertTrue('expression_obj_ref' in result)

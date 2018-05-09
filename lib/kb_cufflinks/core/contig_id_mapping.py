@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 
+
 def create_sanitized_contig_ids(fasta_filename=None):
     """Create a tab delimited file containing a column for original contig ids
     and a column for sanitized contig ids that only contain alphanumeric characters"""
@@ -40,9 +41,10 @@ def create_sanitized_contig_ids(fasta_filename=None):
 
         # write the ids
         for x in contig_id_mapping:
-            id_file.write("{}\t{}\n".format(contig_id_mapping[x], x)) 
+            id_file.write("{}\t{}\n".format(contig_id_mapping[x], x))
 
     return id_filename
+
 
 def _parse_mapping(mapping_filename, to_modified=True):
     contig_id_mapping = {}
@@ -61,6 +63,7 @@ def _parse_mapping(mapping_filename, to_modified=True):
             contig_id_mapping[from_id] = to_id
             line = id_mapping.readline()
     return contig_id_mapping
+
 
 def replace_fasta_contig_ids(fasta_filename=None, mapping_filename=None, to_modified=True):
     """Replace FASTA contig id strings with modified id strings (to_modified=True) or vice versa (to_modified=False) 
@@ -85,16 +88,17 @@ def replace_fasta_contig_ids(fasta_filename=None, mapping_filename=None, to_modi
                 temp_fasta.write(modified_line)
             else:
                 temp_fasta.write(line)
-                
+
             line = fasta_data.readline()
-    
+
     temp_fasta.close()
     shutil.copyfile(temp_name, fasta_filename)
+
 
 def replace_gff_contig_ids(gff_filename=None, mapping_filename=None, to_modified=True):
     """Replace GFF contig id strings with modified id strings (to_modified=True) or vice versa (to_modified=False) 
     from a tab delimited file created by create_sanitized_contig_ids()"""
-    
+
     # key = from, value = to
     contig_id_mapping = _parse_mapping(mapping_filename, to_modified)
 
@@ -113,46 +117,47 @@ def replace_gff_contig_ids(gff_filename=None, mapping_filename=None, to_modified
                 temp_gff.write(line)
             else:
                 contig_id = line.split()[0]
-                #modified_line = line.replace(contig_id, contig_id_mapping[contig_id])
-                #temp_gff.write(modified_line)
+                # modified_line = line.replace(contig_id, contig_id_mapping[contig_id])
+                # temp_gff.write(modified_line)
                 temp_gff.write(line)
-                
+
             line = gff_data.readline()
-    
+
     temp_gff.close()
     shutil.copyfile(temp_name, gff_filename)
 
+
 if __name__ == "__main__":
-    #fasta_filename = "test_fasta_original.fa"
-    #gff_filename = "test_gff_original.gff"
+    # fasta_filename = "test_fasta_original.fa"
+    # gff_filename = "test_gff_original.gff"
 
     fasta_filename = "t/data/contig_id_mapping/arab_fasta.fasta"
     gff_filename = "t/data/contig_id_mapping/arab_gff.gff"
 
-    #mapping_filename = create_sanitized_contig_ids(fasta_filename)
-    #replace_fasta_contig_ids(fasta_filename, mapping_filename, to_modified=True)
+    # mapping_filename = create_sanitized_contig_ids(fasta_filename)
+    # replace_fasta_contig_ids(fasta_filename, mapping_filename, to_modified=True)
 
-    #print "Modified FASTA file"
-    #with open(fasta_filename, 'r') as f:
+    # print "Modified FASTA file"
+    # with open(fasta_filename, 'r') as f:
     #    print f.read()
 
-    #print "*" * 80
+    # print "*" * 80
 
-    #replace_fasta_contig_ids(fasta_filename, mapping_filename, to_modified=False)
+    # replace_fasta_contig_ids(fasta_filename, mapping_filename, to_modified=False)
 
-    #print "Original FASTA file"
-    #with open(fasta_filename, 'r') as f:
+    # print "Original FASTA file"
+    # with open(fasta_filename, 'r') as f:
     #    print f.read()  
-    #print "Modified GFF file"
-    #replace_gff_contig_ids(gff_filename, mapping_filename, to_modified=True)
+    # print "Modified GFF file"
+    # replace_gff_contig_ids(gff_filename, mapping_filename, to_modified=True)
 
-    #with open(gff_filename, 'r') as f:
+    # with open(gff_filename, 'r') as f:
     #    print f.read()
 
-    #print "*" * 80
+    # print "*" * 80
 
-    #print "Original GFF file"
-    #replace_gff_contig_ids(gff_filename, mapping_filename, to_modified=False)
+    # print "Original GFF file"
+    # replace_gff_contig_ids(gff_filename, mapping_filename, to_modified=False)
 
-    #with open(gff_filename, 'r') as f:
+    # with open(gff_filename, 'r') as f:
     #    print f.read()

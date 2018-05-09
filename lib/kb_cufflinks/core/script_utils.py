@@ -2,10 +2,9 @@ import logging
 import os
 import subprocess
 import traceback
-from zipfile import ZipFile
 from os import listdir
 from os.path import isfile, join
-
+from zipfile import ZipFile
 
 '''
 A utility python module containing a set of methods necessary for this kbase
@@ -128,7 +127,7 @@ def runProgram(logger=None,
 
     # Construct shell command
     cmdStr = "%s %s" % (progPath, argStr)
-    print "Executing : " + cmdStr
+    print("Executing : " + cmdStr)
     if logger is not None:
         logger.info("Executing : " + cmdStr)
     # if working_dir is None:
@@ -150,19 +149,16 @@ def runProgram(logger=None,
     if logger is not None and result is not None and len(result) > 0:
         logger.info(result)
     else:
-        print result
+        print(result)
     if logger is not None and stderr is not None and len(stderr) > 0:
         logger.info(stderr)
     else:
-        print stderr
+        print(stderr)
 
     # Check returncode for success/failure
     if process.returncode != 0:
-        raise Exception("Command execution failed  {0}".format(
+        raise RuntimeError("Command execution failed  {0}".format(
             "".join(traceback.format_exc())))
-        raise RuntimeError(
-            'Return Code : {0} , result {1} , progName {2}'.format(
-                process.returncode, result, progName))
 
     # Return result
     return {"result": result, "stderr": stderr}

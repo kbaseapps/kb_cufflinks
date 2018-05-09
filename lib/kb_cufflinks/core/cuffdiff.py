@@ -1,23 +1,25 @@
-import os
-import uuid
-from pprint import pprint
-import zipfile
-import re
 import glob
 import multiprocessing as mp
-import handler_utils
-import script_utils
-from cuffmerge import CuffMerge
-from cuffdiff_output import process_cuffdiff_file
+import os
+import re
+import uuid
+import zipfile
+from pprint import pprint
 
-from Workspace.WorkspaceClient import Workspace as Workspace
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from DataFileUtil.baseclient import ServerError as DFUError
-from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
-from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
+from DifferentialExpressionUtils.DifferentialExpressionUtilsClient import \
+    DifferentialExpressionUtils
 from ExpressionUtils.ExpressionUtilsClient import ExpressionUtils
-from DifferentialExpressionUtils.DifferentialExpressionUtilsClient import DifferentialExpressionUtils
+from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from KBaseReport.KBaseReportClient import KBaseReport
+from ReadsAlignmentUtils.ReadsAlignmentUtilsClient import ReadsAlignmentUtils
+from Workspace.WorkspaceClient import Workspace as Workspace
+from kb_cufflinks.core import handler_utils
+from kb_cufflinks.core import script_utils
+from kb_cufflinks.core.cuffdiff_output import process_cuffdiff_file
+from kb_cufflinks.core.cuffmerge import CuffMerge
+
 
 class CuffDiff:
 
@@ -459,6 +461,8 @@ class CuffDiff:
                                                          self.num_threads,
                                                          expressionset_data.get('gtf_file_path'),
                                                          expressionset_data.get('assembly_file'))
+        if not os.stat(merged_gtf).st_size:
+            raise RuntimeError("CuffMerge produced an empty merge file")
         self.logger.info('MERGED GTF FILE: ' + merged_gtf)
 
         """
@@ -492,7 +496,7 @@ class CuffDiff:
                         else:
                             prev_value = ''
                             self.logger.info(line)
-        except Exception, e:
+        except Exception as e:
             raise Exception("Error executing cuffdiff {0},{1}".format(cuffdiff_command, e))
 
         """

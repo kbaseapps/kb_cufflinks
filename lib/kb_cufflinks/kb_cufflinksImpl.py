@@ -98,12 +98,12 @@ class kb_cufflinks:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN run_cufflinks
-        print '--->\nRunning kb_cufflinks.run_cufflinks\nparams:'
-        print json.dumps(params, indent=1)
+        print('--->\nRunning kb_cufflinks.run_cufflinks\nparams:')
+        print(json.dumps(params, indent=1))
 
         for key, value in params.iteritems():
-            if isinstance(value, basestring):
-                                params[key] = value.strip()
+            if isinstance(value, str):
+                params[key] = value.strip()
 
         cufflinks_runner = CufflinksUtils(self.config)
         returnVal = cufflinks_runner.run_cufflinks_app(params)

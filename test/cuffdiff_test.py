@@ -100,7 +100,9 @@ class CuffdiffTest(unittest.TestCase):
         genome_object_name = 'test_Genome'
         cls.genome_ref = cls.gfu.genbank_to_genome({'file': {'path': genbank_file_path},
                                                     'workspace_name': cls.wsName,
-                                                    'genome_name': genome_object_name
+                                                    'genome_name': genome_object_name,
+                                                    'generate_missing_genes': 1,
+                                                    'generate_ids_if_needed': 1,
                                                     })['genome_ref']
     @classmethod
     def prepare_data(cls):
@@ -181,6 +183,7 @@ class CuffdiffTest(unittest.TestCase):
             'sampleset_desc': 'test sampleset object',
             'Library_type': 'SingleEnd',
             'condition': [cls.condition_1, cls.condition_2, cls.condition_3],
+            'sample_ids': [cls.reads_ref_1, cls.reads_ref_2, cls.reads_ref_3],
             'domain': 'Unknown',
             'num_samples': 3,
             'platform': 'Unknown'}

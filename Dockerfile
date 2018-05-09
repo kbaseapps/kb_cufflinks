@@ -1,4 +1,4 @@
-FROM kbase/kbase:sdkbase.latest
+FROM kbase/kbase:sdkbase2.latest
 MAINTAINER KBase Developer
 # -----------------------------------------
 # In this section, you can install any system dependencies required
@@ -8,18 +8,7 @@ MAINTAINER KBase Developer
 
 RUN apt-get update && apt-get install -y sysstat
 
-# Here we install a python coverage tool and an
-# https library that is out of date in the base image.
-
-RUN pip install coverage
-
-# update security libraries in the base image
-RUN pip install cffi --upgrade \
-    && pip install pyopenssl --upgrade \
-    && pip install ndg-httpsclient --upgrade \
-    && pip install pyasn1 --upgrade \
-    && pip install requests --upgrade \
-    && pip install 'requests[security]' --upgrade \
+RUN pip install coverage \
     && pip install pathos
 
 # ---------------------------------------------------------
