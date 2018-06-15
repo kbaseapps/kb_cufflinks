@@ -50,7 +50,7 @@ def handle_max_fold_change(infile):
     return outfile
 
 
-def process_cuffdiff_file(diffexpr_filepath, scratch):
+def process_cuffdiff_file(diffexpr_filepath, scratch, transcripts=False):
     cuffdiff_col_names = ['gene',
                           'log2(fold_change)',
                           'p_value',
@@ -68,10 +68,18 @@ def process_cuffdiff_file(diffexpr_filepath, scratch):
         save the files opened for writing in outfiles list, so they can be closed later
         """
         outfiles = list()
+        if transcripts:
+            reader = csv.DictReader(open(transcripts), dialect='excel-tab')
+            trans_ids = {r['tracking_id']: r['nearest_ref_id'] for r in reader}
 
         for r in rdr:
             c1 = r['sample_1']
             c2 = r['sample_2']
+            if transcripts:
+                r['gene'] = trans_ids[r['test_id']]
+                # strip out transcripts w/o a transcript
+                if r['gene'] == "-":
+                    continue
 
             cond_pair = ConditionPair(condition1=c1,
                                       condition2=c2)

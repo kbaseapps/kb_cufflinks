@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: CuffdiffInput</p>
  * <pre>
  * Required input parameters for run_Cuffdiff.
+ * input_type                  -   one of ["genes", "transcripts"]
  * expressionset_ref           -   reference for an expressionset object
  * workspace_name              -   workspace name to save the differential expression output object
  * output_obj_name             -   name of the differential expression matrix set output object
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "expressionset_ref",
     "workspace_name",
     "output_obj_name",
+    "input_type",
     "library_norm_method",
     "multi_read_correct",
     "time_series",
@@ -40,6 +42,8 @@ public class CuffdiffInput {
     private String workspaceName;
     @JsonProperty("output_obj_name")
     private String outputObjName;
+    @JsonProperty("input_type")
+    private String inputType;
     @JsonProperty("library_norm_method")
     private String libraryNormMethod;
     @JsonProperty("multi_read_correct")
@@ -92,6 +96,21 @@ public class CuffdiffInput {
 
     public CuffdiffInput withOutputObjName(String outputObjName) {
         this.outputObjName = outputObjName;
+        return this;
+    }
+
+    @JsonProperty("input_type")
+    public String getInputType() {
+        return inputType;
+    }
+
+    @JsonProperty("input_type")
+    public void setInputType(String inputType) {
+        this.inputType = inputType;
+    }
+
+    public CuffdiffInput withInputType(String inputType) {
+        this.inputType = inputType;
         return this;
     }
 
@@ -167,7 +186,7 @@ public class CuffdiffInput {
 
     @Override
     public String toString() {
-        return ((((((((((((((((("CuffdiffInput"+" [expressionsetRef=")+ expressionsetRef)+", workspaceName=")+ workspaceName)+", outputObjName=")+ outputObjName)+", libraryNormMethod=")+ libraryNormMethod)+", multiReadCorrect=")+ multiReadCorrect)+", timeSeries=")+ timeSeries)+", minAlignmentCount=")+ minAlignmentCount)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((("CuffdiffInput"+" [expressionsetRef=")+ expressionsetRef)+", workspaceName=")+ workspaceName)+", outputObjName=")+ outputObjName)+", inputType=")+ inputType)+", libraryNormMethod=")+ libraryNormMethod)+", multiReadCorrect=")+ multiReadCorrect)+", timeSeries=")+ timeSeries)+", minAlignmentCount=")+ minAlignmentCount)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

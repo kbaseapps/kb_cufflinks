@@ -48,7 +48,7 @@ module kb_cufflinks {
 
     /*
         Required input parameters for run_Cuffdiff.
-
+        input_type                  -   one of ["genes", "transcripts"]
         expressionset_ref           -   reference for an expressionset object
         workspace_name              -   workspace name to save the differential expression output object
         output_obj_name             -   name of the differential expression matrix set output object
@@ -58,6 +58,7 @@ module kb_cufflinks {
         obj_ref     expressionset_ref;
         string      workspace_name;
         string      output_obj_name;
+        string      input_type;
 
         string      library_norm_method;    /* Optional */
         boolean     multi_read_correct;     /* Optional */

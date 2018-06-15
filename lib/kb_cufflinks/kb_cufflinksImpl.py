@@ -11,6 +11,7 @@ from core.cuffdiff import CuffDiff
 from kb_cufflinks.core.cufflinks_utils import CufflinksUtils
 #END_HEADER
 
+
 class kb_cufflinks:
     '''
     Module Name:
@@ -26,9 +27,9 @@ class kb_cufflinks:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.2"
-    GIT_URL = "git@github.com:arfathpasha/kb_cufflinks.git"
-    GIT_COMMIT_HASH = "3647fda59c8fdbb8fd935cc6fe41deb3f5c5d87f"
+    VERSION = "0.1.1"
+    GIT_URL = "https://github.com/kbaseapps/kb_cufflinks.git"
+    GIT_COMMIT_HASH = "efcf8d51128b7d76d897b5d806732b5fcb6d86a3"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -71,6 +72,7 @@ class kb_cufflinks:
         self.cuffdiff_runner = CuffDiff(config, self.__SERVICES, self.__LOGGER)
         #END_CONSTRUCTOR
         pass
+
 
     def run_cufflinks(self, ctx, params):
         """
@@ -119,18 +121,20 @@ class kb_cufflinks:
     def run_Cuffdiff(self, ctx, params):
         """
         :param params: instance of type "CuffdiffInput" (Required input
-           parameters for run_Cuffdiff. expressionset_ref           -  
+           parameters for run_Cuffdiff. input_type                  -   one
+           of ["genes", "transcripts"] expressionset_ref           -  
            reference for an expressionset object workspace_name             
            -   workspace name to save the differential expression output
            object output_obj_name             -   name of the differential
            expression matrix set output object) -> structure: parameter
            "expressionset_ref" of type "obj_ref" (An X/Y/Z style reference),
            parameter "workspace_name" of String, parameter "output_obj_name"
-           of String, parameter "library_norm_method" of String, parameter
-           "multi_read_correct" of type "boolean" (A boolean - 0 for false, 1
-           for true. @range (0, 1)), parameter "time_series" of type
-           "boolean" (A boolean - 0 for false, 1 for true. @range (0, 1)),
-           parameter "min_alignment_count" of Long
+           of String, parameter "input_type" of String, parameter
+           "library_norm_method" of String, parameter "multi_read_correct" of
+           type "boolean" (A boolean - 0 for false, 1 for true. @range (0,
+           1)), parameter "time_series" of type "boolean" (A boolean - 0 for
+           false, 1 for true. @range (0, 1)), parameter "min_alignment_count"
+           of Long
         :returns: instance of type "CuffdiffResult" -> structure: parameter
            "result_directory" of String, parameter "diffExprMatrixSet_ref" of
            type "obj_ref" (An X/Y/Z style reference), parameter "report_name"

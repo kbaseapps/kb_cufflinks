@@ -316,6 +316,7 @@ CuffdiffInput is a reference to a hash where the following keys are defined:
 	expressionset_ref has a value which is a kb_cufflinks.obj_ref
 	workspace_name has a value which is a string
 	output_obj_name has a value which is a string
+	input_type has a value which is a string
 	library_norm_method has a value which is a string
 	multi_read_correct has a value which is a kb_cufflinks.boolean
 	time_series has a value which is a kb_cufflinks.boolean
@@ -340,6 +341,7 @@ CuffdiffInput is a reference to a hash where the following keys are defined:
 	expressionset_ref has a value which is a kb_cufflinks.obj_ref
 	workspace_name has a value which is a string
 	output_obj_name has a value which is a string
+	input_type has a value which is a string
 	library_norm_method has a value which is a string
 	multi_read_correct has a value which is a kb_cufflinks.boolean
 	time_series has a value which is a kb_cufflinks.boolean
@@ -665,7 +667,7 @@ overhang_tolerance has a value which is an int
 =item Description
 
 Required input parameters for run_Cuffdiff.
-
+input_type                  -   one of ["genes", "transcripts"]
 expressionset_ref           -   reference for an expressionset object
 workspace_name              -   workspace name to save the differential expression output object
 output_obj_name             -   name of the differential expression matrix set output object
@@ -680,6 +682,7 @@ a reference to a hash where the following keys are defined:
 expressionset_ref has a value which is a kb_cufflinks.obj_ref
 workspace_name has a value which is a string
 output_obj_name has a value which is a string
+input_type has a value which is a string
 library_norm_method has a value which is a string
 multi_read_correct has a value which is a kb_cufflinks.boolean
 time_series has a value which is a kb_cufflinks.boolean
@@ -695,6 +698,7 @@ a reference to a hash where the following keys are defined:
 expressionset_ref has a value which is a kb_cufflinks.obj_ref
 workspace_name has a value which is a string
 output_obj_name has a value which is a string
+input_type has a value which is a string
 library_norm_method has a value which is a string
 multi_read_correct has a value which is a kb_cufflinks.boolean
 time_series has a value which is a kb_cufflinks.boolean

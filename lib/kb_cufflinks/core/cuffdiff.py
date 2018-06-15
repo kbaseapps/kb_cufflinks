@@ -9,7 +9,7 @@ from pprint import pprint
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from DataFileUtil.baseclient import ServerError as DFUError
 from DifferentialExpressionUtils.DifferentialExpressionUtilsClient import \
-    DifferentialExpressionUtils
+DifferentialExpressionUtils
 from ExpressionUtils.ExpressionUtilsClient import ExpressionUtils
 from GenomeFileUtil.GenomeFileUtilClient import GenomeFileUtil
 from KBaseReport.KBaseReportClient import KBaseReport
@@ -502,8 +502,13 @@ class CuffDiff:
         """
         Save differential expression data with files for all condition pairs
         """
-        de_data = process_cuffdiff_file(os.path.join(cuffdiff_dir, 'gene_exp.diff'),
-                                        self.scratch)
+        if params['input_type'] == "transcripts":
+            de_data = process_cuffdiff_file(os.path.join(cuffdiff_dir, 'isoform_exp.diff'),
+                                            self.scratch,
+                                            os.path.join(cuffdiff_dir, 'isoforms.fpkm_tracking'))
+        else:
+            de_data = process_cuffdiff_file(os.path.join(cuffdiff_dir, 'gene_exp.diff'),
+                                            self.scratch)
 
         diffexpr_params = {'destination_ref': params.get(self.PARAM_IN_WS_NAME) + '/' +
                                               params.get(self.PARAM_IN_OBJ_NAME),
