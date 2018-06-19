@@ -1,3 +1,7 @@
+### Version 0.2.0
+- Add options to select genes or transcripts as output
+- update travis
+
 ### Version 0.1.0
 - Version updated for release
 
