@@ -141,6 +141,10 @@
           "target_property": "expressionset_ref"
         },
         {
+          "input_parameter" : "input_type",
+          "target_property" : "input_type"
+        },
+        {
           "input_parameter": "min_alignment_count",
           "target_property": "min_alignment_count"
         },
