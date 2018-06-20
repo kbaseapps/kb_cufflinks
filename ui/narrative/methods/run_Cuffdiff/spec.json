@@ -26,8 +26,23 @@
           "KBaseRNASeq.RNASeqExpressionSet", "KBaseSets.ExpressionSet"
         ]
       }
-    },
-    {
+    },{
+      "id": "input_type",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [ "genes" ],
+      "field_type": "dropdown",
+      "dropdown_options": {
+          "options": [{
+              "display": "Genes",
+              "value": "genes"
+          }, {
+              "display": "Transcripts",
+              "value": "transcripts"
+          }]
+      }
+  }, {
       "id": "output_obj_name",
       "optional": false,
       "advanced": false,
@@ -124,6 +139,10 @@
           "input_parameter": "expressionset_ref",
           "target_type_transform": "resolved-ref",
           "target_property": "expressionset_ref"
+        },
+        {
+          "input_parameter" : "input_type",
+          "target_property" : "input_type"
         },
         {
           "input_parameter": "min_alignment_count",

@@ -1,46 +1,21 @@
 language: python
-
 python:
 - '2.7'
-
 sudo: required
-
 services:
 - docker
-
-notifications:
-  email:
-    recipients:
-    - arfathpasha@gmail.com
-    on_success: never
-    on_failure: always
-
-env:
-  global:
-    secure: OaTBCzih0z07EXls3R5G2NLQmFXYehFPL/uT7FxRVdt7868JSF2069dH5+gl0MDvIPqQrz78FhNoosJl5K2RZRsA34GSS1SVIIhdg0C5joqRGal9WPdDfZYd5NugoGdzGBwpwPC49gYuDeaoMVMpocK2b4EttUAEFeBFBLWv7Lk8n+UPyv5QgdyFM3O1iYl0+atHLkEYiChSUn6t99jS4iUUykLwMF9NIVO79wC9QjIIonXmil4LZRPWjiSd7Xc1Yv6jaICDWkFHUdl7eXfCAJmRGwjiaqsTSi3riUx+bSYQMEBNpNA6D8xzWgKiq6SYJSRXZQmPSLXm6onOSkSlcnINjhIHMYMps9F9NNsRaGRpziM5Biu1jhdBI5ecwAd4uBzMGo2RnvddHpECJ9yxR+C2ADsRhuVJA8w1ojlPTFmP7kAzP1xOjd5BIElKWyeGxGLa+e8F2gYRcVHhFW2JriDzQDJGUFRzTJ8bar//+8PH+AZVif25fPTqAgHQ9TV/CpLBQvC+PTUMm824hZHbSTGnp08oUl1Lr5dX8W5x5qWYJV+pMYbiQCGBmP6XgXm36Ym5RqPkLSyI9KjveDQvRb9J+YwjMPtD8I5yYx2XIJy7cMJTG300fckn2BLuAOSb6MjPNleX4zcjVzXCtIZcsx9Fad0cksbVYkYiwrNFY0g=
-
-branches:
-  only:
-  - master
-
 before_install:
 - docker version
 - python --version
 - javac -version
 - java -version
-
 install:
 - pip install coveralls
-- git clone https://github.com/kbase/jars
-- git clone https://github.com/kbase/kb_sdk
-- cd kb_sdk
-- make
-- make sdkbase
-- docker images
-- export PATH=$(pwd)/bin:$PATH
-- cd ../
-- git clone https://github.com/kbaseapps/kb_cufflinks.git
-- cd kb_cufflinks
+- docker pull kbase/kb-sdk
+- docker run kbase/kb-sdk genscript > $HOME/bin/kb-sdk
+- chmod 755 $HOME/bin/kb-sdk
+- export PATH=$PATH:$HOME/bin/kb-sdk
+- kb-sdk sdkbase
 - kb-sdk test || true
 - sed -i "s/test_token=/test_token=$TEST_TOKEN/" test_local/test.cfg
 - sed -i 's\https://appdev.kbase.us/services\https://ci.kbase.us/services\' test_local/test.cfg
@@ -49,12 +24,12 @@ install:
 - sed -i 's/$(id -u)/0:0/' test_local/run_tests.sh
 - pwd=$(pwd)
 - echo "#!/bin/bash" >> test_local/run_subjob.sh
-- echo -e "$pwd/test_local/run_docker.sh run --rm --user 0:0 -v $pwd/test_local/subjobs/\$1/workdir:/kb/module/work -v $pwd/test_local/workdir/tmp:/kb/module/work/tmp \$4 -e \"SDK_CALLBACK_URL=\$3\" \$2 async" >> test_local/run_subjob.sh
+- echo -e "$pwd/test_local/run_docker.sh run --rm --user 0:0 -v $pwd/test_local/subjobs/\$1/workdir:/kb/module/work
+  -v $pwd/test_local/workdir/tmp:/kb/module/work/tmp \$4 -e \"SDK_CALLBACK_URL=\$3\"
+  \$2 async" >> test_local/run_subjob.sh
 - cat test_local/run_subjob.sh
-
 script:
 - kb-sdk test
-
 after_success:
 - cp test_local/workdir/.coverage .
 - sudo mkdir -p /kb/module/lib/
@@ -64,3 +39,6 @@ after_success:
 - cat .coverage
 - coverage report -m
 - coveralls
+env:
+  global:
+    secure: bfWPulz6vyf2wYjGM+WLUXFkdRZJLhjclmH15vjp2lBrGKkLKhJpwpNUnVKlnokZSElicqT7fCrfV1aqMVhdcMtxcikPhZ2XWPoanoeW67NJRLpypouv+M2CglNsQVpS9Zzoiy/6NIei+cZF/ag7O9ZAX/Rv1EZmOq1tQHp8Puzm5tYLbEgnQ9kchje7ZFQfkVsYGwb6z0FsVl36h1drYczYQEjM8o0UbH/BqtXooab2+43jJK6XY4M+vCgkVm39ye+0CrihC+VIegDiJysM01u0uw7iWTiJBWWpDP1wh9LIV2J1nidb2g+RP8oc1S+NwAKC7aT/G4Q+yp2GKTzGfh2WjIW+kbDf73pMjE8coiLuU50j8SyB8BLMo4Hr2hEHAncQmJK7pElVSYYyfJ85p8lB2edceft/hU7Rr4G/gpjemD8Cdi76axzkOWWWWTWnBxghNQy3P/X6FymzwQfOryj+eJP/WvmfhUd4GDxlvjSPojp69n+XunBSBJ1bQv13seQr4IHTOgBssrtzI2EEJ/rrtxywFAlcaPQeRfRswGt5Fof1E+tB2AoWYCcbMmInl2njDAvxZWCVguW8sQXpwe5tE1lbj5ZJgzixvMcqnTxsaW6JbYi+WT4vzVwI2dRTeQ9Z6RCjEq+cnqEIhHrYBme9QwHr3vA6tsgiLL2vKgg=

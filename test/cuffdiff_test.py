@@ -264,7 +264,8 @@ class CuffdiffTest(unittest.TestCase):
                     print('************** md5s differ **************')
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def cuffdiff_success(self, input_exprset_ref, output_obj_name, expected_obj_ref=None, expected_dir=None):
+    def cuffdiff_success(self, input_exprset_ref, output_obj_name, expected_obj_ref=None,
+                         expected_dir=None, in_type='gene'):
 
         test_name = inspect.stack()[1][3]
         print('\n*** starting expected cuffdiff success test: ' + test_name + ' **********************')
@@ -273,7 +274,8 @@ class CuffdiffTest(unittest.TestCase):
                   'workspace_name': self.getWsName(),
                   'output_obj_name': output_obj_name,
                   'library_norm_method': 'classic-fpkm',
-                  'library_type': 'fr-unstranded'
+                  'library_type': 'fr-unstranded',
+                  'input_type': in_type
                   }
 
         cuffdiff_retVal = self.getImpl().run_Cuffdiff(self.ctx, params)[0]
@@ -319,29 +321,35 @@ class CuffdiffTest(unittest.TestCase):
             self.check_files(output_dir, expected_dir)
 
     # Following test uses object refs from a narrative. Comment the next line to run the test
-    @unittest.skip("skipped test_cuffdiff_RNASeq_exprset_success")
+    #@unittest.skip("skipped test_cuffdiff_RNASeq_exprset_success")
     def test_cuffdiff_narrative_rnaseq_exprset_success(self):
         """
         Input object: downsized_AT_reads_tophat_AlignmentSet_cufflinks_ExpressionSet (4389/45/1)
         Expected output object: downsized_AT_tophat_cufflinks_cuffdiff_output (4389/58/1)
         Files in output object should be the same as in expected output object
         """
-        narrative_rnaseq_exprset_ref = '4389/45/1'
-        narrative_expected_obj_ref = '4389/58/1'
-        #narrative_rnaseq_exprset_ref = '6743/48/2'
-
-        appdev_three_by_two_diffexpr_matrixset_obj_ref = '5264/17/1'
-        appdev_three_by_two_diffexpr_matrixset_obj_name = 'three_by_two_diffexp_output'
+        narrative_rnaseq_exprset_ref = '5419/19/1'
 
         self.cuffdiff_success(narrative_rnaseq_exprset_ref,
-                              'narrative_rnaseq_exprset_cuffdiff_output',
-                              expected_obj_ref=narrative_expected_obj_ref)
+                              'narrative_rnaseq_exprset_cuffdiff_output')
+
+    # @unittest.skip("skipped test_cuffdiff_RNASeq_exprset_success")
+    def test_cuffdiff_narrative_transcripts_success(self):
+        """
+        Input object: downsized_AT_reads_tophat_AlignmentSet_cufflinks_ExpressionSet (4389/45/1)
+        Expected output object: downsized_AT_tophat_cufflinks_cuffdiff_output (4389/58/1)
+        Files in output object should be the same as in expected output object
+        """
+        narrative_rnaseq_exprset_ref = '5419/19/1'
+
+        self.cuffdiff_success(narrative_rnaseq_exprset_ref,
+                              'narrative_rnaseq_exprset_cuffdiff_output', in_type='transcripts')
 
 
     @unittest.skip("skipped test_cuffdiff_narrative_setapi_exprset_success")
     def test_cuffdiff_narrative_setapi_exprset_success(self):
 
-        narrarive_setapi_exprset_ref = '2409/348/1'
+        narrarive_setapi_exprset_ref = '2409/580/9'
 
         self.cuffdiff_success(narrarive_setapi_exprset_ref,
                               'narrative_setapi_exprset_cuffdiff_output')
@@ -358,7 +366,9 @@ class CuffdiffTest(unittest.TestCase):
             "min-intron-length": 50,
             "max-intron-length": 300000,
             "overhang-tolerance": 8,
-            "num_threads": 2
+            "num_threads": 2,
+            "expression_suffix": "_expression",
+            "expression_set_suffix": "_expression_set"
         }
         cufflinks_retval = self.getImpl().run_cufflinks(self.ctx, params)[0]
 

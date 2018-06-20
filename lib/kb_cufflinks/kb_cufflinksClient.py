@@ -86,18 +86,20 @@ class kb_cufflinks(object):
     def run_Cuffdiff(self, params, context=None):
         """
         :param params: instance of type "CuffdiffInput" (Required input
-           parameters for run_Cuffdiff. expressionset_ref           -  
+           parameters for run_Cuffdiff. input_type                  -   one
+           of ["genes", "transcripts"] expressionset_ref           -  
            reference for an expressionset object workspace_name             
            -   workspace name to save the differential expression output
            object output_obj_name             -   name of the differential
            expression matrix set output object) -> structure: parameter
            "expressionset_ref" of type "obj_ref" (An X/Y/Z style reference),
            parameter "workspace_name" of String, parameter "output_obj_name"
-           of String, parameter "library_norm_method" of String, parameter
-           "multi_read_correct" of type "boolean" (A boolean - 0 for false, 1
-           for true. @range (0, 1)), parameter "time_series" of type
-           "boolean" (A boolean - 0 for false, 1 for true. @range (0, 1)),
-           parameter "min_alignment_count" of Long
+           of String, parameter "input_type" of String, parameter
+           "library_norm_method" of String, parameter "multi_read_correct" of
+           type "boolean" (A boolean - 0 for false, 1 for true. @range (0,
+           1)), parameter "time_series" of type "boolean" (A boolean - 0 for
+           false, 1 for true. @range (0, 1)), parameter "min_alignment_count"
+           of Long
         :returns: instance of type "CuffdiffResult" -> structure: parameter
            "result_directory" of String, parameter "diffExprMatrixSet_ref" of
            type "obj_ref" (An X/Y/Z style reference), parameter "report_name"

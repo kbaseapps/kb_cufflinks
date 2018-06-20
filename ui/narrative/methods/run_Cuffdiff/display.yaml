@@ -29,6 +29,11 @@ parameters :
       Expression Set
     short-hint : |
       Select the expression set associated with transcripts assembled by Cufflinks or Stringtie
+  input_type:
+    ui-name : |
+      Data Type
+    short-hint : |
+      Should CuffDiff be run on the gene or transcript level?
   output_obj_name :
     ui-name : |
       Differential Expression Matrix Set Object Name
