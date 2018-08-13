@@ -26,10 +26,14 @@ method-suggestions :
 parameters :
   alignment_object_ref :
     ui-name : |
-        Reads Alignment or Reads AlignmentSet
+        KBaseRNASeq Alignment, Alignment Set or KbaseSets Alignment Set
     short-hint : |
-        Select RNASeqAlignment or Alignment set created by Bowtie2 or TopHat2 or HISAT2.
-        
+        Select a KBaseRNASeq alignment, alignment set or KbaseSets alignment set created by Bowtie2 or TopHat2 or HISAT2.
+  genome_ref :
+    ui-name : |
+        Genome
+    short-hint : |
+        Select the Genome that was used to build the specified alignment.
   min_intron_length :
     ui-name : |
       Minimum Intron Length
@@ -49,7 +53,7 @@ parameters :
     ui-name : |
       Expression Suffix
     short-hint : |
-      Provide a suffix for the individual expression output object names
+      Provide a suffix for the expression output object names
   expression_set_suffix :
     ui-name : |
       Expression Set Suffix
@@ -57,7 +61,7 @@ parameters :
       Provide a suffix for the expression set output object name
 
 description : |
-    <p>This App assembles transcripts for an individual Alignment or an AlignmentSet using Cufflinks so that you can view the relative abundances of the assembled transcripts in a histogram, obtained as output from Cufflinks. </p>
+    <p>This App assembles transcripts for a given sample or a sample set using Cufflinks so that you can view the relative abundances of the assembled transcripts in a histogram, obtained as output from Cufflinks. </p>
     <p>It accepts aligned RNA-seq reads from Bowtie2 or TopHat2 or HISAT2 and assembles the alignments into a parsimonious set of transcripts. It then estimates the relative abundances of these transcripts based on how many reads support each one, taking into account biases in library preparation protocols.</p>
     <p>The Cufflinks output object contains GTF and Expression Matrix files. The GTF file contains annotated transcripts assembled by Cufflinks whereas the normalized expression matrix gives the abundance of each transcript expressed in fragments per kilobase of exon per million fragments mapped (FPKM)). The FPMK Histogram tab in the Cufflinks table displays the abundance of normalized gene expression value log2(FPKM+1).</p>
 
