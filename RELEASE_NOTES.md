@@ -1,3 +1,6 @@
+### Version 0.2.1
+- Added citations in PLOS format
+
 ### Version 0.2.0
 - Add options to select genes or transcripts as output
 - update travis
