@@ -4,7 +4,7 @@
 name     : Assemble Transcripts using Cufflinks - v2.2.1
 
 tooltip  : |
-    Assemble the transcripts from RNA-seq reads using Cufflinks. 
+    Assemble the transcripts from RNA-seq reads using Cufflinks.
 screenshots :
     []
 
@@ -43,7 +43,7 @@ parameters :
     ui-name : |
       Maximum lntron Length
     short-hint : |
-      Cufflinks will not report transcripts with introns longer than this. The default is 300,000bp. 
+      Cufflinks will not report transcripts with introns longer than this. The default is 300,000bp.
   overhang_tolerance :
     ui-name : |
       Overhang Tolerance
@@ -67,21 +67,24 @@ description : |
 
     <p><strong>Team members who developed & deployed algorithm in KBase:</strong>
     Srividya Ramakrishnan, Sunita Kumari, Shinjae Yoo, Priya Ranjan, Jim Thomason, Vivek Kumar</p>
-    
+
 publications :
     -
         display-text: |
-            Trapnell C, Roberts A, Goff L, Pertea G, Kim D, Kelley DR, Pimentel H, Salzberg SL, Rinn JL, Pachter, L (2012) Differential gene and transcript expression analysis of RNA-seq experiments with TopHat and Cufflinks. Nature Protocols, 7(3), 562–578.
-        link: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3334321/
+            Kim D, Pertea G, Trapnell C, Pimentel H, Kelley R, Salzberg SL. TopHat2: accurate alignment of transcriptomes in the presence of insertions, deletions and gene fusions. Genome Biology. 2013;14: R36. doi:10.1186/gb-2013-14-4-r36
+        link: https://genomebiology.biomedcentral.com/articles/10.1186/gb-2013-14-4-r36
+
     -
         display-text: |
-            Trapnell C, Pachter L, Salzberg SL. (2009) TopHat: discovering splice junctions with RNA-Seq. Bioinformatics. Vol 25, 9:1105-1111.
-        link: http://bioinformatics.oxfordjournals.org/content/25/9/1105.abstract
+            Langmead B, Trapnell C, Pop M, Salzberg SL. Ultrafast and memory-efficient alignment of short DNA sequences to the human genome. Genome Biol. 2009;10: R25. doi:10.1186/gb-2009-10-3-r25
+        link: https://genomebiology.biomedcentral.com/articles/10.1186/gb-2009-10-3-r25
+
     -
         display-text: |
-            Kim D, Pertea G, Trapnell C, Pimentel H, Kelley R, Salzberg SL (2013) TopHat2: accurate alignment of transcriptomes in the presence of insertions, deletions and gene fusions. Genome Biology. 14:R36
-        link: http://www.genomebiology.com/2013/14/4/R36/abstract
-    -    
+            Trapnell C, Pachter L, Salzberg SL. TopHat: discovering splice junctions with RNA-Seq. Bioinformatics. 2009;25: 1105–1111. doi:10.1093/bioinformatics/btp120
+        link: https://academic.oup.com/bioinformatics/article/25/9/1105/203994
+
+    -
         display-text: |
-            Langmead B, Trapnell C, Pop M, Salzberg SL (2009) Ultrafast and memory-efficient alignment of short DNA sequences to the human genome. Genome Biology 10:R25.
-        link: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2690996/
+            Trapnell C, Roberts A, Goff L, Pertea G, Kim D, Kelley DR, et al. Differential gene and transcript expression analysis of RNA-seq experiments with TopHat and Cufflinks. Nat Protoc. 2012;7: 562–578. doi:10.1038/nprot.2012.016
+        link: https://www.nature.com/articles/nprot.2012.016
