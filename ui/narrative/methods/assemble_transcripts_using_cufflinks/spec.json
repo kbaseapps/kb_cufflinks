@@ -20,16 +20,6 @@
         "KBaseSets.ReadsAlignmentSet"]
     }
   }, {
-    "id" : "genome_ref",
-    "optional" : false,
-    "advanced" : false,
-    "allow_multiple" : false,
-    "default_values" : [ "" ],
-    "field_type" : "text",
-    "text_options" : {
-      "valid_ws_types" : ["KBaseGenomes.Genome" ]
-    }
-  }, {
    "id" : "min_intron_length",
     "optional" : true,
     "advanced" : true,
@@ -94,10 +84,6 @@
           "input_parameter" : "alignment_object_ref",
           "target_type_transform": "resolved-ref",
           "target_property" : "alignment_object_ref"
-        },
-        {
-          "input_parameter" : "genome_ref",
-          "target_property" : "genome_ref"
         },
         {
           "input_parameter" : "min_intron_length",
