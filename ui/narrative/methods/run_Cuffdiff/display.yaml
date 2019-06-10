@@ -4,7 +4,7 @@
 name     : Create Differential Expression using Cuffdiff - v2.2.1
 
 tooltip  : |
-    Identify significant changes in the gene and transcript expression level using Cuffdiff
+    Identify differential expression in the gene and transcript expression level using Cuffdiff.
 screenshots :
     []
 
@@ -17,7 +17,7 @@ method-suggestions :
     related :
         []
     next :
-        [create_expression_matrix]
+        [upload_featureset_from_diff_expr]
 
 #
 # Configure the display and description of the parameters
@@ -28,7 +28,7 @@ parameters :
     ui-name : |
       Expression Set
     short-hint : |
-      Select the expression set associated with transcripts assembled by Cufflinks or Stringtie
+      Select the expression set associated with transcripts assembled by Cufflinks or Stringtie.
   input_type:
     ui-name : |
       Data Type
@@ -36,9 +36,9 @@ parameters :
       Should CuffDiff be run on the gene or transcript level?
   output_obj_name :
     ui-name : |
-      Differential Expression Matrix Set Object Name
+      Differential Expression Matrix Set
     short-hint : |
-      Provide the name of the differential expression analysis output
+      Provide the name of the differential expression analysis output object.
   library_norm_method:
       ui-name : |
           Library Normalization Method
@@ -61,13 +61,12 @@ parameters :
           The minimum number of fragment alignments in a locus needed for a significance test on changes in that locus observed between samples. The default is 10.
 
 description : |
-    <p>This method uses the Cufflinks transcripts for two or more samples to calculate gene and transcript levels in more than one condition and finds significant changes in the expression levels.</p>
-    <p>Internally, it uses Cuffmerge to merge multiple Cufflinks generated annotation files. If more than two BAM files are provided, Cuffdiff tests for differential expression between all pairs of samples.</p>
+    <p>This App takes as input the read alignments and assembled transcripts corresponding to two or more conditions and reports genes and transcripts which are differentially expressed under different conditions. More specifically, it generates a set of differential expression matrices for selected or all pairwise condition combinations as chosen by the user.</p>
 
-    <p>Cuffdiff calculates the FPKM value of each transcript, primary transcript and gene in each sample and produces a number of output files zipped in Cuffdiff output object.</p>
-    <p>The Cuffdiff output can be further analyzed and visualized using methods such as 'Create Expression Matrix from Cuffdiff' and 'View CummeRbund Plots'.</p>
+    <p>The App also generates a zipped output file that contains FPKM tracking, count tracking, read group tracking and differential expression files for transcripts, CDSes, and genes for each condition.</p>
 
-    <p><strong>WARNING:</strong> This method is one of the steps of the <a href= "http://kbase.us/rna-seq/"> KBase RNA-seq Pipeline </a> and is not intended to run standalone.</p>
+    <p>The Cuffdiff output can be further analyzed as up and down regulated features and associated expression matrices by the downstream App “Create Up/Down Regulated FeatureSet and ExpressionMatrix”.</p>
+
 
 publications :
     -
